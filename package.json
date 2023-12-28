@@ -4,6 +4,7 @@
   "author": "Nolan Gajdascz",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "vitest",
     "buildProd": "webpack --config webpack/webpack.prod.js",
