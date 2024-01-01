@@ -96,6 +96,7 @@ const addMediumLogic = (ai) => {
       const move = this.getRandomMove();
       const result = this.sendAttack(move);
       this.processMoveResult(move, result);
+      return result;
     } else {
       const movesAround = this.findAround(this.lastHit);
       let move;
@@ -103,6 +104,7 @@ const addMediumLogic = (ai) => {
       else move = movesAround[Math.floor(Math.random() * movesAround.length)];
       const result = this.sendAttack(move);
       this.processMoveResult(move, result);
+      return result;
     }
   };
 };
@@ -144,14 +146,15 @@ const addAdvancedLogic = (ai) => {
       }
     }
     const move = bestMove ?? potentialMoves[Math.floor(Math.random() * potentialMoves.length)];
-    console.log(move);
     const result = this.sendAttack(move);
     this.processMoveResult(move, result);
+    return result;
   };
 };
 
 const initBaseAI = (isEasy = true) => {
   const ai = createPlayer();
+  ai.type = 'ai';
   Object.defineProperty(ai, 'isAI', {
     get: function () {
       return true;
@@ -194,7 +197,7 @@ const initDifficultyTwo = () => {
   return ai;
 };
 
-export default function computerAi(difficulty = 1) {
+export default function computerAI(difficulty = 1) {
   if (difficulty === 0) return initDifficultyZero();
   else if (difficulty === 1) return initDifficultyOne();
   else if (difficulty === 2) return initDifficultyTwo();

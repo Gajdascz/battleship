@@ -1,4 +1,4 @@
-import coordinateTranslator from './coordinateTranslator';
+import coordinateTranslator from '../utility/coordinateTranslator';
 
 export default function board({ rows = 10, cols = 10, letterAxis = 'row' } = {}) {
   if (rows > 25 || cols > 25) throw new Error('Board cannot have more than 25 rows or columns.');

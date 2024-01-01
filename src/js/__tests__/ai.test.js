@@ -1,5 +1,5 @@
 import { vi, describe, expect, test, beforeEach } from 'vitest';
-import computerAi from '../factories/ai';
+import computerAI from '../factories/ai';
 import { createMockBoard as board } from './__mocks__/mockModules.';
 
 const containsMove = (movesArray, move) => movesArray.some((m) => m[0] === move[0] && m[1] === move[1]);
@@ -7,7 +7,7 @@ describe('AI', () => {
   let ai;
   describe('Base AI', () => {
     beforeEach(() => {
-      ai = computerAi(0);
+      ai = computerAI(0);
       ai.board = board({ rows: 5, cols: 5, letterAxis: 'row' });
       ai.opponentsBoard = board({ rows: 5, cols: 5, letterAxis: 'row' });
       ai.initializeAvailableMoves();
@@ -42,7 +42,7 @@ describe('AI', () => {
     });
     describe.only('Advanced AI', () => {
       beforeEach(() => {
-        ai = computerAi(2);
+        ai = computerAI(2);
         ai.board = board({ rows: 10, cols: 10, letterAxis: 'row' });
         ai.opponentsBoard = board({ rows: 10, cols: 10, letterAxis: 'row' });
         ai.initializeAvailableMoves();

@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import coordinateTranslator from '../../factories/coordinateTranslator';
+import coordinateTranslator from '../../utility/coordinateTranslator';
 function createMockShip(length = 999, name = null) {
   return {
     hit: vi.fn().mockImplementation(function () {
@@ -50,4 +50,81 @@ function createMockBoard({ rows = 10, cols = 10, letterAxis = 'row' } = {}) {
   };
 }
 
-export { createMockShip, createMockBoard };
+function createMockPlayer(name = 'Mock Player') {
+  let _name = name;
+  let _wins = 0;
+  let _losses = 0;
+  let _moves = 0;
+  let _board = { outgoingAttack: () => {} };
+  let _opponentsBoard = { isBoard: true };
+  const _fleet = [];
+
+  return {
+    get name() {
+      return _name;
+    },
+    set name(newName) {
+      _name = newName;
+    },
+    get wins() {
+      return _wins;
+    },
+    get losses() {
+      return _losses;
+    },
+    get moves() {
+      return _moves;
+    },
+    get board() {
+      return _board;
+    },
+    get hasOpponentsBoard() {
+      return _opponentsBoard.isBoard;
+    },
+    set board(newBoard) {
+      _board = newBoard;
+    },
+    get fleet() {
+      return _fleet;
+    },
+    set opponentsBoard(newBoard) {
+      _opponentsBoard = newBoard;
+    },
+    get isPlayer() {
+      return true;
+    },
+    addShip: vi.fn((ship) => _fleet.push(ship)),
+    removeShip: vi.fn((removeThisShip) => {
+      const index = _fleet.findIndex((ship) => ship.name === removeThisShip);
+      if (index !== -1) {
+        _fleet.splice(index, 1);
+        return true;
+      }
+      return false;
+    }),
+    won: vi.fn(() => _wins++),
+    lost: vi.fn(() => _losses++),
+    moved: vi.fn(() => _moves++),
+    sendOutgoingAttack: vi.fn((coordinates) => _board.outgoingAttack(coordinates, _opponentsBoard)),
+    resetStats: vi.fn(() => {
+      _wins = 0;
+      _losses = 0;
+      _moves = 0;
+    }),
+    clearFleet: vi.fn(() => {
+      _fleet.length = 0;
+    })
+  };
+}
+
+function createMockAI() {
+  const ai = createMockPlayer();
+  Object.defineProperty(ai, 'isAI', {
+    get: function () {
+      return true;
+    }
+  });
+  return;
+}
+
+export { createMockShip, createMockBoard, createMockPlayer, createMockAI };

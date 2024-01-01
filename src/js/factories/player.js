@@ -1,20 +1,16 @@
-export default function createPlayer(name = '') {
+export default function createPlayer(name = '', type = 'human') {
   let _name = validateName(name);
   let _wins = 0;
   let _losses = 0;
   let _moves = 0;
   let _board = null;
-  let _fleet = [];
+  let _type = type;
+  const _fleet = [];
   let _opponentsBoard = null;
   function validateName(name) {
     if (typeof name !== 'string' || !name.trim()) return 'mutinous';
     else return name.trim();
   }
-
-  const won = () => _wins++;
-  const lost = () => _losses++;
-  const moved = () => _moves++;
-
   const addShip = (ships) => {
     if (Array.isArray(ships)) {
       ships.forEach((ship) => _fleet.push(ship));
@@ -65,11 +61,23 @@ export default function createPlayer(name = '') {
     get isPlayer() {
       return true;
     },
+    get type() {
+      return _type;
+    },
+    set type(newType) {
+      _type = newType;
+    },
     addShip,
     removeShip,
-    won,
-    lost,
-    moved,
+    won() {
+      _wins++;
+    },
+    lost() {
+      _losses++;
+    },
+    moved() {
+      _moves++;
+    },
     sendOutgoingAttack(coordinates) {
       return _board.outgoingAttack(coordinates, _opponentsBoard);
     },
@@ -77,6 +85,9 @@ export default function createPlayer(name = '') {
       _wins = 0;
       _losses = 0;
       _moves = 0;
+    },
+    clearFleet() {
+      this.fleet.length = 0;
     }
   };
 }
