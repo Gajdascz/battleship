@@ -1,6 +1,7 @@
 import coordinateTranslator from './coordinateTranslator';
 
 export default function board({ rows = 10, cols = 10, letterAxis = 'row' } = {}) {
+  if (rows > 25 || cols > 25) throw new Error('Board cannot have more than 25 rows or columns.');
   /**
    * Creates RxC grid as a 2-Dimensional array.
    * @param {number} rows - Number of rows in grid.
@@ -10,13 +11,16 @@ export default function board({ rows = 10, cols = 10, letterAxis = 'row' } = {})
   const createGrid = (rows, cols) => Array.from({ length: rows }).map(() => Array.from({ length: cols }).fill(null));
 
   // Grid containing player's ships.
-  const _mainGrid = createGrid(rows, cols);
+  let _mainGrid = createGrid(rows, cols);
 
   // Grid containing players outgoing attack results.
-  const _trackingGrid = createGrid(rows, cols);
+  let _trackingGrid = createGrid(rows, cols);
 
   // Array of player's ships this board contains.
   const _ships = [];
+
+  // Defines which axis is labeled with letters.
+  const _letterAxis = letterAxis;
 
   // Utility function used to return uniform coordinate results.
   const translator = coordinateTranslator(letterAxis);
@@ -72,19 +76,12 @@ export default function board({ rows = 10, cols = 10, letterAxis = 'row' } = {})
   const place = ({ ship, start, end }) => {
     const _start = translator(start);
     const _end = translator(end);
-    const shipCoords = [];
     const placementDirection = isHorizontal(_start, _end);
     if (isPlacementValid(_start, _end, placementDirection)) {
       if (placementDirection) {
-        for (let i = _start.col; i <= _end.col; i++) {
-          _mainGrid[_start.row][i] = ship;
-          shipCoords.push([_start.row, i]);
-        }
+        for (let i = _start.col; i <= _end.col; i++) _mainGrid[_start.row][i] = ship;
       } else {
-        for (let i = _start.row; i <= _end.row; i++) {
-          _mainGrid[i][_start.col] = ship;
-          shipCoords.push([i, _start.col]);
-        }
+        for (let i = _start.row; i <= _end.row; i++) _mainGrid[i][_start.col] = ship;
       }
     } else return false;
 
@@ -102,21 +99,60 @@ export default function board({ rows = 10, cols = 10, letterAxis = 'row' } = {})
     if (!isInBounds(coords)) return false;
     const gridLoc = _mainGrid[coords.row][coords.col];
     if (gridLoc?.isShip && gridLoc.hit()) {
-      if (gridLoc?.isSunk && this.checkShips) return -1;
-      else return true;
+      if (gridLoc.isSunk) {
+        if (this.checkShips) return -1;
+        else return 1;
+      } else return true;
     } else return false;
   }
 
-  const outgoingAttack = (coordinates) => {
+  /**
+   * Process outgoing attack and returns result.
+   * @param {coordinate[]} coordinates - Attack coordinates [letter,number] or [number,letter] depending on letterAxis.
+   * @param {Object} opponentsBoard - Instance of opponents board.
+   * @returns {boolean|1|2} - 1 if sunk opponents last ship, 2 if sunk one of opponents ships, true if hit, false if miss.
+   */
+  const outgoingAttack = (coordinates, opponentsBoard) => {
     const coords = translator(coordinates);
     if (!isInBounds(coords)) return false;
-    const gridLoc = _trackingGrid[coords.row][coords.col];
+    const attackResult = opponentsBoard.incomingAttack(coordinates);
+    if (attackResult === -1) return 1;
+    if (attackResult === 1) {
+      _trackingGrid[coords.row][coords.col] = 1;
+      return 2;
+    }
+    if (attackResult === true) {
+      _trackingGrid[coords.row][coords.col] = 1;
+      return true;
+    } else {
+      _trackingGrid[coords.row][coords.col] = 0;
+      return false;
+    }
   };
+
   return {
     place,
     incomingAttack,
+    outgoingAttack,
     get checkShips() {
       return _ships.every((ship) => ship.isSunk);
+    },
+    get mainGrid() {
+      return _mainGrid;
+    },
+    get trackingGrid() {
+      return _trackingGrid;
+    },
+    get letterAxis() {
+      return _letterAxis;
+    },
+    get isBoard() {
+      return true;
+    },
+    reset() {
+      _ships.length = 0;
+      _mainGrid = createGrid(_mainGrid.length, _mainGrid[0].length);
+      _trackingGrid = createGrid(_mainGrid.length, _mainGrid[0].length);
     }
   };
 }
