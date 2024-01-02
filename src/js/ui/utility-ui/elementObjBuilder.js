@@ -11,7 +11,7 @@ function buildElementTree({
 } = {}) {
   try {
     if ((type === 'svg' || type === 'path') && !nameSpace) nameSpace = SVGNS;
-    let element = nameSpace === null ? document.createElement(type) : document.createElementNS(nameSpace, type);
+    const element = nameSpace === null ? document.createElement(type) : document.createElementNS(nameSpace, type);
     for (const [key, value] of Object.entries(attributes)) {
       element.setAttribute(key, value);
     }
@@ -38,4 +38,4 @@ function buildElementTree({
   }
 }
 
-export { buildElementTree, createElement };
+export { buildElementTree };
