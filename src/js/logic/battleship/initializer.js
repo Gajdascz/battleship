@@ -5,7 +5,7 @@ import ship from '../factories/ship';
 
 function gameInitializers() {
   const player = (playerInfo) => {
-    return playerInfo.type === 'human' ? createPlayer(playerInfo.name) : computerAI(playerInfo.difficulty);
+    return playerInfo.type === 'human' ? createPlayer(playerInfo.name) : computerAI(+playerInfo.difficulty);
   };
 
   const playerBoards = (playerOne, playerTwo, boardOptions = { rows: 10, cols: 10, letterAxis: 'row' }) => {

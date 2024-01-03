@@ -1,8 +1,8 @@
 import { gameInitializers } from './initializer';
 
 export default function gameController({
-  playerOneInformation = { type: 'human' },
-  playerTwoInformation = { type: 'ai', difficulty: 1 },
+  playerOneInformation = { type: 'human', name: '', difficulty: '' },
+  playerTwoInformation = { type: 'ai', name: '', difficulty: 0 },
   boardOptions = { rows: 10, cols: 10, letterAxis: 'row' },
   fleetType = 'default'
 } = {}) {
