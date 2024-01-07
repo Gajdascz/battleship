@@ -1,14 +1,16 @@
-export default function createPlayer(name = '', type = 'human') {
+export default function createPlayer(name = '', type = 'human', id = '') {
   let _name = validateName(name);
   let _wins = 0;
   let _losses = 0;
   let _moves = 0;
   let _board = null;
   let _type = type;
+  let _id = id;
   const _fleet = [];
   let _opponentsBoard = null;
+
   function validateName(name) {
-    if (typeof name !== 'string' || !name.trim()) return 'mutinous';
+    if (typeof name !== 'string' || !name.trim()) return 'Mutinous';
     else return name.trim();
   }
   const addShip = (ships) => {
@@ -66,6 +68,12 @@ export default function createPlayer(name = '', type = 'human') {
     },
     set type(newType) {
       _type = newType;
+    },
+    get id() {
+      return _id;
+    },
+    set id(newID) {
+      _id = newID;
     },
     addShip,
     removeShip,

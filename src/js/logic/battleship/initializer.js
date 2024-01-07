@@ -5,7 +5,9 @@ import ship from '../factories/ship';
 
 function gameInitializers() {
   const player = (playerInfo) => {
-    return playerInfo.type === 'human' ? createPlayer(playerInfo.name) : computerAI(+playerInfo.difficulty);
+    return playerInfo.type === 'human'
+      ? createPlayer(playerInfo.name, playerInfo.type, playerInfo.id)
+      : computerAI(+playerInfo.difficulty, playerInfo.id);
   };
 
   const playerBoards = (playerOne, playerTwo, boardOptions = { rows: 10, cols: 10, letterAxis: 'row' }) => {
@@ -16,28 +18,30 @@ function gameInitializers() {
     return boardOptions;
   };
 
-  const playerFleets = (playerOne, playerTwo, fleetType = 'default') => {
-    let gameFleet;
-    if (fleetType === 'default') {
-      gameFleet = [
-        [5, 'Carrier'],
-        [4, 'Battleship'],
-        [3, 'Destroyer'],
-        [3, 'Submarine'],
-        [2, 'Patrol Board']
-      ];
-    } else if (Array.isArray(fleetType) && fleetType.length > 0) gameFleet = fleetType;
-    else playerFleets('default');
+  const playerFleets = (playerOne, playerTwo) => {
+    const gameFleet = [
+      { length: 5, name: 'Carrier' },
+      { length: 4, name: 'Battleship' },
+      { length: 3, name: 'Destroyer' },
+      { length: 3, name: 'Submarine' },
+      { length: 2, name: 'Patrol Boat' }
+    ];
     playerOne.clearFleet();
     playerTwo.clearFleet();
     gameFleet.forEach((shipInfo) => {
-      playerOne.addShip(ship(...shipInfo));
-      playerTwo.addShip(ship(...shipInfo));
+      playerOne.addShip(ship(shipInfo.length, shipInfo.name));
+      playerTwo.addShip(ship(shipInfo.length, shipInfo.name));
     });
     return gameFleet;
   };
 
-  return { player, playerBoards, playerFleets };
+  const gameMode = (playerOneType, playerTwoType) => {
+    if (playerOneType === 'human' && playerTwoType === 'ai') return 'HvA';
+    else if (playerOneType === 'human' && playerTwoType === 'human') return 'HvH';
+    else return 'AvA';
+  };
+
+  return { player, playerBoards, playerFleets, gameMode };
 }
 
 export { gameInitializers };

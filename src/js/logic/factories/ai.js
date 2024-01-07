@@ -152,9 +152,10 @@ const addAdvancedLogic = (ai) => {
   };
 };
 
-const initBaseAI = (isEasy = true) => {
+const initBaseAI = (isEasy = true, id) => {
   const ai = createPlayer();
   ai.type = 'ai';
+  ai.id = id;
   Object.defineProperty(ai, 'isAI', {
     get: function () {
       return true;
@@ -174,8 +175,8 @@ const initBaseAI = (isEasy = true) => {
   return ai;
 };
 
-const initDifficultyZero = () => {
-  const ai = initBaseAI();
+const initDifficultyZero = (id) => {
+  const ai = initBaseAI(true, id);
   ai.name = 'Seaman Bumbling BitBarnacle';
   ai.makeMove = function makeMove() {
     return this.sendAttack(this.getRandomMove());
@@ -183,22 +184,22 @@ const initDifficultyZero = () => {
   return ai;
 };
 
-const initDifficultyOne = () => {
-  const ai = initBaseAI(false);
+const initDifficultyOne = (id) => {
+  const ai = initBaseAI(false, id);
   ai.name = 'Captain CodeSmells';
   addMediumLogic(ai);
   return ai;
 };
 
-const initDifficultyTwo = () => {
-  const ai = initBaseAI(false);
+const initDifficultyTwo = (id) => {
+  const ai = initBaseAI(false, id);
   ai.name = 'Fleet Admiral ByteBeard';
   addAdvancedLogic(ai);
   return ai;
 };
 
-export default function computerAI(difficulty = 1) {
-  if (difficulty === 0) return initDifficultyZero();
-  else if (difficulty === 1) return initDifficultyOne();
-  else if (difficulty === 2) return initDifficultyTwo();
+export default function computerAI(difficulty = 1, id = '') {
+  if (difficulty === 0) return initDifficultyZero(id);
+  else if (difficulty === 1) return initDifficultyOne(id);
+  else if (difficulty === 2) return initDifficultyTwo(id);
 }

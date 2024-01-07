@@ -7,41 +7,68 @@ export default function gameController({
   fleetType = 'default'
 } = {}) {
   const initializer = gameInitializers();
-  let _playerOne = initializer.player(playerOneInformation);
-  let _playerTwo = initializer.player(playerTwoInformation);
-  let _boardOptions = initializer.playerBoards(_playerOne, _playerTwo, boardOptions);
-  let _fleet = initializer.playerFleets(_playerOne, _playerTwo, fleetType);
+  playerOneInformation.id = 'playerOne';
+  playerTwoInformation.id = 'playerTwo';
+  const _playerOne = initializer.player(playerOneInformation);
+  const _playerTwo = initializer.player(playerTwoInformation);
+  const _boardOptions = initializer.playerBoards(_playerOne, _playerTwo, boardOptions);
+  const _fleet = initializer.playerFleets(_playerOne, _playerTwo, fleetType);
+  const _gameMode = initializer.gameMode(playerOneInformation.type, playerTwoInformation.type);
   let _currentPlayer = _playerOne;
+  let _waitingPlayer = _playerTwo;
+  const switchCurrentPlayer = () => {
+    if (_currentPlayer === _playerOne) {
+      _currentPlayer = _playerTwo;
+      _waitingPlayer = _playerOne;
+    } else {
+      _currentPlayer = _playerOne;
+      _waitingPlayer = _playerTwo;
+    }
+  };
 
-  const switchCurrentPlayer = () => (_currentPlayer = _currentPlayer === _playerOne ? _playerTwo : _playerOne);
+  const isPlacementState = () => {
+    return (
+      !(_playerOne.board.placedShips === _playerOne.fleet.length) &&
+      !(_playerTwo.board.placedShips === _playerTwo.fleet.length)
+    );
+  };
+  const isInProgressState = () => {
+    return !this.isPlacementState && !this.isGameOverState;
+  };
+
+  const isGameOverState = () => {
+    return _playerOne.board.allShipsSunk || _playerTwo.board.allShipsSunk;
+  };
+
+  const placeShip = (player, coordinates) => {};
 
   return {
-    get playerOneName() {
-      return _playerOne.name;
+    get playerOne() {
+      return _playerOne;
     },
-    set playerOne(playerInformation) {
-      _playerOne = initializer.player(playerInformation);
-    },
-    get playerTwoName() {
-      return _playerTwo.name;
-    },
-    set playerTwo(playerInformation) {
-      _playerTwo = initializer.player(playerInformation);
+    get playerTwo() {
+      return _playerTwo;
     },
     get boardOptions() {
       return _boardOptions;
     },
-    set boardOptions(boardOptions) {
-      _boardOptions = initializer.playerBoards(_playerOne, _playerTwo, boardOptions);
-    },
     get gameFleet() {
       return _fleet;
     },
-    set gameFleet(fleetType) {
-      _fleet = initializer.playerFleets(_playerOne, _playerTwo, fleetType);
-    },
     get currentPlayer() {
-      return _currentPlayer.name;
+      return _currentPlayer;
+    },
+    get waitingPlayer() {
+      return _waitingPlayer;
+    },
+    get gameMode() {
+      return _gameMode;
+    },
+    get state() {
+      if (isPlacementState()) return 'placement';
+      else if (isInProgressState()) return 'inProgress';
+      else if (isGameOverState()) return 'gameOver';
+      else return 'Error';
     },
     switchCurrentPlayer
   };

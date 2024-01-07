@@ -1,7 +1,7 @@
 import coordinateTranslator from '../utility-logic/coordinateTranslator';
 
 export default function board({ rows = 10, cols = 10, letterAxis = 'row' } = {}) {
-  if (rows > 25 || cols > 25) throw new Error('Board cannot have more than 25 rows or columns.');
+  if (rows > 26 || cols > 26) throw new Error('Board cannot have more than 25 rows or columns.');
   /**
    * Creates RxC grid as a 2-Dimensional array.
    * @param {number} rows - Number of rows in grid.
@@ -134,8 +134,11 @@ export default function board({ rows = 10, cols = 10, letterAxis = 'row' } = {})
     place,
     incomingAttack,
     outgoingAttack,
-    get checkShips() {
+    get allShipsSunk() {
       return _ships.every((ship) => ship.isSunk);
+    },
+    get placedShips() {
+      return _ships.length;
     },
     get mainGrid() {
       return _mainGrid;

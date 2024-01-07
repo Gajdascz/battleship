@@ -14,12 +14,26 @@
   --navy-background: #001f3f;
   --miss: #d3d3d3;
   --hit: #ff3333;
-
+  --own-ship-hit: #b32400;
+  --unplaced-ship: #daa520;
   --grid-cell-width: 2.5em;
   --grid-cell-height: 2.5em;
 }
 input[type='text'] {
   cursor: text;
+}
+
+.opponent-ship-hit {
+  background-color: var(--hit);
+}
+.own-ship-hit {
+  background-color: var(--own-ship-hit);
+}
+.miss {
+  background-color: var(--miss);
+}
+.ship {
+  color: var(--battleship-gray);
 }
 
 .easy {
@@ -35,9 +49,6 @@ input[type='text'] {
   color: black;
 }
 
-.ship {
-  color: var(--battleship-gray);
-}
 .button.active {
   background-color: var(--radar-green);
 }
@@ -45,8 +56,14 @@ input[type='text'] {
 body {
   background-color: var(--navy-background);
   color: var(--text-white);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
 }
 
+/* Utility Bar */
+/*#region*/
 .utility-bar {
   background-color: var(--ocean-blue);
   display: flex;
@@ -58,14 +75,17 @@ body {
   font-family: 'bebas-neue';
   font-size: 3rem;
 }
+/*#endregion*/
 
 main {
   padding: 0.5em;
   height: 100vh;
+  flex: 1;
+  pad: 0.5em;
 }
 .current-player {
   text-align: center;
-  font-size: 2em;
+  font-size: 2.5em;
   font-weight: bold;
 }
 
@@ -73,6 +93,7 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-top: 1.5em;
 }
 .board {
   display: flex;
@@ -102,11 +123,104 @@ main {
   padding-right: 0.25em;
 }
 
+.tracking-grid-wrapper,
+.main-grid-wrapper {
+  display: flex;
+  height: fit-content;
+  gap: 1em;
+}
+
+/* Interactive grid cell placement colors */
+
+.grid-cell.valid-placement {
+  background-color: var(--battleship-gray);
+  border-color: var(--unplaced-ship);
+}
+.grid-cell.placed-ship {
+  background-color: var(--battleship-gray);
+  border-color: var(--radar-green);
+}
+.grid-cell.invalid-placement {
+  background-color: var(--hit);
+}
+/* Fleet list dynamic colors */
+.fleet-container > .fleet-ship-list-container > .fleet-entry[data-placed='false'] {
+  color: var(--unplaced-ship);
+}
+.fleet-container > .fleet-ship-list-container > .fleet-entry[data-placed='false'].being-placed,
+.fleet-container > .fleet-ship-list-container > .fleet-entry[data-placed='false']:hover {
+  color: var(--radar-green);
+  border-bottom: 2px solid var(--text-white);
+}
+.fleet-ship-list-container > .fleet-entry[data-placed='true'] {
+  color: var(--radar-green);
+}
+.fleet-container > .fleet-ship-list-container > .fleet-entry[data-placed='true']:hover {
+  color: var(--hit);
+  border-bottom: 2px solid var(--text-white);
+}
+.fleet-entry[data-sunk='false'] {
+  color: var(--radar-green);
+}
+.main-grid > .fleet-container > .fleet-entry[data-sunk='true'] {
+  color: var(--own-ship-hit);
+}
+
+.tracking-grid > .opponent-fleet-container > .fleet-entry[data-sunk='true'] {
+  color: var(--hit);
+}
+.opponent-fleet-container,
+.fleet-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: baseline;
+  min-width: fit-content;
+  gap: 0.25em;
+}
+.player-fleet-header {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  width: 100%;
+  border-bottom: 2px solid var(--text-white);
+}
+.fleet-entry {
+  background-color: var(--navy-background);
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  gap: 1em;
+  font-size: 1.25rem;
+}
+.fleet-ship-list-container {
+  width: 100%;
+}
+
+.submit-ships-placement-button[disabled='true'],
+.submit-ships-placement-button {
+  width: 100%;
+  padding: 0.25em;
+  font-weight: bold;
+}
+.submit-ships-placement-button[disabled='false'] {
+  background-color: var(--ocean-blue);
+  color: var(--text-white);
+  border: 2px solid var(--text-white);
+}
+
+.submit-ships-placement-button[disabled='false']:hover {
+  background-color: var(--radar-green);
+  border: var(--text-white);
+}
+
 .main-grid {
 }
 .tracking-grid {
 }
-.tracking-grid > .board-row > .grid-cell:hover {
+.tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
   background-color: var(--radar-green);
 }
 .main-grid-header,
@@ -130,6 +244,46 @@ main {
   border: 1px solid var(--text-white);
 }
 
+/* Placement State Instructions */
+/*#region*/
+.placement-state-instructions-container {
+  display: flex;
+  flex-direction: column;
+  font-size: 1.2rem;
+  padding-left: 2em;
+  padding-right: 2em;
+  gap: 0.5em;
+}
+.placement-instructions-header {
+  font-family: 'bebas-neue';
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  color: var(--radar-green);
+  border-bottom: 2px solid var(--radar-green);
+}
+.placement-controls-header {
+  font-family: 'bebas-neue';
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--radar-green);
+  border-bottom: 2px solid var(--radar-green);
+  max-width: fit-content;
+  margin-bottom: 0.25em;
+}
+.placement-controls-list-item {
+  color: var(--radar-green);
+}
+.placement-controls-instruction {
+  color: var(--text-white);
+}
+.placement-controls-button {
+  font-style: italic;
+}
+/*#endregion*/
+
+/* Settings Dialog */
+/*#region*/
 .settings-dialog[open] {
   background-color: var(--ocean-blue);
   color: var(--text-white);
@@ -228,10 +382,8 @@ main {
   background-color: var(--text-white);
   color: black;
 }
+/*#endregion*/
 
-::backdrop {
-  background-color: rgba(0, 9, 17, 0.9);
-}
 /* Footer */
 /*#region*/
 footer {
@@ -262,7 +414,9 @@ footer a {
 .hide {
   display: none;
 }
-
+::backdrop {
+  background-color: rgba(0, 9, 17, 0.9);
+}
 @media (max-width: 1200px) {
   :root {
     --grid-cell-width: 2em;
