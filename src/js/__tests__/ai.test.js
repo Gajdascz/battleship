@@ -1,16 +1,24 @@
 import { vi, describe, expect, test, beforeEach } from 'vitest';
-import computerAI from '../factories/ai';
-import { createMockBoard as board } from './__mocks__/mockModules.';
+import computerAI from '../logic/ai/ai.js';
+import { createMockBoard as board, createMockShip as ship } from './__mocks__/mockModules.';
 
 const containsMove = (movesArray, move) => movesArray.some((m) => m[0] === move[0] && m[1] === move[1]);
 describe('AI', () => {
   let ai;
+  const defaultFleet = [
+    ship(5, 'carrier'),
+    ship(4, 'battleship'),
+    ship(3, 'submarine'),
+    ship(3, 'destroyer'),
+    ship(2, 'patrol-boat')
+  ];
   describe('Base AI', () => {
     beforeEach(() => {
       ai = computerAI(0);
       ai.board = board({ rows: 5, cols: 5, letterAxis: 'row' });
       ai.opponentsBoard = board({ rows: 5, cols: 5, letterAxis: 'row' });
       ai.initializeAvailableMoves();
+      defaultFleet.forEach((ship) => ai.addShip(ship));
     });
     test.each([
       ['isAI', () => ai.isAI, true],
@@ -26,6 +34,14 @@ describe('AI', () => {
         true
       ],
       ['Get random move', () => containsMove(ai.availableMoves, ai.getRandomMove()), true],
+      [
+        'Ships Placed',
+        () => {
+          ai.placeShips();
+          return ai.board.placedShips.length === ai.fleet.length;
+        },
+        true
+      ],
       ['Send attack - Miss', () => ai.sendAttack([0, 0]), false],
       [
         'Attack is a hit',
@@ -40,7 +56,7 @@ describe('AI', () => {
     ])('Base AI %s', (description, actual, expected) => {
       expect(actual()).toEqual(expected);
     });
-    describe.only('Advanced AI', () => {
+    describe('Advanced AI', () => {
       beforeEach(() => {
         ai = computerAI(2);
         ai.board = board({ rows: 10, cols: 10, letterAxis: 'row' });

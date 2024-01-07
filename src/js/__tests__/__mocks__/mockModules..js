@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
-import coordinateTranslator from '../../utility/coordinateTranslator';
+import coordinateTranslator from '../../logic/utility-logic/coordinateTranslator';
 function createMockShip(length = 999, name = null) {
+  const _length = length;
   return {
     hit: vi.fn().mockImplementation(function () {
       return this.health-- && true;
@@ -11,7 +12,8 @@ function createMockShip(length = 999, name = null) {
     },
     health: length,
     isShip: true,
-    name: name
+    name,
+    length: _length
   };
 }
 
@@ -20,9 +22,11 @@ function createMockBoard({ rows = 10, cols = 10, letterAxis = 'row' } = {}) {
   const _trackingGrid = Array.from({ length: rows }).map(() => Array.from({ length: cols }).fill(null));
   let _letterAxis = letterAxis;
   const translator = coordinateTranslator(letterAxis);
+  const _placedShips = [];
   return {
-    place: vi.fn(function (coords) {
-      this.mainGrid[coords[0]][coords[1]] = 'ship';
+    place: vi.fn(function (coords, ship = 'ship') {
+      this.mainGrid[coords[0]][coords[1]] = ship;
+      _placedShips.push(ship);
     }),
     incomingAttack: vi.fn(function (coordinates) {
       if (coordinates[0] < 0 || coordinates[0] >= rows || coordinates[1] < 0 || coordinates[1] >= cols) return false;
