@@ -1,146 +1,103 @@
 import { buildElementTree } from '../utility-ui/elementObjBuilder';
+import { divObj, paragraphObj, btnObj, spanObj } from '../utility-ui/basicUIObjects';
+
+const placementControlsHeader = (text) => paragraphObj(text, { class: 'placement-controls-header' });
+
+const placementControlsListItem = (marker, text) => {
+  const listItem = paragraphObj(marker, { class: 'placement-controls-list-item' });
+  listItem.children = [spanObj(text, { class: 'placement-controls-instruction' })];
+  return listItem;
+};
 
 const getPlacementStateInstructions = () => {
-  return buildElementTree({
-    type: 'div',
-    attributes: { class: 'placement-state-instructions-container' },
-    children: [
-      {
-        type: 'p',
-        text: 'Placement Instructions',
-        attributes: { class: 'placement-instructions-header' }
-      },
-      {
-        type: 'div',
-        attributes: { class: 'selecting-and-placing-ships-instruction-container' },
-        children: [
-          {
-            type: 'p',
-            text: 'Selecting and Placing Ships',
-            attributes: { class: 'placement-controls-header' }
-          },
-          {
-            type: 'p',
-            text: `1. `,
-            attributes: { class: 'placement-controls-list-item' },
-            children: [
-              {
-                type: 'span',
-                text: 'To select a ship, click on it in the "Your Fleet" list using the Left-Mouse Button.',
-                attributes: { class: 'placement-controls-instruction' }
-              }
-            ]
-          },
-          {
-            type: 'p',
-            text: `2. `,
-            attributes: { class: 'placement-controls-list-item' },
-            children: [
-              {
-                type: 'span',
-                text: 'Place the selected ship on your "Home Territory" grid by clicking wth the Left-Mouse Button at the desired grid location.',
-                attributes: { class: 'placement-controls-instruction' }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        type: 'div',
-        attributes: { class: 'rotating-ships-instructions-container' },
-        children: [
-          {
-            type: 'p',
-            text: 'Rotating Ships',
-            attributes: { class: 'placement-controls-header' }
-          },
-          {
-            type: 'p',
-            text: `• `,
-            attributes: { class: 'placement-controls-list-item' },
-            children: [
-              {
-                type: 'span',
-                text: `To rotate a ship before placing it, use the `,
-                attributes: { class: 'placement-controls-instruction' }
-              },
-              {
-                type: 'span',
-                text: 'Middle-Mouse Button, Space-Bar, or the R Key.',
-                attributes: { class: 'placement-controls-button' }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        type: 'div',
-        attributes: { class: 'repositioning-ships-instructions-container' },
-        children: [
-          {
-            type: 'p',
-            text: 'Repositioning Ships',
-            attributes: { class: 'placement-controls-header' }
-          },
-          {
-            type: 'p',
-            text: `• `,
-            attributes: { class: 'placement-controls-list-item' },
-            children: [
-              {
-                type: 'span',
-                text: 'To reposition a ship that\'s already placed, click on it again in the "Your Fleet" list using the Left-Mouse Button and then place it in a new location on the grid.',
-                attributes: { class: 'placement-controls-instruction' }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        type: 'div',
-        attributes: { class: 'finalizing-placements-instructions-container' },
-        children: [
-          {
-            type: 'p',
-            text: 'Finalizing Placement',
-            attributes: { class: 'placement-controls-header' }
-          },
-          {
-            type: 'p',
-            text: `• `,
-            attributes: { class: 'placement-controls-list-item' },
-            children: [
-              {
-                type: 'span',
-                text: 'Once you have positioned all your ships, the "Submit Placements" button directly below the "Your Fleet" list will become active.',
-                attributes: { class: 'placement-controls-instruction' }
-              }
-            ]
-          },
-          {
-            type: 'p',
-            text: `• `,
-            attributes: { class: 'placement-controls-list-item' },
-            children: [
-              {
-                type: 'span',
-                text: 'Click the "Submit Placements" button to confirm your ship placements and proceed.',
-                attributes: { class: 'placement-controls-instruction' }
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  });
+  const selectingAndPlacingShips = divObj({ class: 'selecting-and-placing-ships-instructions-container' }, [
+    placementControlsHeader('Selecting and Placing Ships'),
+    placementControlsListItem(
+      `1. `,
+      'To select a ship, click on it in the "Your Fleet" list using the Left-Mouse Button.'
+    ),
+    placementControlsListItem(
+      `2. `,
+      'Place the selected ship on your "Home Territory" grid by clicking wth the Left-Mouse Button at the desired grid location.'
+    )
+  ]);
+  const rotatingShips = divObj({ class: 'rotating-ships-instructions-container' }, [
+    placementControlsHeader('Rotating Ships'),
+    placementControlsListItem(
+      `• `,
+      `To rotate a ship before placing it, use the Middle-Mouse Button, Space-Bar, or the R Key`
+    )
+  ]);
+
+  const repositioningShips = divObj({ class: 'repositioning-ships-instructions-container' }, [
+    placementControlsHeader('Repositioning Ships'),
+    placementControlsListItem(
+      `• `,
+      `To reposition a ship that\'s already placed, click on it again in the "Your Fleet" list using the Left-Mouse Button and then place it in a new location on the grid.`
+    )
+  ]);
+
+  const finalizingPlacements = divObj({ class: 'finalizing-placements-instructions-container' }, [
+    placementControlsHeader('Finalizing Placement'),
+    placementControlsListItem(
+      `• `,
+      'Once you have positioned all your ships, the "Submit Placements" button directly below the "Your Fleet" list will become active.'
+    ),
+    placementControlsListItem(`• `, 'Click the "Submit Placements" button to confirm your ship placements and proceed.')
+  ]);
+
+  return buildElementTree(
+    divObj({ class: 'placement-state-instructions-container' }, [
+      paragraphObj('Placement Instructions', { class: 'placement-instructions-header' }),
+      selectingAndPlacingShips,
+      rotatingShips,
+      repositioningShips,
+      finalizingPlacements
+    ])
+  );
 };
 
 const getSubmitShipsPlacementButton = () => {
-  return buildElementTree({
-    type: 'button',
-    text: 'Submit Placements',
-    attributes: { class: 'submit-ships-placement-button', disabled: 'true' }
-  });
+  return buildElementTree(btnObj('Submit Placements', { class: 'submit-ships-placement-button', disabled: 'true' }));
 };
 
-export { getPlacementStateInstructions, getSubmitShipsPlacementButton };
+const getAlternatePlayerDialog = () => {
+  const headerObj = paragraphObj('', { class: 'alternate-player-header' });
+  const playerNameObj = spanObj('', { class: 'next-player-name' });
+  headerObj.children = [playerNameObj];
+  const proceedButton = btnObj('Proceed', { class: 'proceed-to-next-player-button' });
+  const dialogElement = buildElementTree({
+    type: 'dialog',
+    attributes: { class: 'alternate-player-dialog' },
+    children: [playerNameObj, proceedButton]
+  });
+  const playerName = dialogElement.querySelector('.next-player-name');
+  dialogElement.querySelector('.proceed-to-next-player-button').addEventListener('click', (e) => dialogElement.close());
+  return {
+    element: dialogElement,
+    get playerName() {
+      return playerName.textContent;
+    },
+    set playerName(name) {
+      playerName.textContent = `${name}'s Turn`;
+    },
+    hideScreen: () => dialogElement.showModal()
+  };
+};
+
+const trackingGridToAIDisplay = (trackingGrid, aiName) => {
+  trackingGrid.classList.add('ai-display-tracking-grid');
+  const header = trackingGrid.querySelector('.tracking-grid-header');
+  const headerText = trackingGrid.querySelector('.tracking-grid-header > p');
+  header.classList.add('ai-display-header');
+  headerText.textContent = `${aiName}'s Attacks`;
+  trackingGrid.querySelectorAll('button.grid-cell').forEach((cell) => cell.setAttribute('disabled', true));
+  return trackingGrid;
+};
+
+export {
+  getPlacementStateInstructions,
+  getSubmitShipsPlacementButton,
+  getAlternatePlayerDialog,
+  trackingGridToAIDisplay
+};

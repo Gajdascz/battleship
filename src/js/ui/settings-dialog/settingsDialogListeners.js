@@ -46,7 +46,7 @@ const addButtonListeners = (element, submitSelector, cancelSelector, submitDiscS
     if (playerType === 'human') {
       return {
         type: playerType,
-        name: element.querySelector('input#player-one-name').value
+        name: element.querySelector(`input#${player}-name`).value
       };
     } else {
       return {

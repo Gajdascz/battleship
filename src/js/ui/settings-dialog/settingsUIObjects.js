@@ -1,3 +1,5 @@
+import { paragraphObj, divObj, btnObj } from '../utility-ui/basicUIObjects';
+
 const textNameInputObj = (player, hide = false) => {
   return {
     type: 'input',
@@ -7,30 +9,6 @@ const textNameInputObj = (player, hide = false) => {
       class: `${player}-name-text-input ${hide ? 'hide' : ''}`,
       placeholder: 'Username'
     }
-  };
-};
-
-const btnObj = (btnTxt, attributes = {}) => {
-  return {
-    type: 'button',
-    text: btnTxt,
-    attributes
-  };
-};
-
-const divObj = (attributes = {}, children) => {
-  return {
-    type: 'div',
-    attributes,
-    children
-  };
-};
-
-const paragraphObj = (text, attributes = {}) => {
-  return {
-    type: 'p',
-    text,
-    attributes
   };
 };
 

@@ -1,4 +1,4 @@
-import createPlayer from './player.js';
+import createPlayer from '../factories/player.js';
 
 const addInitializeAvailableMoves = (ai) => {
   ai.initializeAvailableMoves = function initializeAvailableMoves() {
@@ -21,7 +21,7 @@ const addRemoveAvailableMove = (ai) => {
 
 const addFormatCoordinates = (ai) => {
   ai.formatCoordinates = function formatCoordinates(coordinates) {
-    let [row, col] = coordinates;
+    const [row, col] = coordinates;
     const getLetter = (index) => String.fromCharCode(65 + index);
     if (this.board.letterAxis === 'row') return [getLetter(row), col];
     else return [row, getLetter(col)];
@@ -49,6 +49,48 @@ const addSendAttack = (ai) => {
   };
 };
 
+const addPlaceShips = (ai) => {
+  ai.placeShips = function placeShips() {
+    const maxVertical = this.board.mainGrid.length - 1;
+    const maxHorizontal = this.board.mainGrid[0].length - 1;
+    const orientationChoices = ['vertical', 'horizontal'];
+
+    const getRandomOrientation = () => orientationChoices[Math.floor(Math.random() * orientationChoices.length)];
+    const isPlacementValid = (coordinates) => coordinates.every((c) => this.board.mainGrid[c[0]][[c[1]]] === null);
+
+    this.fleet.forEach((ship) => {
+      let placed = false;
+      let attempts = 0;
+      while (!placed) {
+        const startingCell = this.getRandomMove();
+        const orientation = getRandomOrientation();
+        const cells = [];
+        const end =
+          orientation === 'vertical'
+            ? Math.min(startingCell[0] + ship.length - 1, maxVertical)
+            : Math.min(startingCell[1] + ship.length - 1, maxHorizontal);
+        const start = Math.max(end - ship.length + 1, 0);
+        for (let i = start; i <= end; i++) {
+          cells.push(orientation === 'vertical' ? [i, startingCell[1]] : [startingCell[0], i]);
+        }
+        if (isPlacementValid(cells)) {
+          const firstPlacementCell =
+            orientation === 'vertical'
+              ? this.formatCoordinates([start, startingCell[1]])
+              : this.formatCoordinates([startingCell[0], start]);
+          const lastPlacementCell =
+            orientation === 'vertical'
+              ? this.formatCoordinates([end, startingCell[1]])
+              : this.formatCoordinates([startingCell[0], end]);
+          if (this.board.place({ ship, start: firstPlacementCell, end: lastPlacementCell })) placed = true;
+        }
+        attempts++;
+        if (attempts > 250) throw new Error('AI could not find ship placement positions.');
+      }
+    });
+  };
+};
+
 const addLastHitAndDirections = (ai) => {
   ai.lastHit = null;
   ai.directions = {
@@ -69,9 +111,9 @@ const addIsWithinGrid = (ai) => {
 const addFindAround = (ai) => {
   ai.findAround = function findAround(position) {
     const movesAround = [];
-    for (let [key, value] of Object.entries(this.directions)) {
-      let dx = position[0] + value[0];
-      let dy = position[1] + value[1];
+    for (const [key, value] of Object.entries(this.directions)) {
+      const dx = position[0] + value[0];
+      const dy = position[1] + value[1];
       if (
         this.isWithinGrid([dx, dy]) &&
         (this.board.trackingGrid[dx][dy] === null || this.board.trackingGrid[dx][dy] === 1)
@@ -104,7 +146,7 @@ const addMediumLogic = (ai) => {
       else move = movesAround[Math.floor(Math.random() * movesAround.length)];
       const result = this.sendAttack(move);
       this.processMoveResult(move, result);
-      return result;
+      return { result, move };
     }
   };
 };
@@ -114,11 +156,9 @@ const addAdvancedLogic = (ai) => {
   ai.reverseDirection = (direction) => direction.map((dir) => -dir);
   ai.followHit = function followHit(position, direction, depth = 0) {
     if (depth > this.maxDepth) return null;
-    console.log(position);
-    let nextPos = position.map((coord, index) => coord + direction[index]);
-
+    const nextPos = position.map((coord, index) => coord + direction[index]);
     if (!this.isWithinGrid(nextPos)) return this.followHit(position, this.reverseDirection(direction), depth + 1);
-    let cell = this.board.trackingGrid[nextPos[0]][nextPos[1]];
+    const cell = this.board.trackingGrid[nextPos[0]][nextPos[1]];
     if (cell === null) return nextPos;
     else if (cell === 1) return this.followHit(nextPos, direction, depth + 1);
     else if (cell === 0) return this.followHit(nextPos, this.reverseDirection(direction), depth + 1);
@@ -126,13 +166,13 @@ const addAdvancedLogic = (ai) => {
   ai.makeMove = function makeMove() {
     let bestMove = null;
     const potentialMoves = [];
-    if (!this.lastHit) move = this.getRandomMove();
+    if (!this.lastHit) bestMove = this.getRandomMove();
     else {
       const movesAround = this.findAround(this.lastHit);
-      if (movesAround.length === 0) move = this.getRandomMove();
+      if (movesAround.length === 0) bestMove = this.getRandomMove();
       else {
-        for (let move of movesAround) {
-          for (let [direction, value] of Object.entries(move)) {
+        for (const move of movesAround) {
+          for (const [direction, value] of Object.entries(move)) {
             if (value === 1) {
               bestMove = this.followHit(this.lastHit, this.directions[direction]);
               break;
@@ -148,7 +188,7 @@ const addAdvancedLogic = (ai) => {
     const move = bestMove ?? potentialMoves[Math.floor(Math.random() * potentialMoves.length)];
     const result = this.sendAttack(move);
     this.processMoveResult(move, result);
-    return result;
+    return { result, move };
   };
 };
 
@@ -166,6 +206,7 @@ const initBaseAI = (isEasy = true, id) => {
   addFormatCoordinates(ai);
   addGetRandomMove(ai);
   addSendAttack(ai);
+  addPlaceShips(ai);
   if (!isEasy) {
     addLastHitAndDirections(ai);
     addIsWithinGrid(ai);
@@ -179,7 +220,9 @@ const initDifficultyZero = (id) => {
   const ai = initBaseAI(true, id);
   ai.name = 'Seaman Bumbling BitBarnacle';
   ai.makeMove = function makeMove() {
-    return this.sendAttack(this.getRandomMove());
+    const move = this.getRandomMove();
+    const result = this.sendAttack(move);
+    return { result, move: this.formatCoordinates(move) };
   };
   return ai;
 };

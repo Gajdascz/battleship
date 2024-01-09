@@ -16,7 +16,7 @@ export default function fleetPlacementStateListeners(fleetPlacementManager) {
       // Listens for ship selection and placement events.
       document.addEventListener('shipSelected', fleetPlacementManager.shipSelected);
       document.addEventListener('shipPlaced', fleetPlacementManager.shipPlaced);
-      // Listens for click even on submit button to finalize ship placements.
+      // Listens for click event on submit button to finalize ship placements.
       fleetPlacementManager.submitButton.addEventListener('click', fleetPlacementManager.submitPlacements);
     },
     remove: function () {
@@ -24,6 +24,7 @@ export default function fleetPlacementStateListeners(fleetPlacementManager) {
       document.removeEventListener('keydown', fleetPlacementManager.shipRotated);
       document.removeEventListener('shipSelected', fleetPlacementManager.shipSelected);
       document.removeEventListener('shipPlaced', fleetPlacementManager.shipPlaced);
+      document.removeEventListener('placementsSubmitted', fleetPlacementManager.submitPlacements);
       fleetPlacementManager.submitButton.removeEventListener('click', fleetPlacementManager.submitPlacements);
     }
   };

@@ -23,15 +23,16 @@ input[type='text'] {
   cursor: text;
 }
 
-.opponent-ship-hit {
+button:disabled.grid-cell[data-cell-status='hit'] {
   background-color: var(--hit);
 }
-.own-ship-hit {
-  background-color: var(--own-ship-hit);
-}
-.miss {
+button:disabled.grid-cell[data-cell-status='miss'] {
   background-color: var(--miss);
 }
+div.grid-cell.main-grid-hit-marker {
+  background-color: var(--own-ship-hit);
+}
+
 .ship {
   color: var(--battleship-gray);
 }
@@ -58,6 +59,7 @@ body {
   color: var(--text-white);
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   min-height: 100vh;
   margin: 0;
 }
@@ -81,7 +83,6 @@ main {
   padding: 0.5em;
   height: 100vh;
   flex: 1;
-  pad: 0.5em;
 }
 .current-player {
   text-align: center;
@@ -97,6 +98,8 @@ main {
 }
 .board {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.5em;
 }
 .board-row {
@@ -143,32 +146,45 @@ main {
 .grid-cell.invalid-placement {
   background-color: var(--hit);
 }
-/* Fleet list dynamic colors */
-.fleet-container > .fleet-ship-list-container > .fleet-entry[data-placed='false'] {
+/* Fleet List Dynamic Colors */
+/* Player's Fleet (main grid) */
+button.fleet-entry[data-placed='false'] {
   color: var(--unplaced-ship);
 }
-.fleet-container > .fleet-ship-list-container > .fleet-entry[data-placed='false'].being-placed,
-.fleet-container > .fleet-ship-list-container > .fleet-entry[data-placed='false']:hover {
+button.fleet-entry[data-placed='false'].being-placed,
+button.fleet-entry[data-placed='false']:hover {
   color: var(--radar-green);
   border-bottom: 2px solid var(--text-white);
 }
-.fleet-ship-list-container > .fleet-entry[data-placed='true'] {
+button.fleet-entry[data-placed='true'] {
   color: var(--radar-green);
 }
-.fleet-container > .fleet-ship-list-container > .fleet-entry[data-placed='true']:hover {
+button.fleet-entry[data-placed='true']:hover {
   color: var(--hit);
   border-bottom: 2px solid var(--text-white);
-}
-.fleet-entry[data-sunk='false'] {
-  color: var(--radar-green);
-}
-.main-grid > .fleet-container > .fleet-entry[data-sunk='true'] {
-  color: var(--own-ship-hit);
 }
 
-.tracking-grid > .opponent-fleet-container > .fleet-entry[data-sunk='true'] {
-  color: var(--hit);
+button:disabled.fleet-entry[data-sunk='false'][data-placed='true']:hover {
+  color: var(--radar-green);
+  border: none;
 }
+button:disabled.fleet-entry[data-sunk='true'][data-placed='true']:hover {
+  color: var(--own-ship-hit);
+  border: none;
+}
+
+button:disabled.fleet-entry[data-sunk='true'][data-placed='true'] {
+  color: var(--own-ship-hit);
+  text-decoration: line-through;
+}
+div.fleet-entry[data-sunk='false'] {
+  color: var(--radar-green);
+}
+div.fleet-entry[data-sunk='true'] {
+  color: var(--hit);
+  text-decoration: line-through;
+}
+
 .opponent-fleet-container,
 .fleet-container {
   display: flex;
@@ -178,9 +194,10 @@ main {
   min-width: fit-content;
   gap: 0.25em;
 }
-.player-fleet-header {
+.opponent-fleet-container-header,
+.player-fleet-container-header {
   text-align: center;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
   width: 100%;
   border-bottom: 2px solid var(--text-white);
@@ -220,7 +237,7 @@ main {
 }
 .tracking-grid {
 }
-.tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
+.player-tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
   background-color: var(--radar-green);
 }
 .main-grid-header,
@@ -292,6 +309,9 @@ main {
   gap: 1em;
   border-radius: 10px;
   width: 50vw;
+}
+.settings-dialog[open]::backdrop {
+  background-color: rgba(0, 9, 17, 0.9);
 }
 .settings-dialog-title {
   font-size: 2rem;
@@ -384,6 +404,59 @@ main {
 }
 /*#endregion*/
 
+/* Alternating Players Dialog */
+/*#region*/
+.alternate-player-dialog[open] {
+  background-color: var(--ocean-blue);
+  color: var(--text-white);
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  border-radius: 10px;
+  width: 50vw;
+}
+.alternate-player-dialog[open]::backdrop {
+  background-color: black;
+}
+.settings-dialog-title {
+  font-size: 2rem;
+  font-weight: bold;
+  font-family: 'bebas-neue';
+  letter-spacing: 0.1rem;
+}
+.alternate-player-dialog > .next-player-name {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+}
+.alternate-player-dialog > .proceed-to-next-player-button {
+  font-size: 1.25rem;
+  font-weight: bold;
+  padding: 0.5em;
+  border-radius: 10px;
+  border: 2px solid var(--radar-green);
+  color: var(--navy-background);
+}
+.alternate-player-dialog > .proceed-to-next-player-button:hover {
+  background-color: var(--radar-green);
+  border-color: var(--navy-background);
+  color: var(--text-white);
+}
+
+/*#endregion*/
+
+.ai-display-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 10px;
+}
+.ai-display-header > p {
+  color: #ff3333;
+  border-bottom: 2px solid var(--hit);
+  font-size: 1.15rem;
+}
+
 /* Footer */
 /*#region*/
 footer {
@@ -414,9 +487,7 @@ footer a {
 .hide {
   display: none;
 }
-::backdrop {
-  background-color: rgba(0, 9, 17, 0.9);
-}
+
 @media (max-width: 1200px) {
   :root {
     --grid-cell-width: 2em;

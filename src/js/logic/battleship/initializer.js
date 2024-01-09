@@ -1,5 +1,5 @@
 import createPlayer from '../factories/player';
-import computerAI from '../factories/ai';
+import computerAI from '../ai/ai';
 import board from '../factories/board';
 import ship from '../factories/ship';
 
@@ -36,9 +36,9 @@ function gameInitializers() {
   };
 
   const gameMode = (playerOneType, playerTwoType) => {
-    if (playerOneType === 'human' && playerTwoType === 'ai') return 'HvA';
-    else if (playerOneType === 'human' && playerTwoType === 'human') return 'HvH';
-    else return 'AvA';
+    if (playerOneType === 'human' && playerTwoType === 'human') return 'HvH';
+    else if (playerOneType === 'ai' && playerTwoType === 'ai') return 'AvI';
+    else return 'HvA';
   };
 
   return { player, playerBoards, playerFleets, gameMode };

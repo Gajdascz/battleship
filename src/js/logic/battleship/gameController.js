@@ -28,19 +28,96 @@ export default function gameController({
 
   const isPlacementState = () => {
     return (
-      !(_playerOne.board.placedShips === _playerOne.fleet.length) &&
+      !(_playerOne.board.placedShips === _playerOne.fleet.length) ||
       !(_playerTwo.board.placedShips === _playerTwo.fleet.length)
     );
   };
-  const isInProgressState = () => {
-    return !this.isPlacementState && !this.isGameOverState;
+  const isInProgressState = () => !isPlacementState() && !isGameOverState();
+
+  const isGameOverState = () => _playerOne.board.allShipsSunk || _playerTwo.board.allShipsSunk;
+
+  const startGame = () => {
+    if (_playerOne.type === 'ai') _playerOne.initializeAvailableMoves();
+    if (_playerTwo.type === 'ai') _playerTwo.initializeAvailableMoves();
+    document.dispatchEvent(
+      new CustomEvent('gameStarted', {
+        detail: {
+          gameMode: _gameMode,
+          boardOptions: _boardOptions,
+          playerOne: _playerOne,
+          playerTwo: _playerTwo
+        }
+      })
+    );
+    placementState();
   };
 
-  const isGameOverState = () => {
-    return _playerOne.board.allShipsSunk || _playerTwo.board.allShipsSunk;
+  const placementState = () => {
+    if (_currentPlayer.type === 'ai') {
+      _currentPlayer.placeShips();
+      switchCurrentPlayer();
+    }
+    if (isInProgressState()) inProgressState();
+    else {
+      document.dispatchEvent(
+        new CustomEvent('gamePlacementState', {
+          detail: {
+            currentPlayer: _currentPlayer,
+            callback: onPlacementSubmission
+          }
+        })
+      );
+    }
+  };
+  const onPlacementSubmission = (placementDetails) => {
+    const placementMap = placementDetails.detail.placements;
+    _currentPlayer.fleet.forEach((ship) => {
+      const { start, end } = placementMap.get(ship.id);
+      _currentPlayer.board.place({ ship, start, end });
+    });
+    switchCurrentPlayer();
+    document.dispatchEvent(new CustomEvent('placementsProcessed'));
+    if (isPlacementState()) placementState();
+    else inProgressState();
   };
 
-  const placeShip = (player, coordinates) => {};
+  const onPlayerAttack = (attack, isAI = false) => {
+    let attackResult;
+    const event = { detail: {} };
+    if (isAI) {
+      attackResult = attack.result;
+      event.detail.coordinates = attack.move;
+    } else {
+      const { coordinates } = attack.detail;
+      attackResult = _currentPlayer.board.outgoingAttack(coordinates, _waitingPlayer.board);
+      event.detail.coordinates = coordinates;
+    }
+    if (attackResult === 1 && isGameOverState()) gameOverState();
+    else if (attackResult === false) event.detail.result = 'miss';
+    else if (attackResult === true) event.detail.result = 'hit';
+    else event.detail.result = 'shipSunk';
+    event.detail.attackingPlayer = _currentPlayer;
+    console.log(event);
+    document.dispatchEvent(new CustomEvent('attackProcessed', event));
+    switchCurrentPlayer();
+    inProgressState();
+  };
+  const inProgressState = () => {
+    if (_currentPlayer.type === 'ai') {
+      const attack = _currentPlayer.makeMove();
+      onPlayerAttack(attack, true);
+    }
+    document.dispatchEvent(
+      new CustomEvent('gameInProgressState', {
+        detail: {
+          currentPlayer: _currentPlayer,
+          callback: onPlayerAttack
+        }
+      })
+    );
+  };
+
+  const gameOverState = () => {};
 
   return {
     get playerOne() {
@@ -70,6 +147,7 @@ export default function gameController({
       else if (isGameOverState()) return 'gameOver';
       else return 'Error';
     },
-    switchCurrentPlayer
+    switchCurrentPlayer,
+    startGame
   };
 }

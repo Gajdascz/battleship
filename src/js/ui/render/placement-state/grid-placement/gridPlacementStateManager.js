@@ -147,7 +147,6 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
    */
   const shipSelected = (e) => {
     setSelectedShip(e.detail);
-    console.log(_ship.selected.element.dataset.placed === 'true');
     if (_grid.querySelector(`[data-placed-ship-name=${_ship.selected.name}]`)) clearPlacedShip(_ship.selected.name);
   };
 

@@ -1,36 +1,13 @@
+import { paragraphObj, divObj } from '../utility-ui/basicUIObjects';
+
 const getLetter = (num) => String.fromCharCode(65 + num);
 
 // Returns Objects that can be built into HTML elements
 
-const wrapperObj = (classAttr) => {
-  return {
-    type: 'div',
-    attributes: { class: classAttr }
-  };
-};
-
-const labelObj = (label, classAttr) => {
-  return {
-    type: 'div',
-    text: `${label}`,
-    attributes: { class: classAttr }
-  };
-};
-
 const gridHeaderObj = (gridType) => {
-  let text, classAttr;
-  if (gridType === 'main-grid') {
-    text = 'Home Territory';
-    classAttr = 'main-grid-header';
-  } else {
-    text = 'Enemy Territory';
-    classAttr = 'tracking-grid-header';
-  }
-  return {
-    type: 'div',
-    attributes: { class: classAttr },
-    children: [{ type: 'p', text }]
-  };
+  return divObj({ class: gridType === 'main-grid' ? 'main-grid-header' : 'tracking-grid-header' }, [
+    paragraphObj(gridType === 'main-grid' ? 'Home Territory' : 'Enemy Territory')
+  ]);
 };
 
 const gridCellObj = (row, col, elementType = 'button', isTracking) => {
@@ -49,13 +26,9 @@ const colLabelsObj = (cols, letterAxis) => {
   const colLabels = [];
   for (let i = 0; i < cols; i++) {
     const colLabel = letterAxis === 'row' ? i : getLetter(i);
-    colLabels.push(labelObj(colLabel, 'board-col-label'));
+    colLabels.push(paragraphObj(`${colLabel}`, { class: 'board-col-label' }));
   }
-  return {
-    type: 'div',
-    attributes: { class: 'board-col-labels' },
-    children: colLabels
-  };
+  return divObj({ class: 'board-col-labels' }, colLabels);
 };
 
 const buildGridRowObj = (row, cols, gridType) => {
@@ -68,7 +41,7 @@ const buildGridRowObj = (row, cols, gridType) => {
   return {
     type: 'div',
     attributes: { class: `board-row` },
-    children: [labelObj(row, 'board-row-label'), ...cells]
+    children: [paragraphObj(row, { class: 'board-row-label' }), ...cells]
   };
 };
 
@@ -88,41 +61,21 @@ const buildGridObj = (rows, cols, letterAxis, gridType) => {
 const fleetContainerObj = (gridType) => {
   let classAttr;
   const children = [];
-  const fleetShipListContainer = fleetShipListContainerObj();
+  const fleetShipListContainer = divObj({ class: 'fleet-ship-list-container' });
   if (gridType === 'main') {
     classAttr = 'fleet-container';
-    const playerFleetHeader = fleetHeaderObj('Your Fleet');
+    const playerFleetHeader = paragraphObj('Your Fleet', { class: 'player-fleet-container-header' });
     children.push(playerFleetHeader, fleetShipListContainer);
   } else {
     classAttr = 'opponent-fleet-container';
-    const opponentFleetHeader = fleetHeaderObj('Enemy Fleet');
+    const opponentFleetHeader = paragraphObj('Enemy Fleet', { class: 'opponent-fleet-container-header' });
     children.push(opponentFleetHeader, fleetShipListContainer);
   }
-  return {
-    type: 'div',
-    attributes: { class: classAttr },
-    children
-  };
-};
-
-const fleetShipListContainerObj = () => {
-  return {
-    type: 'div',
-    attributes: {
-      class: 'fleet-ship-list-container'
-    }
-  };
-};
-const fleetHeaderObj = (text) => {
-  return {
-    type: 'p',
-    text,
-    attributes: { class: 'player-fleet-header' }
-  };
+  return divObj({ class: classAttr }, children);
 };
 
 const addFleetToGridObj = (grid, gridType) => {
-  const wrapper = wrapperObj(gridType === 'main' ? 'main-grid-wrapper' : 'tracking-grid-wrapper');
+  const wrapper = divObj({ class: gridType === 'main' ? 'main-grid-wrapper' : 'tracking-grid-wrapper' });
   const fleetContainer = fleetContainerObj(gridType);
   wrapper.children = [grid, fleetContainer];
   return wrapper;

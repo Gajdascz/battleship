@@ -12,7 +12,7 @@ import {
   addRestrictNumberInputsListener
 } from './settingsDialogListeners';
 
-export function buildSettingsDialog() {
+export default function buildSettingsDialog() {
   const settingsTitle = settingsTitleObj();
   const playerInfoInputContainer = playerInfoInputContainerObj();
   const boardSettingsContainer = boardSettingsContainerObj();

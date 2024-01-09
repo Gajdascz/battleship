@@ -53,14 +53,17 @@ export default function fleetPlacementStateManager(container, submitButton) {
   };
 
   /**
-   * Updates placed ship's element attributes, pushes it to the placed ships array, and updates the submit button state.
+   * Updates placed ship's element attributes, formats placement coordinates for processing,
+   * pushes it to the placed ships array, and updates the submit button state.
    * @param {event} e - shipPlaced event trigger containing placed ship details.
    */
   const shipPlaced = (e) => {
     const { shipElement, placedCoordinates, shipName } = e.detail;
     shipElement.dataset.placed = true;
     shipElement.classList.remove('being-placed');
-    _placedShips.set(shipName, placedCoordinates);
+    let coordinates = placedCoordinates.map((coordinate) => coordinate.split(''));
+    coordinates = { start: coordinates[0], end: coordinates[coordinates.length - 1] };
+    _placedShips.set(shipName, coordinates);
     updateSubmitButtonState();
   };
 
