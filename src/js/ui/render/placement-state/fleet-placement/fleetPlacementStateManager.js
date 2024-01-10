@@ -1,3 +1,4 @@
+import { convertToInternalFormat } from '../../../../utility/coordinatesConverters';
 /**
  * Handles all logic to handle events related to ship elements and their placement.
  * Provides logic to update ship HTML elements when rotated, placed, selected, and placement submission.
@@ -61,7 +62,7 @@ export default function fleetPlacementStateManager(container, submitButton) {
     const { shipElement, placedCoordinates, shipName } = e.detail;
     shipElement.dataset.placed = true;
     shipElement.classList.remove('being-placed');
-    let coordinates = placedCoordinates.map((coordinate) => coordinate.split(''));
+    let coordinates = placedCoordinates.map((coordinates) => convertToInternalFormat(coordinates));
     coordinates = { start: coordinates[0], end: coordinates[coordinates.length - 1] };
     _placedShips.set(shipName, coordinates);
     updateSubmitButtonState();

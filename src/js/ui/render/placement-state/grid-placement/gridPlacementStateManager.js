@@ -13,7 +13,7 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
   const _letterAxis = letterAxis;
   const _maxVertical = _grid.querySelectorAll('.board-row').length - 1;
   const _maxHorizontal = _grid.querySelector('.board-row').querySelectorAll('.grid-cell').length - 1;
-  const ACHARCODE = 65;
+  const ACHARCODE = 'A'.charCodeAt();
 
   const setSelectedShip = (selectedShip) => (_ship.selected = selectedShip);
   const isShipSelected = () => _ship.selected !== null;

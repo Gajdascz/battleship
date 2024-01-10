@@ -3,7 +3,7 @@ import './styles/style.css';
 
 import buildSettingsDialog from './js/ui/settings-dialog/buildSettingsDialog';
 import gameController from './js/logic/battleship/gameController';
-import './js/ui/render/render';
+import './js/ui/render/main/render';
 const settingsDialog = buildSettingsDialog();
 document.querySelector('body').append(settingsDialog);
 //settingsDialog.showModal();

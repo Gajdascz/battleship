@@ -1,3 +1,5 @@
+import { convertToInternalFormat, convertToDisplayFormat } from '../../../utility/coordinatesConverters';
+
 const getBoardGrids = (board) => {
   const aiDisplay = board.querySelector('.ai-display-tracking-grid');
   return {
@@ -29,11 +31,10 @@ export default function inProgressStateManager(p1Board, p2Board) {
   if (p1Grids.aiDisplay && p2Grids.tracking === null) p2Grids.tracking = p1Grids.aiDisplay;
   const p1FleetLists = getBoardFleetElements(p1Board);
   const p2FleetLists = getBoardFleetElements(p2Board);
-  const getTrackingCell = (grid, coords) => grid.querySelector(`button[value=${coords[0]}${coords[1]}]`);
-  const getMainCell = (grid, coords) => grid.querySelector(`div[data-coordinates=${coords[0]}${coords[1]}]`);
-  const displayMiss = (trackingCell) => {
-    trackingCell.dataset.cellStatus = 'miss';
-  };
+  const isLetterRow = (p1Board.dataset.letterAxis = 'row');
+  const getTrackingCell = (grid, coords) => grid.querySelector(`button[value="${coords[0]}${coords[1]}"]`);
+  const getMainCell = (grid, coords) => grid.querySelector(`div[data-coordinates="${coords[0]}${coords[1]}"]`);
+  const displayMiss = (trackingCell) => (trackingCell.dataset.cellStatus = 'miss');
   const setShipElementSunk = (element) => (element.dataset.sunk = true);
 
   const displayHit = (trackingCell, opponentCell) => {
@@ -51,7 +52,7 @@ export default function inProgressStateManager(p1Board, p2Board) {
   function sendAttack(e) {
     const target = e.target.closest('button.grid-cell');
     if (!target) return;
-    const coordinates = target.value.split('');
+    const coordinates = convertToInternalFormat(target.value);
     if (target.dataset.cellStatus === 'unexplored') {
       target.setAttribute('disabled', true);
       document.dispatchEvent(
@@ -64,20 +65,21 @@ export default function inProgressStateManager(p1Board, p2Board) {
     }
   }
   function renderProcessedAttack(e) {
-    console.log(e);
-    const { attackingPlayer, result, coordinates } = e.detail;
+    const { attackingPlayer, result, coordinates, sunkShipName } = e.detail;
+    const displayCoordinates = convertToDisplayFormat(coordinates[0], coordinates[1], isLetterRow);
     const attackingPlayerTrackingGrid = attackingPlayer.id === 'playerOne' ? p1Grids.tracking : p2Grids.tracking;
-    const trackingCell = getTrackingCell(attackingPlayerTrackingGrid, coordinates);
+    const trackingCell = getTrackingCell(attackingPlayerTrackingGrid, displayCoordinates);
+    console.log(displayCoordinates);
+    console.log(trackingCell);
     if (result === 'miss') displayMiss(trackingCell);
     else {
       const opponentCell =
         attackingPlayer.id === 'playerOne'
-          ? getMainCell(p2Grids.main, coordinates)
-          : getMainCell(p1Grids.main, coordinates);
+          ? getMainCell(p2Grids.main, displayCoordinates)
+          : getMainCell(p1Grids.main, displayCoordinates);
       displayHit(trackingCell, opponentCell);
-      if (result === 'shipSunk') {
-        const shipName = opponentCell.dataset.placedShipName;
-        displayShipSunk(attackingPlayer.id, shipName);
+      if (result === 'shipSunk' || result === 'lastShipSunk') {
+        displayShipSunk(attackingPlayer.id, sunkShipName);
       }
     }
   }

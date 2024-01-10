@@ -22,7 +22,6 @@
 input[type='text'] {
   cursor: text;
 }
-
 button:disabled.grid-cell[data-cell-status='hit'] {
   background-color: var(--hit);
 }
@@ -233,12 +232,29 @@ div.fleet-entry[data-sunk='true'] {
   border: var(--text-white);
 }
 
-.main-grid {
+.end-turn-button {
+  background-color: var(--ocean-blue);
+  font-size: 1.75rem;
+  border-radius: 10px;
+  color: var(--text-white);
+  border: 3px solid var(--radar-green);
+  padding: 0.5em;
+  margin-top: 1em;
 }
-.tracking-grid {
+.end-turn-button:hover {
+  background-color: var(--radar-green);
+  border-color: var(--text-white);
 }
+
 .player-tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
   background-color: var(--radar-green);
+}
+
+.player-tracking-grid > .board-row > .grid-cell[data-cell-status='miss'] {
+  background-color: var(--miss);
+}
+.player-tracking-grid > .board-row > .grid-cell[data-cell-status='hit'] {
+  background-color: var(--hit);
 }
 .main-grid-header,
 .tracking-grid-header {

@@ -19,15 +19,6 @@ const addRemoveAvailableMove = (ai) => {
   };
 };
 
-const addFormatCoordinates = (ai) => {
-  ai.formatCoordinates = function formatCoordinates(coordinates) {
-    const [row, col] = coordinates;
-    const getLetter = (index) => String.fromCharCode(65 + index);
-    if (this.board.letterAxis === 'row') return [getLetter(row), col];
-    else return [row, getLetter(col)];
-  };
-};
-
 const addGetRandomMove = (ai) => {
   ai.getRandomMove = function getRandomMove() {
     if (this.availableMoves.length === 0) return null;
@@ -43,9 +34,8 @@ const addSendAttack = (ai) => {
       if (this.availableMoves.length > 0) validatedMove = this.getRandomMove();
       return null;
     }
-    const finalMove = this.formatCoordinates(validatedMove);
     this.removeAvailableMove(validatedMove);
-    return this.sendOutgoingAttack(finalMove);
+    return this.sendOutgoingAttack(validatedMove);
   };
 };
 
@@ -74,14 +64,8 @@ const addPlaceShips = (ai) => {
           cells.push(orientation === 'vertical' ? [i, startingCell[1]] : [startingCell[0], i]);
         }
         if (isPlacementValid(cells)) {
-          const firstPlacementCell =
-            orientation === 'vertical'
-              ? this.formatCoordinates([start, startingCell[1]])
-              : this.formatCoordinates([startingCell[0], start]);
-          const lastPlacementCell =
-            orientation === 'vertical'
-              ? this.formatCoordinates([end, startingCell[1]])
-              : this.formatCoordinates([startingCell[0], end]);
+          const firstPlacementCell = orientation === 'vertical' ? [start, startingCell[1]] : [startingCell[0], start];
+          const lastPlacementCell = orientation === 'vertical' ? [end, startingCell[1]] : [startingCell[0], end];
           if (this.board.place({ ship, start: firstPlacementCell, end: lastPlacementCell })) placed = true;
         }
         attempts++;
@@ -203,7 +187,6 @@ const initBaseAI = (isEasy = true, id) => {
   });
   addInitializeAvailableMoves(ai);
   addRemoveAvailableMove(ai);
-  addFormatCoordinates(ai);
   addGetRandomMove(ai);
   addSendAttack(ai);
   addPlaceShips(ai);
@@ -222,7 +205,7 @@ const initDifficultyZero = (id) => {
   ai.makeMove = function makeMove() {
     const move = this.getRandomMove();
     const result = this.sendAttack(move);
-    return { result, move: this.formatCoordinates(move) };
+    return { result, move };
   };
   return ai;
 };

@@ -1,4 +1,4 @@
-import { buildElementTree } from '../utility-ui/elementObjBuilder';
+import { buildElementTree } from '../../utility/elementObjBuilder';
 import { divObj, paragraphObj, btnObj, spanObj } from '../utility-ui/basicUIObjects';
 
 const placementControlsHeader = (text) => paragraphObj(text, { class: 'placement-controls-header' });
@@ -33,7 +33,7 @@ const getPlacementStateInstructions = () => {
     placementControlsHeader('Repositioning Ships'),
     placementControlsListItem(
       `• `,
-      `To reposition a ship that\'s already placed, click on it again in the "Your Fleet" list using the Left-Mouse Button and then place it in a new location on the grid.`
+      `To reposition a ship that's already placed, click on it again in the "Your Fleet" list using the Left-Mouse Button and then place it in a new location on the grid.`
     )
   ]);
 
@@ -85,6 +85,10 @@ const getAlternatePlayerDialog = () => {
   };
 };
 
+const getEndTurnButton = () => {
+  return buildElementTree(btnObj('End Turn', { class: 'end-turn-button' }));
+};
+
 const trackingGridToAIDisplay = (trackingGrid, aiName) => {
   trackingGrid.classList.add('ai-display-tracking-grid');
   const header = trackingGrid.querySelector('.tracking-grid-header');
@@ -95,9 +99,27 @@ const trackingGridToAIDisplay = (trackingGrid, aiName) => {
   return trackingGrid;
 };
 
+const getGameOverDialog = () => {
+  const gameOverDialogObj = { type: 'dialog', attributes: { class: 'game-over-dialog' } };
+  const headerObj = paragraphObj('', { class: 'game-over-dialog-header' });
+  const movesObj = paragraphObj('', { class: 'moves-to-win' });
+  const buttonContainerObj = divObj({ class: 'game-over-button-container' });
+  const playAgainButtonObj = btnObj('Play Again', { class: 'play-again-button' });
+  const closeButtonObj = btnObj('Close This Dialog', { class: 'close-this-dialog-button' });
+  buttonContainerObj.children = [playAgainButtonObj, closeButtonObj];
+  gameOverDialogObj.children = [headerObj, movesObj, buttonContainerObj];
+  const gameOverDialogElement = buildElementTree(gameOverDialogObj);
+  gameOverDialogElement
+    .querySelector('.close-this-dialog-button')
+    .addEventListener('click', (e) => gameOverDialogElement.close());
+  return gameOverDialogElement;
+};
+
 export {
   getPlacementStateInstructions,
   getSubmitShipsPlacementButton,
   getAlternatePlayerDialog,
-  trackingGridToAIDisplay
+  getEndTurnButton,
+  trackingGridToAIDisplay,
+  getGameOverDialog
 };

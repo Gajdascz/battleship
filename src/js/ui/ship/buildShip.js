@@ -1,4 +1,4 @@
-import { buildElementTree } from '../utility-ui/elementObjBuilder';
+import { buildElementTree } from '../../utility/elementObjBuilder';
 
 export default function buildShip(length, name, elementType, orientation = 'vertical') {
   let shipObj;

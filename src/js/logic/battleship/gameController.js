@@ -24,6 +24,7 @@ export default function gameController({
       _currentPlayer = _playerOne;
       _waitingPlayer = _playerTwo;
     }
+    document.dispatchEvent(new CustomEvent('playerSwitched', { detail: { currentPlayer: _currentPlayer } }));
   };
 
   const isPlacementState = () => {
@@ -45,7 +46,8 @@ export default function gameController({
           gameMode: _gameMode,
           boardOptions: _boardOptions,
           playerOne: _playerOne,
-          playerTwo: _playerTwo
+          playerTwo: _playerTwo,
+          currentPlayer: _currentPlayer
         }
       })
     );
@@ -62,7 +64,6 @@ export default function gameController({
       document.dispatchEvent(
         new CustomEvent('gamePlacementState', {
           detail: {
-            currentPlayer: _currentPlayer,
             callback: onPlacementSubmission
           }
         })
@@ -73,7 +74,8 @@ export default function gameController({
     const placementMap = placementDetails.detail.placements;
     _currentPlayer.fleet.forEach((ship) => {
       const { start, end } = placementMap.get(ship.id);
-      _currentPlayer.board.place({ ship, start, end });
+      if (!_currentPlayer.board.place({ ship, start, end }))
+        throw new Error(`${_currentPlayer.id}'s ${ship.id} Placement Failed.`);
     });
     switchCurrentPlayer();
     document.dispatchEvent(new CustomEvent('placementsProcessed'));
@@ -83,6 +85,7 @@ export default function gameController({
 
   const onPlayerAttack = (attack, isAI = false) => {
     let attackResult;
+    let gameOver = false;
     const event = { detail: {} };
     if (isAI) {
       attackResult = attack.result;
@@ -92,15 +95,23 @@ export default function gameController({
       attackResult = _currentPlayer.board.outgoingAttack(coordinates, _waitingPlayer.board);
       event.detail.coordinates = coordinates;
     }
-    if (attackResult === 1 && isGameOverState()) gameOverState();
-    else if (attackResult === false) event.detail.result = 'miss';
+    if (attackResult === 1) {
+      event.detail.result = 'lastShipSunk';
+      event.detail.sunkShipName = _waitingPlayer.board.lastShipSunk;
+      gameOver = true;
+    } else if (attackResult === false) event.detail.result = 'miss';
     else if (attackResult === true) event.detail.result = 'hit';
-    else event.detail.result = 'shipSunk';
+    else {
+      event.detail.result = 'shipSunk';
+      event.detail.sunkShipName = _waitingPlayer.board.lastShipSunk;
+    }
     event.detail.attackingPlayer = _currentPlayer;
-    console.log(event);
     document.dispatchEvent(new CustomEvent('attackProcessed', event));
-    switchCurrentPlayer();
-    inProgressState();
+    if (gameOver) gameOverState();
+    else {
+      switchCurrentPlayer();
+      inProgressState();
+    }
   };
   const inProgressState = () => {
     if (_currentPlayer.type === 'ai') {
@@ -110,14 +121,14 @@ export default function gameController({
     document.dispatchEvent(
       new CustomEvent('gameInProgressState', {
         detail: {
-          currentPlayer: _currentPlayer,
           callback: onPlayerAttack
         }
       })
     );
   };
-
-  const gameOverState = () => {};
+  const gameOverState = () => {
+    document.dispatchEvent(new CustomEvent('gameOverState'));
+  };
 
   return {
     get playerOne() {

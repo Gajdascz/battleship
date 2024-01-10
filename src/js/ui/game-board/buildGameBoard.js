@@ -1,4 +1,4 @@
-import { buildElementTree } from '../utility-ui/elementObjBuilder';
+import { buildElementTree } from '../../utility/elementObjBuilder';
 import { buildGridObj, addFleetToGridObj } from './gameBoardUIObjects';
 
 /**
