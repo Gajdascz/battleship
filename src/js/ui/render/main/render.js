@@ -2,45 +2,55 @@ import renderStateManager from './renderManager';
 import initiateRender from './initiateRender';
 
 export default (() => {
-  const renderManager = renderStateManager();
-  renderManager.addStateTransitionListeners({
-    state: 'gameInitiateState',
-    events: new Map([['gameStarted', [initiate]]])
-  });
+  const renderManager = { current: renderStateManager() };
+  const cleanRenderManager = () => {
+    renderManager.current.reset();
+    delete renderManager.current;
+    renderManager.current = renderStateManager();
+    renderManager.current.addStateTransitionListeners({
+      state: 'gameInitiateState',
+      events: new Map([['gameStarted', [initiate]]])
+    });
+  };
   function initiate(e) {
-    initiateRender(e, renderManager);
-    renderManager.addStateTransitionListeners({
+    if (!renderManager.current || !renderManager.current.isClean()) cleanRenderManager();
+    initiateRender(e, renderManager.current);
+    renderManager.current.addStateTransitionListeners({
       state: 'gamePlacementState',
       events: new Map([
         ['gamePlacementState', [renderPlacementStateUI]],
-        ['placementsProcessed', [renderManager.clearState]],
+        ['placementsProcessed', [renderManager.current.clearState]],
         ['gameInProgressState', [renderInProgressStateUI]]
       ])
     });
   }
   function renderPlacementStateUI(e) {
     const { callback } = e.detail;
-    renderManager?.hideScreen?.();
-    renderManager.syncCurrentPlayer();
-    renderManager.placementState(callback);
+    renderManager.current?.hideScreen?.();
+    renderManager.current.syncCurrentPlayer();
+    renderManager.current.placementState(callback);
   }
 
   function renderInProgressStateUI(e) {
     const { callback } = e.detail;
-    renderManager.inProgressState(callback);
-    renderManager.removeStateTransitionListeners('gamePlacementState');
-    renderManager.syncCurrentPlayer();
-    renderManager.addStateTransitionListeners({
+    renderManager.current.inProgressState(callback);
+    renderManager.current.removeStateTransitionListeners('gamePlacementState');
+    renderManager.current.syncCurrentPlayer();
+    renderManager.current.addStateTransitionListeners({
       state: 'gameInProgressState',
-      events: new Map([['playerSwitched', [renderManager.renderStrategy]]])
+      events: new Map([['playerSwitched', [renderManager.current.renderStrategy]]])
     });
-    renderManager.addStateTransitionListeners({
+    renderManager.current.addStateTransitionListeners({
       state: 'gameOverState',
-      events: new Map([['gameOverState', [renderManager.clearState, renderGameOverStateUI]]])
+      events: new Map([['gameOverState', [renderManager.current.clearState, renderGameOverStateUI]]])
     });
   }
 
   function renderGameOverStateUI(e) {
-    console.log('gameOver');
+    const { winner, callback } = e.detail;
+    renderManager.current.gameOverState(winner, callback);
+    renderManager.current.removeStateTransitionListeners('gameInProgressState');
   }
+
+  cleanRenderManager();
 })();

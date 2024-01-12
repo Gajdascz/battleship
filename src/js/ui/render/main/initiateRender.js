@@ -30,7 +30,9 @@ const initiateFleets = ({ p1Board, p1Fleet }, { p2Board, p2Fleet }) => {
 const initBoardInterface = (renderManager, detail) => {
   const { playerOne, playerTwo, boardOptions, currentPlayer } = detail;
   const container = document.querySelector('.board-container');
+  [...container?.children]?.forEach((child) => child.remove());
   renderManager.boardContainer = container;
+  renderManager.boardOptions = boardOptions;
   renderManager.currentPlayerDisplay = document.querySelector('.current-player');
   renderManager.p1Board = buildGameBoard(boardOptions);
   renderManager.p2Board = buildGameBoard(boardOptions);
@@ -57,17 +59,7 @@ const setRenderStrategy = (renderManager, detail) => {
   function strategyHumanVsAI() {
     if (renderManager.currentPlayer.type === 'human') renderManager.syncCurrentPlayer();
   }
-  function strategyAIvAI() {}
-
-  if (gameMode === 'AvA') {
-    renderManager.renderManager = strategyAIvAI;
-    const ai1TrackingGrid = renderManager.p1Board.querySelector('.tracking-grid');
-    trackingGridToAIDisplay(ai1TrackingGrid, playerOne.name);
-    const ai2TrackingGrid = renderManager.p2Board.querySelector('.tracking-grid');
-    trackingGridToAIDisplay(ai2TrackingGrid, playerTwo.name);
-    renderManager.p1Board.querySelector('.main-grid').classList.add('hide');
-    renderManager.p2Board.querySelector('.main-grid').classList.add('hide');
-  } else if (gameMode === 'HvH') {
+  if (gameMode === 'HvH') {
     renderManager.renderStrategy = strategyHumanVsHuman;
     renderManager.hideScreenDialog = getAlternatePlayerDialog();
     renderManager.endTurnBtn = getEndTurnButton();

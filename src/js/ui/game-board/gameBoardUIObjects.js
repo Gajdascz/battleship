@@ -36,12 +36,12 @@ const buildGridRowObj = (row, cols, gridType) => {
   const cellType = gridType === 'tracking-grid' ? 'button' : 'div';
   for (let i = 0; i < cols; i++) {
     const colLabel = typeof row === 'string' ? i : getLetter(i);
-    cells.push(gridCellObj(row, colLabel, cellType, gridType === 'tracking-grid'));
+    cells.push(gridCellObj(row, `${colLabel}`, cellType, gridType === 'tracking-grid'));
   }
   return {
     type: 'div',
     attributes: { class: `board-row` },
-    children: [paragraphObj(row, { class: 'board-row-label' }), ...cells]
+    children: [paragraphObj(`${row}`, { class: 'board-row-label' }), ...cells]
   };
 };
 

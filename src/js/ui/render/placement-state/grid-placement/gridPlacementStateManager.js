@@ -138,6 +138,7 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
     shipCells.forEach((cell) => {
       cell.classList.remove('placed-ship');
       cell.removeAttribute('data-placed-ship-name');
+      cell.textContent = '';
     });
   };
 
@@ -175,6 +176,7 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
     placementCells.forEach((cell) => {
       cell.classList.replace('valid-placement', 'placed-ship');
       cell.setAttribute('data-placed-ship-name', _ship.selected.name);
+      cell.textContent = _ship.selected.name.charAt(0).toUpperCase();
     });
   };
 

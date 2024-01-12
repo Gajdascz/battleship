@@ -23,8 +23,8 @@ export default function buildSettingsDialog() {
     children: [settingsTitle, playerInfoInputContainer, boardSettingsContainer, settingsButtonsContainer]
   });
 
-  addPlayersTypeSelectListeners(dialogElement, ['player-one', 'player-two']);
-  addChangeDifficultySelectListeners(dialogElement, ['player-one', 'player-two']);
+  addPlayersTypeSelectListeners(dialogElement, ['player-two']);
+  addChangeDifficultySelectListeners(dialogElement, ['player-two']);
   addButtonListeners(
     dialogElement,
     '.settings-submit-button',

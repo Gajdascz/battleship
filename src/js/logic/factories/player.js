@@ -1,6 +1,5 @@
 export default function createPlayer(name = '', type = 'human', id = '') {
   let _name = validateName(name);
-  let _moves = 0;
   let _board = null;
   let _type = type;
   let _id = id;
@@ -34,9 +33,6 @@ export default function createPlayer(name = '', type = 'human', id = '') {
     set name(newName) {
       _name = validateName(newName);
     },
-    get moves() {
-      return _moves;
-    },
     get board() {
       return _board;
     },
@@ -51,6 +47,9 @@ export default function createPlayer(name = '', type = 'human', id = '') {
     },
     set opponentsBoard(newBoard) {
       _opponentsBoard = newBoard;
+    },
+    get lastOpponentShipSunk() {
+      return _opponentsBoard.lastShipSunk;
     },
     get isPlayer() {
       return true;
@@ -69,14 +68,8 @@ export default function createPlayer(name = '', type = 'human', id = '') {
     },
     addShip,
     removeShip,
-    moved() {
-      _moves++;
-    },
     sendOutgoingAttack(coordinates) {
       return _board.outgoingAttack(coordinates, _opponentsBoard);
-    },
-    resetStats() {
-      _moves = 0;
     },
     clearFleet() {
       this.fleet.length = 0;

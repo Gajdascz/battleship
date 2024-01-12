@@ -4,6 +4,7 @@ import renderGameOverState from '../over-state/renderGameOverState';
 
 export default function renderStateManager() {
   let _boardContainer = null;
+  let _boardOptions = null;
   let _currentBoard = null;
   let _currentPlayerDisplay = null;
   let _p1Board = null;
@@ -13,9 +14,9 @@ export default function renderStateManager() {
   let _currentState = null;
   const _stateTransitionListeners = new Map();
 
-  document.addEventListener('playerSwitched', (e) => {
-    _currentPlayer = e.detail.currentPlayer;
-  });
+  const playerSwitchedCallback = (e) => (_currentPlayer = e.detail.currentPlayer);
+
+  document.addEventListener('playerSwitched', (e) => playerSwitchedCallback);
 
   const setCurrentPlayerBoard = (board) => {
     if (_currentBoard) _currentBoard.remove();
@@ -46,12 +47,12 @@ export default function renderStateManager() {
   };
   const removeStateTransitionListeners = (state) => {
     _stateTransitionListeners
-      .get(state)
-      .forEach((callbacks, event) => callbacks.forEach((callback) => document.removeEventListener(event, callback)));
+      ?.get(state)
+      ?.forEach((callbacks, event) => callbacks.forEach((callback) => document.removeEventListener(event, callback)));
     _stateTransitionListeners.delete(state);
   };
   const clearAllStateTransitionListeners = () => {
-    _stateTransitionListeners.forEach((callbacks, event) => {
+    _stateTransitionListeners?.forEach((callbacks, event) => {
       callbacks.forEach((callback) => document.removeEventListener(event, callback));
     });
     _stateTransitionListeners.clear();
@@ -68,13 +69,19 @@ export default function renderStateManager() {
     if (_currentStateComponents) clearState();
     _currentStateComponents = renderInProgressState(_p1Board, _p2Board, callback);
   };
-  const gameOverState = (callback) => {
+  const gameOverState = (winner, callback) => {
     if (_currentStateComponents) clearState();
-    _currentStateComponents = renderGameOverState();
+    _currentStateComponents = renderGameOverState(winner, callback);
   };
   return {
     get boardContainer() {
       return _boardContainer;
+    },
+    get boardOptions() {
+      return _boardOptions;
+    },
+    set boardOptions(options) {
+      _boardOptions = options;
     },
     set boardContainer(newContainer) {
       _boardContainer = newContainer;
@@ -146,17 +153,20 @@ export default function renderStateManager() {
     placementState,
     inProgressState,
     gameOverState,
+    clearAllStateTransitionListeners,
+    clearState,
+    isClean: () => _currentState === 'gameInitiateState' && _boardContainer === null,
     reset: function () {
+      clearState();
+      removeStateTransitionListeners();
       _boardContainer = null;
       _currentBoard = null;
       _currentPlayerDisplay = null;
-      _p1Board.textContent = '';
       _p1Board = null;
       _p2Board = null;
       _currentPlayer = null;
       _currentState = null;
-      clearAllStateTransitionListeners();
-      clearState();
+      document.removeEventListener('playerSwitched', playerSwitchedCallback);
     }
   };
 }

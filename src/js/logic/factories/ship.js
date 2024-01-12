@@ -31,6 +31,7 @@ export default function ship(length, name = null) {
     },
     get id() {
       return _id;
-    }
+    },
+    reset: () => (_health = _length)
   };
 }

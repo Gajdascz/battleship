@@ -1,11 +1,12 @@
 import { gameInitializers } from './initializer';
 
 export default function gameController({
-  playerOneInformation = { type: 'human', name: '', difficulty: '' },
+  playerOneInformation = { type: 'human', name: '' },
   playerTwoInformation = { type: 'ai', name: '', difficulty: 0 },
   boardOptions = { rows: 10, cols: 10, letterAxis: 'row' },
   fleetType = 'default'
 } = {}) {
+  if (playerOneInformation.type !== 'human') playerOneInformation.type = 'human';
   const initializer = gameInitializers();
   playerOneInformation.id = 'playerOne';
   playerTwoInformation.id = 'playerTwo';
@@ -16,6 +17,7 @@ export default function gameController({
   const _gameMode = initializer.gameMode(playerOneInformation.type, playerTwoInformation.type);
   let _currentPlayer = _playerOne;
   let _waitingPlayer = _playerTwo;
+  if (_playerTwo.type === 'ai') initializer.ai(_playerTwo);
   const switchCurrentPlayer = () => {
     if (_currentPlayer === _playerOne) {
       _currentPlayer = _playerTwo;
@@ -27,19 +29,14 @@ export default function gameController({
     document.dispatchEvent(new CustomEvent('playerSwitched', { detail: { currentPlayer: _currentPlayer } }));
   };
 
-  const isPlacementState = () => {
-    return (
-      !(_playerOne.board.placedShips === _playerOne.fleet.length) ||
-      !(_playerTwo.board.placedShips === _playerTwo.fleet.length)
-    );
-  };
+  const isShipsPlaced = (player) => player.board.placedShips === player.fleet.length;
+  const isPlacementState = () => !isShipsPlaced(_playerOne) || !isShipsPlaced(_playerTwo);
+
   const isInProgressState = () => !isPlacementState() && !isGameOverState();
 
   const isGameOverState = () => _playerOne.board.allShipsSunk || _playerTwo.board.allShipsSunk;
 
   const startGame = () => {
-    if (_playerOne.type === 'ai') _playerOne.initializeAvailableMoves();
-    if (_playerTwo.type === 'ai') _playerTwo.initializeAvailableMoves();
     document.dispatchEvent(
       new CustomEvent('gameStarted', {
         detail: {
@@ -55,9 +52,10 @@ export default function gameController({
   };
 
   const placementState = () => {
-    if (_currentPlayer.type === 'ai') {
+    if (_currentPlayer.type === 'ai' && !isShipsPlaced(_currentPlayer)) {
       _currentPlayer.placeShips();
       switchCurrentPlayer();
+      placementState();
     }
     if (isInProgressState()) inProgressState();
     else {
@@ -126,8 +124,26 @@ export default function gameController({
       })
     );
   };
+
+  const onReset = () => {
+    _playerOne.board.reset();
+    _playerTwo.board.reset();
+    _playerOne.fleet.forEach((ship) => ship.reset());
+    _playerTwo.fleet.forEach((ship) => ship.reset());
+    _currentPlayer = _playerOne;
+    _waitingPlayer = _playerTwo;
+    startGame();
+  };
   const gameOverState = () => {
-    document.dispatchEvent(new CustomEvent('gameOverState'));
+    const winner = _playerOne.board.allShipsSunk ? _playerTwo.name : _playerOne.name;
+    document.dispatchEvent(
+      new CustomEvent('gameOverState', {
+        detail: {
+          winner,
+          callback: onReset
+        }
+      })
+    );
   };
 
   return {

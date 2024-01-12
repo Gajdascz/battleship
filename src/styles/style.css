@@ -249,6 +249,9 @@ div.fleet-entry[data-sunk='true'] {
 .player-tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
   background-color: var(--radar-green);
 }
+.player-tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:disabled:hover {
+  background-color: var(--ocean-blue);
+}
 
 .player-tracking-grid > .board-row > .grid-cell[data-cell-status='miss'] {
   background-color: var(--miss);
@@ -275,6 +278,12 @@ div.fleet-entry[data-sunk='true'] {
   height: var(--grid-cell-width);
   background-color: var(--ocean-blue);
   border: 1px solid var(--text-white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  font-size: 1em;
+  font-weight: bolder;
 }
 
 /* Placement State Instructions */

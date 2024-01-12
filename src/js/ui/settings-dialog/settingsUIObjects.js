@@ -33,10 +33,10 @@ const selectInputObj = (id, name, options, hide = false) => {
 };
 
 const playerTypeSelectInputObj = (player, selected) => {
-  return selectInputObj(`${player}-type`, `${player}-type`, [
-    { value: 'human', text: 'Human', isSelected: selected === 'human' },
-    { value: 'computer', text: 'Computer', isSelected: selected === 'computer' }
-  ]);
+  const children = [];
+  children.push({ value: 'human', text: 'Human', isSelected: selected === 'human' });
+  if (player === 'player-two') children.push({ value: 'ai', text: 'Computer', isSelected: selected === 'ai' });
+  return selectInputObj(`${player}-type`, `${player}-type`, children);
 };
 
 const difficultySelectInputObj = (player, hide = false) => {
@@ -104,14 +104,13 @@ const playerOneInfoInputObj = () =>
   divObj({ class: 'player-information-container' }, [
     paragraphObj('Player One', { class: 'player-one-settings-title' }),
     playerTypeSelectInputObj('player-one', 'human'),
-    textNameInputObj('player-one'),
-    difficultySelectInputObj('player-one', true)
+    textNameInputObj('player-one')
   ]);
 
 const playerTwoInfoInputObj = () =>
   divObj({ class: 'player-information-container' }, [
     paragraphObj('Player Two', { class: 'player-two-settings-title' }),
-    playerTypeSelectInputObj('player-two', 'computer'),
+    playerTypeSelectInputObj('player-two', 'ai'),
     textNameInputObj('player-two', true),
     difficultySelectInputObj('player-two')
   ]);

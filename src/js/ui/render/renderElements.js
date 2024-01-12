@@ -102,17 +102,28 @@ const trackingGridToAIDisplay = (trackingGrid, aiName) => {
 const getGameOverDialog = () => {
   const gameOverDialogObj = { type: 'dialog', attributes: { class: 'game-over-dialog' } };
   const headerObj = paragraphObj('', { class: 'game-over-dialog-header' });
-  const movesObj = paragraphObj('', { class: 'moves-to-win' });
+  const winnerName = spanObj('', { class: 'game-winner-name' });
+  const winnerText = spanObj(` Wins!`, { class: 'winner-wins-text' });
+  headerObj.children = [winnerName, winnerText];
   const buttonContainerObj = divObj({ class: 'game-over-button-container' });
   const playAgainButtonObj = btnObj('Play Again', { class: 'play-again-button' });
   const closeButtonObj = btnObj('Close This Dialog', { class: 'close-this-dialog-button' });
   buttonContainerObj.children = [playAgainButtonObj, closeButtonObj];
-  gameOverDialogObj.children = [headerObj, movesObj, buttonContainerObj];
+  gameOverDialogObj.children = [headerObj, buttonContainerObj];
   const gameOverDialogElement = buildElementTree(gameOverDialogObj);
   gameOverDialogElement
     .querySelector('.close-this-dialog-button')
     .addEventListener('click', (e) => gameOverDialogElement.close());
-  return gameOverDialogElement;
+  const winnerDisplay = gameOverDialogElement.querySelector('.game-winner-name');
+  return {
+    element: gameOverDialogElement,
+    get winner() {
+      return winnerDisplay.textContent;
+    },
+    set winner(name) {
+      winnerDisplay.textContent = name;
+    }
+  };
 };
 
 export {

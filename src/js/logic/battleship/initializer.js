@@ -5,9 +5,8 @@ import ship from '../factories/ship';
 
 function gameInitializers() {
   const player = (playerInfo) => {
-    return playerInfo.type === 'human'
-      ? createPlayer(playerInfo.name, playerInfo.type, playerInfo.id)
-      : computerAI(+playerInfo.difficulty, playerInfo.id);
+    if (playerInfo.type === 'human') return createPlayer(playerInfo.name, playerInfo.type, playerInfo.id);
+    else return computerAI(+playerInfo.difficulty, playerInfo.id);
   };
 
   const playerBoards = (playerOne, playerTwo, boardOptions = { rows: 10, cols: 10, letterAxis: 'row' }) => {
@@ -37,11 +36,17 @@ function gameInitializers() {
 
   const gameMode = (playerOneType, playerTwoType) => {
     if (playerOneType === 'human' && playerTwoType === 'human') return 'HvH';
-    else if (playerOneType === 'ai' && playerTwoType === 'ai') return 'AvI';
     else return 'HvA';
   };
 
-  return { player, playerBoards, playerFleets, gameMode };
+  const ai = (aiPlayer) => {
+    aiPlayer.initializeAvailableMoves();
+    if (aiPlayer.difficulty > 1) {
+      aiPlayer.initializeOpponentFleetTracker();
+    }
+  };
+
+  return { player, playerBoards, playerFleets, gameMode, ai };
 }
 
 export { gameInitializers };

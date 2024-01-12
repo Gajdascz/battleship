@@ -49,7 +49,6 @@ export default function board({ rows = 10, cols = 10, letterAxis = 'row' } = {})
    * @returns {boolean} - True if placement is valid, false if invalid.
    */
   const isPlacementValid = (start, end, placementDirection) => {
-    console.log(start, end);
     if (!isInBounds(start) || !isInBounds(end)) return false;
     if (placementDirection) {
       for (let i = start[1]; i <= end[1]; i++) {
