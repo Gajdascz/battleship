@@ -1,7 +1,7 @@
-export default function createPlayer(name = '', type = 'human', id = '') {
+export default function createPlayer(name = '', id = '') {
   let _name = validateName(name);
   let _board = null;
-  let _type = type;
+  let _type = 'human';
   let _id = id;
   const _fleet = [];
   let _opponentsBoard = null;

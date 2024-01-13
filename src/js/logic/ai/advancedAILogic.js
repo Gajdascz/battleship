@@ -57,13 +57,13 @@ const addFollowHit = (ai) => {
     const MISS = 0;
     const UNEXPLORED = null;
     while (reverseCalls < 2) {
+      this.visitedDirection = direction;
       console.log(currentPos, direction);
       const nextPos = getNextPosition(currentPos, direction);
       const cellValue = this.board.trackingGrid[nextPos[0]][nextPos[1]];
       if (!this.isWithinGrid(nextPos) || cellValue === MISS) {
         direction = reverseDirection(direction);
         reverseCalls++;
-        this.visitedDirection = direction;
         continue;
       }
       if (cellValue === UNEXPLORED) return { result: nextPos };

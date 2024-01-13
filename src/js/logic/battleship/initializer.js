@@ -5,7 +5,7 @@ import ship from '../factories/ship';
 
 function gameInitializers() {
   const player = (playerInfo) => {
-    if (playerInfo.type === 'human') return createPlayer(playerInfo.name, playerInfo.type, playerInfo.id);
+    if (playerInfo.type === 'human') return createPlayer(playerInfo.name, playerInfo.id);
     else return computerAI(+playerInfo.difficulty, playerInfo.id);
   };
 
@@ -34,8 +34,8 @@ function gameInitializers() {
     return gameFleet;
   };
 
-  const gameMode = (playerOneType, playerTwoType) => {
-    if (playerOneType === 'human' && playerTwoType === 'human') return 'HvH';
+  const gameMode = (playerTwoType) => {
+    if (playerTwoType === 'human') return 'HvH';
     else return 'HvA';
   };
 

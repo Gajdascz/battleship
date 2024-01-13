@@ -61,15 +61,16 @@ const buildGridObj = (rows, cols, letterAxis, gridType) => {
 const fleetContainerObj = (gridType) => {
   let classAttr;
   const children = [];
-  const fleetShipListContainer = divObj({ class: 'fleet-ship-list-container' });
   if (gridType === 'main') {
-    classAttr = 'fleet-container';
-    const playerFleetHeader = paragraphObj('Your Fleet', { class: 'player-fleet-container-header' });
-    children.push(playerFleetHeader, fleetShipListContainer);
+    const listContainer = divObj({ class: 'main-fleet-list' });
+    classAttr = 'main-fleet-list-container';
+    const playerFleetHeader = paragraphObj('Your Fleet', { class: 'main-fleet-list-container-header' });
+    children.push(playerFleetHeader, listContainer);
   } else {
-    classAttr = 'opponent-fleet-container';
-    const opponentFleetHeader = paragraphObj('Enemy Fleet', { class: 'opponent-fleet-container-header' });
-    children.push(opponentFleetHeader, fleetShipListContainer);
+    const listContainer = divObj({ class: 'tracking-fleet-list' });
+    classAttr = 'tracking-fleet-list-container';
+    const opponentFleetHeader = paragraphObj('Enemy Fleet', { class: 'tracking-fleet-list-container-header' });
+    children.push(opponentFleetHeader, listContainer);
   }
   return divObj({ class: classAttr }, children);
 };

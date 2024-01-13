@@ -16,8 +16,8 @@ const initiateFleets = ({ p1Board, p1Fleet }, { p2Board, p2Fleet }) => {
   buildAndPopulateFleet({
     board: p1Board,
     fleet: p1Fleet,
-    fleetListSelector: '.fleet-container > .fleet-ship-list-container',
-    trackingListSelector: '.opponent-fleet-container > .fleet-ship-list-container'
+    fleetListSelector: '.main-fleet-list-container',
+    trackingListSelector: '.tracking-fleet-list-container'
   });
   buildAndPopulateFleet({
     board: p2Board,
@@ -25,6 +25,20 @@ const initiateFleets = ({ p1Board, p1Fleet }, { p2Board, p2Fleet }) => {
     fleetListSelector: '.fleet-container > .fleet-ship-list-container',
     trackingListSelector: '.opponent-fleet-container > .fleet-ship-list-container'
   });
+};
+
+const createContainer = (appendTo = 'body') => {
+  const container = document.createElement('div');
+  container.classList.add('board-container');
+  document.querySelector(appendTo).append(container);
+  return container;
+};
+
+const initializeRenderController = (renderController, gameStartedEventDetail) => {
+  const { playerOne, playerTwo, boardOptions, currentPlayer } = gameStartedEventDetail;
+  let container = document.querySelector('.board-container');
+  if (!(container instanceof HTMLElement)) container = createContainer('main');
+  [...container.children]?.forEach((child) => child.remove());
 };
 
 const initBoardInterface = (renderManager, detail) => {
@@ -47,6 +61,7 @@ const initBoardInterface = (renderManager, detail) => {
 
 const setRenderStrategy = (renderManager, detail) => {
   const { gameMode, playerOne, playerTwo } = detail;
+  console.log(renderManager);
   function strategyHumanVsHuman() {
     renderManager.currentPlayerFleetList.append(renderManager.endTurnBtn);
     renderManager.endTurnBtn.onclick = () => {
@@ -57,6 +72,8 @@ const setRenderStrategy = (renderManager, detail) => {
     };
   }
   function strategyHumanVsAI() {
+    console.log(renderManager);
+    console.trace();
     if (renderManager.currentPlayer.type === 'human') renderManager.syncCurrentPlayer();
   }
   if (gameMode === 'HvH') {
@@ -84,7 +101,7 @@ const setRenderStrategy = (renderManager, detail) => {
   }
 };
 
-export default function initiateRender(e, renderManager) {
-  initBoardInterface(renderManager, e.detail);
-  setRenderStrategy(renderManager, e.detail);
+export default function initializeRender(renderController, gameStartedEvent) {
+  initializeRenderController(renderController, gameStartedEvent.detail);
+  setRenderStrategy(renderController, gameStartedEvent.detail);
 }

@@ -1,8 +1,10 @@
-import renderStateManager from './renderManager';
 import initiateRender from './initiateRender';
 
+import RenderController from './RenderController';
+
 export default (() => {
-  const renderManager = { current: renderStateManager() };
+  const renderController = RenderController();
+
   const cleanRenderManager = () => {
     renderManager.current.reset();
     delete renderManager.current;
@@ -12,7 +14,7 @@ export default (() => {
       events: new Map([['gameStarted', [initiate]]])
     });
   };
-  function initiate(e) {
+  function initiate(gameStartedEvent) {
     if (!renderManager.current || !renderManager.current.isClean()) cleanRenderManager();
     initiateRender(e, renderManager.current);
     renderManager.current.addStateTransitionListeners({

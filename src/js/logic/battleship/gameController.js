@@ -6,7 +6,6 @@ export default function gameController({
   boardOptions = { rows: 10, cols: 10, letterAxis: 'row' },
   fleetType = 'default'
 } = {}) {
-  if (playerOneInformation.type !== 'human') playerOneInformation.type = 'human';
   const initializer = gameInitializers();
   playerOneInformation.id = 'playerOne';
   playerTwoInformation.id = 'playerTwo';
@@ -14,7 +13,7 @@ export default function gameController({
   const _playerTwo = initializer.player(playerTwoInformation);
   const _boardOptions = initializer.playerBoards(_playerOne, _playerTwo, boardOptions);
   const _fleet = initializer.playerFleets(_playerOne, _playerTwo, fleetType);
-  const _gameMode = initializer.gameMode(playerOneInformation.type, playerTwoInformation.type);
+  const _gameMode = initializer.gameMode(playerTwoInformation.type);
   let _currentPlayer = _playerOne;
   let _waitingPlayer = _playerTwo;
   if (_playerTwo.type === 'ai') initializer.ai(_playerTwo);
@@ -37,6 +36,7 @@ export default function gameController({
   const isGameOverState = () => _playerOne.board.allShipsSunk || _playerTwo.board.allShipsSunk;
 
   const startGame = () => {
+    console.log(_currentPlayer);
     document.dispatchEvent(
       new CustomEvent('gameStarted', {
         detail: {

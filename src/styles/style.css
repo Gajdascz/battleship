@@ -184,8 +184,8 @@ div.fleet-entry[data-sunk='true'] {
   text-decoration: line-through;
 }
 
-.opponent-fleet-container,
-.fleet-container {
+.tracking-fleet-list-container,
+.main-fleet-list-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -193,8 +193,8 @@ div.fleet-entry[data-sunk='true'] {
   min-width: fit-content;
   gap: 0.25em;
 }
-.opponent-fleet-container-header,
-.player-fleet-container-header {
+.tracking-fleet-list-container-header,
+.main-fleet-list-container-header {
   text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
@@ -211,7 +211,9 @@ div.fleet-entry[data-sunk='true'] {
   gap: 1em;
   font-size: 1.25rem;
 }
-.fleet-ship-list-container {
+
+.main-fleet-list,
+.tracking-fleet-list {
   width: 100%;
 }
 
