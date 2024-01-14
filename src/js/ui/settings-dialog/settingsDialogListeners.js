@@ -1,14 +1,12 @@
-const addPlayersTypeSelectListeners = (element, players) => {
-  players.forEach((player) => {
-    element.querySelector(`select#${player}-type`).addEventListener('change', function (e) {
-      if (this.value === 'human') {
-        element.querySelector(`input#${player}-name`).classList.remove('hide');
-        element.querySelector(`select#${player}-difficulty`).classList.add('hide');
-      } else {
-        element.querySelector(`input#${player}-name`).classList.add('hide');
-        element.querySelector(`select#${player}-difficulty`).classList.remove('hide');
-      }
-    });
+const addPlayersTypeSelectListeners = (element, player) => {
+  element.querySelector(`select#${player}-type`).addEventListener('change', function (e) {
+    if (this.value === 'human') {
+      element.querySelector(`input#${player}-name`).classList.remove('hide');
+      element.querySelector(`select#${player}-difficulty`).classList.add('hide');
+    } else {
+      element.querySelector(`input#${player}-name`).classList.add('hide');
+      element.querySelector(`select#${player}-difficulty`).classList.remove('hide');
+    }
   });
 };
 const addChangeDifficultySelectListeners = (element, players) => {

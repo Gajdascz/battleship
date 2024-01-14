@@ -1,4 +1,4 @@
-import { getGameOverDialog } from '../renderElements';
+import { getGameOverDialog } from '../../../../gameStateElements';
 
 export default function renderGameOverState(winner, callback) {
   const gameOverDialog = getGameOverDialog();

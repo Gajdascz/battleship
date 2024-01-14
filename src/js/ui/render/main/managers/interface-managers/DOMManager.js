@@ -1,4 +1,4 @@
-import { throwError, isHTMLElement } from './ManagerUtilities';
+import { throwError, isHTMLElement } from '../ManagerUtilities';
 export default function DOMManager() {
   let _mainGridSelector = null;
   let _trackingGridSelector = null;
@@ -34,9 +34,7 @@ export default function DOMManager() {
     });
   };
 
-  const updateCurrentPlayerDisplay = (playerName) => {
-    getCurrentPlayerDisplay().textContent = `${playerName}'s Turn`;
-  };
+  const updateCurrentPlayerDisplay = (playerName) => (getCurrentPlayerDisplay().textContent = `${playerName}'s Turn`);
 
   const updateCurrentBoardDisplay = (newBoard) => {
     const container = getBoardContainer();
@@ -49,6 +47,7 @@ export default function DOMManager() {
     getBoardGrids,
     getBoardFleetLists,
     updateCurrentPlayerDisplay,
+    updateCurrentBoardDisplay,
     initialize: ({
       mainGridSelector = '.main-grid',
       trackingGridSelector = '.tracking-grid',

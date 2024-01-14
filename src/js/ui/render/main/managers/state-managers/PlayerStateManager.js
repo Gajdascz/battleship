@@ -1,6 +1,6 @@
-import { isHTMLElement, throwError } from './ManagerUtilities';
+import { isHTMLElement, throwError } from '../ManagerUtilities';
 
-export default function PlayerManager() {
+export default function PlayerStateManager() {
   let _currentPlayer = null;
   let _opponentPlayer = null;
   let _p1Board = null;
@@ -17,7 +17,7 @@ export default function PlayerManager() {
     get opponentPlayerBoard() {
       return _currentPlayer?.id === _p2ID ? _p2Board : _p1Board;
     },
-    updateCurrentPlayerOnSwitch: () => {
+    switchCurrentPlayer: () => {
       const tempPlayer = _currentPlayer;
       _currentPlayer = _opponentPlayer;
       _opponentPlayer = tempPlayer;
@@ -25,8 +25,8 @@ export default function PlayerManager() {
     initialize: ({ currentPlayer, opponentPlayer, p1Board, p2Board, p1ID, p2ID }) => {
       if (!currentPlayer || !currentPlayer.isPlayer) throwError('currentPlayer', 'Player Object', currentPlayer);
       if (!opponentPlayer || !opponentPlayer.isPlayer) throwError('opponentPlayer', 'Player Object', opponentPlayer);
-      if (!isHTMLElement(p1Board.isBoard)) throwError('p1Board', 'Element', p1Board);
-      if (!isHTMLElement(p2Board.isBoard)) throwError('p2Board', 'Element', p2Board);
+      if (!isHTMLElement(p1Board)) throwError('p1Board', 'HTMLElement', p1Board);
+      if (!isHTMLElement(p2Board)) throwError('p2Board', 'HTMLElement', p2Board);
       if (!(typeof p1ID === 'string')) throwError('p1ID', 'string', p1ID);
       if (!(typeof p2ID === 'string')) throwError('p2ID', 'string', p2ID);
       _currentPlayer = currentPlayer;
@@ -35,6 +35,16 @@ export default function PlayerManager() {
       _p2Board = p2Board;
       _p1ID = p1ID;
       _p2ID = p2ID;
+    },
+    isInitialized: () => {
+      return (
+        _currentPlayer.isPlayer &&
+        _opponentPlayer.isPlayer &&
+        isHTMLElement(_p1Board) &&
+        isHTMLElement(_p2Board) &&
+        (_p1ID === _currentPlayer.id || _p1ID === _opponentPlayer.id) &&
+        (_p2ID === _currentPlayer.id || _p2ID === _opponentPlayer.id)
+      );
     },
     reset: () => {
       _currentPlayer = null;

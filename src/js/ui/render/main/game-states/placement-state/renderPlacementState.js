@@ -1,4 +1,4 @@
-import { getPlacementStateInstructions, getSubmitShipsPlacementButton } from '../renderElements';
+import { getPlacementStateInstructions, getSubmitShipsPlacementButton } from '../../../../gameStateElements';
 import fleetPlacementStateManager from './fleet-placement/fleetPlacementStateManager';
 import fleetPlacementStateListeners from './fleet-placement/fleetPlacementStateListeners';
 import gridPlacementStateManager from './grid-placement/gridPlacementStateManager';

@@ -1,5 +1,5 @@
-import { buildElementTree } from '../../utility/elementObjBuilder';
-import { divObj, paragraphObj, btnObj, spanObj } from '../utility-ui/basicUIObjects';
+import { buildElementTree } from '../utility/elementObjBuilder';
+import { divObj, paragraphObj, btnObj, spanObj } from './utility-ui/basicUIObjects';
 
 const placementControlsHeader = (text) => paragraphObj(text, { class: 'placement-controls-header' });
 
@@ -86,7 +86,7 @@ const getAlternatePlayerDialog = () => {
 };
 
 const getEndTurnButton = () => {
-  return buildElementTree(btnObj('End Turn', { class: 'end-turn-button' }));
+  return buildElementTree(btnObj('End Turn', { class: 'end-turn-button hide', disabled: true }));
 };
 
 const trackingGridToAIDisplay = (trackingGrid, aiName) => {

@@ -1,4 +1,7 @@
-import { convertToInternalFormat } from '../../../../utility/coordinatesConverters';
+// import { convertToInternalFormat } from '../../../../utility/coordinatesConverters';
+
+import { convertToInternalFormat } from '../../../../../../utility/coordinatesConverters';
+
 /**
  * Handles all logic to handle events related to ship elements and their placement.
  * Provides logic to update ship HTML elements when rotated, placed, selected, and placement submission.

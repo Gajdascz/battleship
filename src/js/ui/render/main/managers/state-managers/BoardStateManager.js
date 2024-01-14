@@ -1,6 +1,6 @@
-import { isHTMLElement, throwError } from './ManagerUtilities';
+import { isHTMLElement, throwError } from '../ManagerUtilities';
 
-export default function BoardManager() {
+export default function BoardStateManager() {
   let _boardOptions = null;
   let _currentBoard = null;
   let _opponentBoard = null;
@@ -18,12 +18,15 @@ export default function BoardManager() {
       _opponentBoard = tempBoard;
     },
     initialize: ({ currentBoard, opponentBoard, boardOptions }) => {
-      if (!isHTMLElement(currentBoard)) throwError('currentBoard', 'Element', currentBoard);
-      if (!isHTMLElement(opponentBoard)) throwError('opponentBoard', 'Element', opponentBoard);
+      if (!isHTMLElement(currentBoard)) throwError('currentBoard', 'HTMLElement', currentBoard);
+      if (!isHTMLElement(opponentBoard)) throwError('opponentBoard', 'HTMLElement', opponentBoard);
       if (!(boardOptions instanceof Object)) throwError('boardOptions', 'Object', boardOptions);
       _currentBoard = currentBoard;
       _opponentBoard = opponentBoard;
       _boardOptions = boardOptions;
+    },
+    isInitialized: () => {
+      return isHTMLElement(_currentBoard) && isHTMLElement(_opponentBoard) && _boardOptions instanceof Object;
     },
     reset: () => {
       _currentBoard = null;

@@ -22,8 +22,8 @@ const initiateFleets = ({ p1Board, p1Fleet }, { p2Board, p2Fleet }) => {
   buildAndPopulateFleet({
     board: p2Board,
     fleet: p2Fleet,
-    fleetListSelector: '.fleet-container > .fleet-ship-list-container',
-    trackingListSelector: '.opponent-fleet-container > .fleet-ship-list-container'
+    fleetListSelector: '.main-fleet-list-container',
+    trackingListSelector: 'tracking-fleet-list-container'
   });
 };
 
@@ -105,3 +105,15 @@ export default function initializeRender(renderController, gameStartedEvent) {
   initializeRenderController(renderController, gameStartedEvent.detail);
   setRenderStrategy(renderController, gameStartedEvent.detail);
 }
+
+const initializePlayerManager = (renderController, playerDetail) => {
+  const { currentPlayer, opponentPlayer, p1ID, p2ID, p1Board, p2Board } = playerDetail;
+  renderController.initializePlayerManager({
+    currentPlayer,
+    opponentPlayer,
+    p1ID,
+    p2ID,
+    p1Board,
+    p2Board
+  });
+};

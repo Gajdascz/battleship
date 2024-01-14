@@ -25,7 +25,27 @@ export default function gameController({
       _currentPlayer = _playerOne;
       _waitingPlayer = _playerTwo;
     }
-    document.dispatchEvent(new CustomEvent('playerSwitched', { detail: { currentPlayer: _currentPlayer } }));
+    document.dispatchEvent(new CustomEvent('playerSwitched'));
+  };
+  const isControllerInitialized = () => {
+    if (
+      !(
+        _playerOne.isPlayer &&
+        _playerOne.id === 'playerOne' &&
+        _playerOne.board.isBoard &&
+        _playerOne.fleet.length === _fleet.length &&
+        _playerTwo.isPlayer &&
+        _playerTwo.id === 'playerTwo' &&
+        _playerTwo.board.isBoard &&
+        _playerTwo.fleet.length === _fleet.length &&
+        _currentPlayer.isPlayer &&
+        _waitingPlayer.isPlayer &&
+        _currentPlayer.id !== _waitingPlayer.id
+      )
+    ) {
+      return false;
+    }
+    return true;
   };
 
   const isShipsPlaced = (player) => player.board.placedShips === player.fleet.length;
@@ -36,7 +56,6 @@ export default function gameController({
   const isGameOverState = () => _playerOne.board.allShipsSunk || _playerTwo.board.allShipsSunk;
 
   const startGame = () => {
-    console.log(_currentPlayer);
     document.dispatchEvent(
       new CustomEvent('gameStarted', {
         detail: {
@@ -44,7 +63,8 @@ export default function gameController({
           boardOptions: _boardOptions,
           playerOne: _playerOne,
           playerTwo: _playerTwo,
-          currentPlayer: _currentPlayer
+          currentPlayer: _currentPlayer,
+          waitingPlayer: _waitingPlayer
         }
       })
     );
@@ -62,7 +82,7 @@ export default function gameController({
       document.dispatchEvent(
         new CustomEvent('gamePlacementState', {
           detail: {
-            callback: onPlacementSubmission
+            onPlacementSubmission
           }
         })
       );
@@ -132,7 +152,8 @@ export default function gameController({
     _playerTwo.fleet.forEach((ship) => ship.reset());
     _currentPlayer = _playerOne;
     _waitingPlayer = _playerTwo;
-    startGame();
+    if (isControllerInitialized()) startGame();
+    else throw new Error('Error re-initializing controller after reset.');
   };
   const gameOverState = () => {
     const winner = _playerOne.board.allShipsSunk ? _playerTwo.name : _playerOne.name;
@@ -146,6 +167,11 @@ export default function gameController({
     );
   };
 
+  // if(isControllerInitialized()) document.dispatchEvent(new CustomEvent('gameControllerInitialized', {
+  //   detail: {
+
+  //   }
+  // }))
   return {
     get playerOne() {
       return _playerOne;
@@ -175,6 +201,7 @@ export default function gameController({
       else return 'Error';
     },
     switchCurrentPlayer,
-    startGame
+    startGame,
+    isControllerInitialized
   };
 }
