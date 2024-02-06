@@ -75,6 +75,7 @@ body {
 .utility-bar .title {
   font-family: 'bebas-neue';
   font-size: 3rem;
+  letter-spacing: 0.1rem;
 }
 /*#endregion*/
 
@@ -83,22 +84,24 @@ main {
   height: 100vh;
   flex: 1;
 }
-.current-player {
+.current-player-display {
   text-align: center;
-  font-size: 2.5em;
+  font-size: 3em;
   font-weight: bold;
+  font-family: 'bebas-neue';
 }
 
 .board-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 1.5em;
+  padding-top: 1.25em;
 }
 .board {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: baseline;
   gap: 1.5em;
 }
 .board-row {
@@ -196,69 +199,81 @@ div.fleet-entry[data-sunk='true'] {
 .tracking-fleet-list-container-header,
 .main-fleet-list-container-header {
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: bold;
-  width: 100%;
   border-bottom: 2px solid var(--text-white);
+  width: 100%;
+}
+.main-fleet-list {
+  width: 100%;
 }
 .fleet-entry {
   background-color: var(--navy-background);
   border: none;
   display: flex;
   justify-content: space-between;
-  width: 100%;
   padding: 0;
   gap: 1em;
   font-size: 1.25rem;
-}
-
-.main-fleet-list,
-.tracking-fleet-list {
   width: 100%;
 }
 
-.submit-ships-placement-button[disabled='true'],
-.submit-ships-placement-button {
-  width: 100%;
-  padding: 0.25em;
+.fleet-list-button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.submit-ships-placement-button,
+.rotate-ship-button,
+.end-turn-button {
   font-weight: bold;
+  font-size: 1.25rem;
+  border-radius: 10px;
+  padding: 0.25em;
 }
-.submit-ships-placement-button[disabled='false'] {
-  background-color: var(--ocean-blue);
-  color: var(--text-white);
-  border: 2px solid var(--text-white);
-}
-
-.submit-ships-placement-button[disabled='false']:hover {
-  background-color: var(--radar-green);
-  border: var(--text-white);
-}
-
+.rotate-ship-button,
 .end-turn-button {
   background-color: var(--ocean-blue);
-  font-size: 1.75rem;
-  border-radius: 10px;
   color: var(--text-white);
   border: 3px solid var(--radar-green);
-  padding: 0.5em;
-  margin-top: 1em;
 }
+.end-turn-button {
+  width: 100%;
+}
+.submit-ships-placement-button {
+  background-color: var(--ocean-blue);
+  color: var(--text-white);
+  border: 3px solid var(--radar-green);
+  margin-top: 0.5rem;
+}
+.submit-ships-placement-button:hover {
+  background-color: var(--radar-green);
+  border-color: var(--text-white);
+}
+.submit-ships-placement-button:disabled:hover,
+.submit-ships-placement-button:disabled {
+  background-color: gray;
+  color: #e2e1e1;
+  border: none;
+}
+
+.rotate-ship-button:hover,
 .end-turn-button:hover {
   background-color: var(--radar-green);
   border-color: var(--text-white);
 }
 
-.player-tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
+.tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
   background-color: var(--radar-green);
 }
-.player-tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:disabled:hover {
+.tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:disabled:hover {
   background-color: var(--ocean-blue);
 }
 
-.player-tracking-grid > .board-row > .grid-cell[data-cell-status='miss'] {
+.tracking-grid > .board-row > .grid-cell[data-cell-status='miss'] {
   background-color: var(--miss);
 }
-.player-tracking-grid > .board-row > .grid-cell[data-cell-status='hit'] {
+.tracking-grid > .board-row > .grid-cell[data-cell-status='hit'] {
   background-color: var(--hit);
 }
 .main-grid-header,
@@ -372,6 +387,7 @@ div.fleet-entry[data-sunk='true'] {
   width: 100%;
   height: 100%;
   padding: 0.25em;
+  font-weight: bold;
 }
 
 .board-settings-container {
@@ -420,19 +436,21 @@ div.fleet-entry[data-sunk='true'] {
   border-radius: 10px;
 }
 .settings-button:hover,
+.settings-cancel-button:hover,
 .settings-submit-button:hover {
   border-color: var(--navy-background);
   background-color: var(--radar-green);
 }
-.settings-cancel-button:hover {
-  border-color: var(--radar-green);
-  background-color: var(--text-white);
-  color: black;
+.settings-submit-disclaimer {
+  font-weight: bold;
+  font-size: 1.15rem;
+  font-style: italic;
 }
 /*#endregion*/
 
 /* Alternating Players Dialog */
 /*#region*/
+.game-over-dialog[open],
 .alternate-player-dialog[open] {
   background-color: var(--ocean-blue);
   color: var(--text-white);
@@ -445,17 +463,35 @@ div.fleet-entry[data-sunk='true'] {
 .alternate-player-dialog[open]::backdrop {
   background-color: black;
 }
+.game-over-dialog-header,
 .settings-dialog-title {
   font-size: 2rem;
   font-weight: bold;
   font-family: 'bebas-neue';
   letter-spacing: 0.1rem;
 }
+.game-over-dialog-header,
 .alternate-player-dialog > .next-player-name {
   font-size: 2rem;
   font-weight: bold;
   text-align: center;
 }
+.game-winner-name {
+  color: var(--navy-background);
+  border-bottom: 3px solid var(--navy-background);
+}
+.game-over-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25em;
+}
+.game-over-button-container > button {
+  width: 50%;
+}
+.game-over-button-container > .play-again-button,
+.game-over-button-container > .close-this-dialog-button,
 .alternate-player-dialog > .proceed-to-next-player-button {
   font-size: 1.25rem;
   font-weight: bold;
@@ -464,6 +500,9 @@ div.fleet-entry[data-sunk='true'] {
   border: 2px solid var(--radar-green);
   color: var(--navy-background);
 }
+
+.game-over-button-container > .play-again-button:hover,
+.game-over-button-container > .close-this-dialog-button:hover,
 .alternate-player-dialog > .proceed-to-next-player-button:hover {
   background-color: var(--radar-green);
   border-color: var(--navy-background);

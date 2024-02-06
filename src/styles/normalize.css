@@ -32,7 +32,8 @@ button, a, input, select {
 		'Apple Color Emoji',
 		'Segoe UI Emoji';
 		tab-size: 4;
-		line-height: 1.15; 
+		line-height: 1.15;
+		letter-spacing: .12em; 
 		-webkit-text-size-adjust: 100%;
 		cursor: default;
 }

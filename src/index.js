@@ -1,16 +1,53 @@
 import './styles/normalize.css';
 import './styles/style.css';
 
-import buildSettingsDialog from './js/ui/settings-dialog/buildSettingsDialog';
-import gameController from './js/logic/battleship/gameController';
-import './js/ui/render/main/render';
+import buildSettingsDialog from './js/ui/settings/buildSettingsDialog';
+import RenderController from './js/ui/render/RenderController';
+
+import SessionStorage from './js/SessionStorage';
+
+import initiateGameController from './js/logic/game/initialization/initiateGameController';
+
 const settingsDialog = buildSettingsDialog();
 document.querySelector('body').append(settingsDialog);
-//settingsDialog.showModal();
+settingsDialog.showModal();
+document
+  .querySelector('.settings-button')
+  .addEventListener('click', (e) => settingsDialog.showModal());
 
-document.querySelector('.settings-button').addEventListener('click', (e) => settingsDialog.showModal());
+const storage = SessionStorage();
 
-document.addEventListener('settingsSubmit', function (e) {
-  const controller = gameController(e.detail);
-  controller.startGame();
-});
+const renderController = { current: RenderController() };
+const resetRender = () => {
+  if (renderController.current) {
+    renderController.current.reset();
+    renderController.current = null;
+  }
+  renderController.current = RenderController();
+};
+
+const getGameInfoObj = (e) => {
+  if (!e.detail) {
+    return {
+      playerOneInformation: storage.getPlayerOneDataObj(),
+      playerTwoInformation: storage.getPlayerTwoDataObj(),
+      boardOptions: storage.getBoardOptionsObj()
+    };
+  } else {
+    const { playerOneInformation, playerTwoInformation, boardOptions } = e.detail;
+    storage.clear();
+    storage.storePlayerOne(playerOneInformation);
+    storage.storePlayerTwo(playerTwoInformation);
+    storage.storeBoardOptions(boardOptions);
+    return e.detail;
+  }
+};
+
+const startGame = (e) => {
+  const gameInfo = getGameInfoObj(e);
+  resetRender();
+  initiateGameController(gameInfo);
+};
+
+document.addEventListener('settingsSubmit', startGame);
+document.addEventListener('gameRestarted', startGame);

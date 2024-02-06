@@ -21,6 +21,7 @@ module.exports = {
     sourceType: 'module'
   },
   rules: {
-    'accessor-pairs': 'off'
+    'accessor-pairs': 'off',
+    'arrow-body-style': ['error', 'as-needed', { requireReturnForObjectLiteral: false }]
   }
 };
