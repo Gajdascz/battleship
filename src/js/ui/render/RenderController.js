@@ -1,5 +1,5 @@
 import PlayerManager from '../managers/state/PlayerStateManager';
-import EventListenerManager from '../managers/state/EventListenerManager';
+import EventListenerManager from '../managers/general/EventListenerManager';
 import StateManager from '../managers/state/StateTransitionManager';
 
 import UIManager from '../managers/interface/UIManager';
@@ -7,8 +7,11 @@ import ElementManager from '../managers/interface/ElementManager';
 import InterfaceInitializer from './interfaceInitializer';
 
 import RenderStrategy from './renderStrategy';
+import { buildShipComponent } from '../components/_builders/Ship/buildShipComponent';
 
 export default function RenderController() {
+  const VALIDATE_LISTENERS = true;
+
   const _playerManager = PlayerManager();
   const _stateTransitionEventManager = EventListenerManager();
   const _stateManager = StateManager();
@@ -35,46 +38,67 @@ export default function RenderController() {
     syncDisplay();
   };
 
+  const initializePlayerFleet = (fleet) => {
+    console.log(fleet);
+    const controllers = fleet.map((ship) => buildShipComponent(ship.name, ship.length));
+    console.log(controllers);
+  };
+
   function initiate(gameStartedEvent) {
     const { boardOptions, playerOne, playerTwo, currentPlayer, waitingPlayer, gameMode } =
       gameStartedEvent.detail;
-    const p1Board = _interfaceInitializer.buildGameBoardElement(
+    initializePlayerFleet(playerOne.fleet);
+    initializePlayerFleet(playerOne.fleet);
+    console.log(playerOne);
+    const p1BoardController = _interfaceInitializer.initializeBoardController(
       boardOptions,
-      playerOne.id,
-      playerOne.fleet,
-      _elementManager.cacheElement
+      playerOne.id
     );
-    const p2Board = _interfaceInitializer.buildGameBoardElement(
+    const p2BoardController = _interfaceInitializer.initializeBoardController(
       boardOptions,
-      playerTwo.id,
-      playerTwo.fleet,
-      _elementManager.cacheElement
+      playerTwo.id
     );
+    const p1FleetManager = _interfaceInitializer.initializeFleetManager(playerOne.fleet);
+    const p2FleetManager = _interfaceInitializer.initializeFleetManager(playerTwo.fleet);
+    p1BoardController.populateFleetLists(
+      p1FleetManager.getAllShipElements(),
+      p1FleetManager.getAllTrackingShipElements()
+    );
+    p2BoardController.populateFleetLists(
+      p2FleetManager.getAllShipElements(),
+      p2FleetManager.getAllTrackingShipElements()
+    );
+
+    playerOne.boardController = p1BoardController;
+    playerTwo.boardController = p2BoardController;
+    playerOne.fleetManager = p1FleetManager;
+    playerTwo.fleetManager = p2FleetManager;
+
     _interfaceInitializer.initializeBaseInterface(_elementManager.cacheElement);
     _playerManager.initialize({
       currentPlayer,
-      opponentPlayer: waitingPlayer,
-      p1ID: playerOne.id,
-      p2ID: playerTwo.id,
-      p1Board,
-      p2Board
+      opponentPlayer: waitingPlayer
     });
 
     _renderStrategy.strategy = RenderStrategy(
       gameMode,
-      p1Board,
-      p2Board,
+      // p1BoardController.element,
+      // p2BoardController.element,
       playerTwo.name,
       _elementManager
     );
     handleStrategyListeners(gameMode);
     syncDisplay();
   }
-
   const hideScreen = () => {
     const playerName = _playerManager.currentPlayer.name;
     _renderStrategy.strategy.setNextPlayerName(playerName);
     _renderStrategy.strategy.hideScreen();
+  };
+
+  const alternatePlayers = () => {
+    switchPlayer();
+    hideScreen();
   };
 
   const onTurnConcluded = () => {
@@ -101,18 +125,27 @@ export default function RenderController() {
   const handleStrategyListeners = () => {
     try {
       if (_renderStrategy.strategy !== null) {
-        _renderStrategyListenerManager.addListeners('switchPlayer', {
-          turnConcluded: [switchPlayer]
+        _renderStrategyListenerManager.addListenerData({
+          key: 'switchPlayer',
+          triggerFunctionObj: { turnConcluded: [switchPlayer] },
+          validate: VALIDATE_LISTENERS
         });
-        _renderStrategyListenerManager.addListeners('placementsProcessedSwitchPlayer', {
-          placementsProcessed: [switchPlayer, hideScreen]
+        _renderStrategyListenerManager.addListenerData({
+          key: 'placementsProcessedSwitchPlayer',
+          triggerFunctionObj: { placementsProcessed: [alternatePlayers] },
+          validate: VALIDATE_LISTENERS
         });
-        _renderStrategyListenerManager.addListeners('turnConcluded', {
-          turnConcluded: [onTurnConcluded]
+        _renderStrategyListenerManager.addListenerData({
+          key: 'turnConcluded',
+          triggerFunctionObj: { turnConcluded: [onTurnConcluded] },
+          validate: VALIDATE_LISTENERS
         });
-        _renderStrategyListenerManager.addListeners('attackProcessedEnableEndTurn', {
-          attackProcessed: [enableEndTurn]
+        _renderStrategyListenerManager.addListenerData({
+          key: 'attackProcessedEnableEndTurn',
+          triggerFunctionObj: { attackProcessed: [enableEndTurn] },
+          validate: VALIDATE_LISTENERS
         });
+        _renderStrategyListenerManager.attachAllListeners();
         const p1FleetList = _elementManager.getMainFleetList(_playerManager.p1Board);
         const p2FleetList = _elementManager.getMainFleetList(_playerManager.p2Board);
         _elementManager.cacheElement(`playerOneMainFleetList`, p1FleetList);
@@ -124,13 +157,14 @@ export default function RenderController() {
   };
 
   const onPlacementState = (e) => {
-    const { callback } = e.detail;
-    const currentBoard = _playerManager.currentPlayerBoard;
-    _stateManager.renderPlacementStateUI(
-      currentBoard,
-      _elementManager.getMainFleetList(currentBoard),
-      callback
-    );
+    // const { callback } = e.detail;
+    // const currentBoard = _playerManager.currentPlayerBoard;
+    // _stateManager.renderPlacementStateUI(
+    //   currentBoard,
+    //   _elementManager.getMainFleetList(currentBoard),
+    //   callback
+    // );
+    //  _stateManager.renderPlacementStateUI(currentBoard, _playerManager.p1FleetManager, callback);
   };
   const onInProgressState = (e) => {
     const { callback } = e.detail;
@@ -147,29 +181,33 @@ export default function RenderController() {
     try {
       switch (state) {
         case 'init': {
-          _stateTransitionEventManager.addListeners('gameInitializationState', {
-            gameStarted: [initiate]
+          _stateTransitionEventManager.addListenerData({
+            key: 'gameInitializationState',
+            triggerFunctionObj: { gameInitializationState: [initiate] },
+            validate: VALIDATE_LISTENERS
           });
-          _stateTransitionEventManager.addListeners('stateTransition', {
-            stateTransitioned: [handleStateTransition]
+          _stateTransitionEventManager.addListenerData({
+            key: 'stateTransition',
+            triggerFunctionObj: { stateTransitioned: [handleStateTransition] }
           });
-          _stateTransitionEventManager.addListeners('placementState', {
-            gamePlacementState: [onPlacementState]
+          _stateTransitionEventManager.addListenerData({
+            key: 'placementState',
+            triggerFunctionObj: { gamePlacementState: [onPlacementState] }
           });
+          _stateTransitionEventManager.attachAllListeners();
           break;
         }
         case 'placement': {
-          _stateTransitionEventManager.removeListener('gameInitializationState');
-          _stateTransitionEventManager.addListeners('progressState', {
-            gameInProgressState: [onInProgressState]
+          _stateTransitionEventManager.destructListener('gameInitializationState');
+          _stateTransitionEventManager.addListenerData('progressState', {
+            key: 'progressState',
+            triggerFunctionObj: { gameInProgressState: [onInProgressState] }
           });
           break;
         }
         case 'progress': {
-          _stateTransitionEventManager.removeListener('placementState');
-          _stateTransitionEventManager.addListeners('gameOverState', {
-            gameOverState: [onGameOverState]
-          });
+          _stateTransitionEventManager.destructListener('placementState');
+          _stateTransitionEventManager.addListenerData({ gameOverState: [onGameOverState] });
           break;
         }
       }
@@ -185,8 +223,8 @@ export default function RenderController() {
       _stateManager.reset();
       _elementManager.reset();
       _interfaceInitializer.reset();
-      _stateTransitionEventManager.clearListeners();
-      _renderStrategyListenerManager.clearListeners();
+      _stateTransitionEventManager.destructAllListenerData();
+      _renderStrategyListenerManager.destructAllListenerData();
       if (_renderStrategy.strategy !== null) _renderStrategy.strategy.reset();
     }
   };

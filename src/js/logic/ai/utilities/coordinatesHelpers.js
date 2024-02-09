@@ -1,5 +1,5 @@
 import { validateCoordinates } from './inputValidators';
-import { DIRECTIONS, ORIENTATION } from '../../../utility/constants';
+import { DIRECTIONS, ORIENTATIONS } from '../../../utility/constants';
 
 /**
  * @module coordinatesHelpers
@@ -36,7 +36,7 @@ const isDiagonal = (coordinatesOne, coordinatesTwo) => {
  * @param {number[]} coordinatesTwo Coordinates to compare.
  * @returns {boolean} True if given coordinates are horizontally aligned, false otherwise.
  */
-export const isHorizontal = (coordinatesOne, coordinatesTwo) =>
+const isHorizontal = (coordinatesOne, coordinatesTwo) =>
   !isDiagonal(coordinatesOne, coordinatesTwo) && coordinatesOne[0] === coordinatesTwo[0];
 
 /**
@@ -46,7 +46,7 @@ export const isHorizontal = (coordinatesOne, coordinatesTwo) =>
  * @param {number[]} coordinatesTwo Coordinates to compare.
  * @returns {boolean} True if given coordinates are vertically aligned, false otherwise.
  */
-export const isVertical = (coordinatesOne, coordinatesTwo) =>
+const isVertical = (coordinatesOne, coordinatesTwo) =>
   !isDiagonal(coordinatesOne, coordinatesTwo) && coordinatesOne[1] === coordinatesTwo[1];
 
 /**
@@ -68,7 +68,7 @@ const isSingleStepVector = (testVector) => {
  * @returns {number[]} The sum of the two coordinates.
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
-export const sumCoordinates = (coordinatesOne, coordinatesTwo) => {
+const sumCoordinates = (coordinatesOne, coordinatesTwo) => {
   validateCoordinates([coordinatesOne, coordinatesTwo]);
   const dx = coordinatesOne[0] + coordinatesTwo[0];
   const dy = coordinatesOne[1] + coordinatesTwo[1];
@@ -84,12 +84,14 @@ export const sumCoordinates = (coordinatesOne, coordinatesTwo) => {
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  * @example Given 'vertical' returns { up: [-1,0], down: [1,0] }
  */
-export const getOrientationDirections = (orientation) => {
+const getOrientationDirections = (orientation) => {
   const cleanOrientation = normalizeOrientationString(orientation);
-  if (!(cleanOrientation === ORIENTATION.VERTICAL || cleanOrientation === ORIENTATION.HORIZONTAL)) {
+  if (
+    !(cleanOrientation === ORIENTATIONS.VERTICAL || cleanOrientation === ORIENTATIONS.HORIZONTAL)
+  ) {
     throw new Error(`Invalid Orientation: ${cleanOrientation}`);
   }
-  if (cleanOrientation === ORIENTATION.VERTICAL)
+  if (cleanOrientation === ORIENTATIONS.VERTICAL)
     return { up: DIRECTIONS.UP, down: DIRECTIONS.DOWN };
   else return { left: DIRECTIONS.LEFT, right: DIRECTIONS.RIGHT };
 };
@@ -103,7 +105,7 @@ export const getOrientationDirections = (orientation) => {
  * @returns {number[]} The difference of the two coordinates.
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
-export const getDelta = (prev, next, forceSingleStep = false) => {
+const getDelta = (prev, next, forceSingleStep = false) => {
   validateCoordinates([prev, next]);
   const toSingleStepVector = (coordinate) =>
     coordinate === 0 ? 0 : coordinate / Math.abs(coordinate);
@@ -121,14 +123,14 @@ export const getDelta = (prev, next, forceSingleStep = false) => {
  * @throws {Error} If coordinate pairs are not arrays containing numbers or orientation is not recognized.
  * @example Given [1,1] and 'vertical', returns [[1,0],[1,2]]
  */
-export const getPerpendicularCoordinates = (origin, orientation) => {
+const getPerpendicularCoordinates = (origin, orientation) => {
   validateCoordinates(origin);
   const cleanOrientation = normalizeOrientationString(orientation);
-  if (cleanOrientation === ORIENTATION.VERTICAL) {
-    const { left, right } = getOrientationDirections(ORIENTATION.HORIZONTAL);
+  if (cleanOrientation === ORIENTATIONS.VERTICAL) {
+    const { left, right } = getOrientationDirections(ORIENTATIONS.HORIZONTAL);
     return [sumCoordinates(origin, left), sumCoordinates(origin, right)];
-  } else if (cleanOrientation === ORIENTATION.HORIZONTAL) {
-    const { up, down } = getOrientationDirections(ORIENTATION.VERTICAL);
+  } else if (cleanOrientation === ORIENTATIONS.HORIZONTAL) {
+    const { up, down } = getOrientationDirections(ORIENTATIONS.VERTICAL);
     return [sumCoordinates(origin, up), sumCoordinates(origin, down)];
   } else throw new Error(`Invalid orientation: ${orientation}`);
 };
@@ -141,7 +143,7 @@ export const getPerpendicularCoordinates = (origin, orientation) => {
  * @returns {boolean} True if coordinates are adjacent, false otherwise.
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
-export const isAdjacent = (coordinatesOne, coordinatesTwo) => {
+const isAdjacent = (coordinatesOne, coordinatesTwo) => {
   const deltaVector = getDelta(coordinatesOne, coordinatesTwo, false);
   return isSingleStepVector(deltaVector);
 };
@@ -154,10 +156,10 @@ export const isAdjacent = (coordinatesOne, coordinatesTwo) => {
  * @returns {string} Orientation relative to the two coordinates.
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
-export const getRelativeOrientation = (coordinatesOne, coordinatesTwo) => {
+const getRelativeOrientation = (coordinatesOne, coordinatesTwo) => {
   const deltaVector = getDelta(coordinatesOne, coordinatesTwo, false);
   if (!isSingleStepVector(deltaVector)) return null;
-  return coordinatesOne[0] === coordinatesTwo[0] ? ORIENTATION.HORIZONTAL : ORIENTATION.VERTICAL;
+  return coordinatesOne[0] === coordinatesTwo[0] ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL;
 };
 
 /**
@@ -169,11 +171,23 @@ export const getRelativeOrientation = (coordinatesOne, coordinatesTwo) => {
  * @returns {boolean} True if coordinate pairs are in the same orientation, false otherwise.
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
-export const doCoordinatesMatchOrientation = (orientation, coordinatesOne, coordinatesTwo) => {
+const doCoordinatesMatchOrientation = (orientation, coordinatesOne, coordinatesTwo) => {
   validateCoordinates([coordinatesOne, coordinatesTwo]);
   const cleanOrientation = normalizeOrientationString(orientation);
-  if (cleanOrientation === ORIENTATION.VERTICAL) return isVertical(coordinatesOne, coordinatesTwo);
-  if (cleanOrientation === ORIENTATION.HORIZONTAL) {
+  if (cleanOrientation === ORIENTATIONS.VERTICAL) return isVertical(coordinatesOne, coordinatesTwo);
+  if (cleanOrientation === ORIENTATIONS.HORIZONTAL) {
     return isHorizontal(coordinatesOne, coordinatesTwo);
   } else return null;
+};
+
+export {
+  sumCoordinates,
+  isAdjacent,
+  isHorizontal,
+  isDiagonal,
+  doCoordinatesMatchOrientation,
+  getRelativeOrientation,
+  getPerpendicularCoordinates,
+  getDelta,
+  getOrientationDirections
 };

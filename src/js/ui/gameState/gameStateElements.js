@@ -1,5 +1,5 @@
-import { buildElementTree } from '../../utility/elementObjBuilder';
-import { divObj, paragraphObj, btnObj, spanObj } from '../common/uiObjects';
+import { buildElementTree } from '../common/utility/elementObjBuilder';
+import { divObj, paragraphObj, btnObj, spanObj } from '../common/utility/uiObjects';
 
 const placementControlsHeader = (text) =>
   paragraphObj(text, { class: 'placement-controls-header' });

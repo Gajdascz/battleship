@@ -1,11 +1,11 @@
-import { ORIENTATION, RESULTS } from '../../../utility/constants';
+import { ORIENTATIONS, RESULTS } from '../../../utility/constants';
 
 /**
  * Generates a random orientation for ship placement ensuring unpredictability.
  * @returns {string} A random orientation (either VERTICAL or HORIZONTAL).
  */
 const getRandomOrientation = () => {
-  const orientationChoices = [ORIENTATION.VERTICAL, ORIENTATION.HORIZONTAL];
+  const orientationChoices = [ORIENTATIONS.VERTICAL, ORIENTATIONS.HORIZONTAL];
   return orientationChoices[Math.floor(Math.random() * orientationChoices.length)];
 };
 
@@ -38,12 +38,12 @@ const getPlacementStart = (placementEnd, shipLength) => Math.max(placementEnd - 
  * @returns {number} The ending index for ship placement, constrained by grid dimensions.
  */
 const getPlacementEnd = ({ placementStart, shipLength, orientation, maxVertical, maxHorizontal }) =>
-  orientation === ORIENTATION.VERTICAL
+  orientation === ORIENTATIONS.VERTICAL
     ? Math.min(placementStart[0] + shipLength - 1, maxVertical)
     : Math.min(placementStart[1] + shipLength - 1, maxHorizontal);
 
 /**
- * Generates all grid cells for a ship's placement based on start/end indexes and orientation.
+ * Generates all grid cells for a ship's placement based on start/end indexes and orientationS.
  * @param {number} start - The start index for placement.
  * @param {number} end - The end index for placement.
  * @param {string} orientation - The orientation of the ship (VERTICAL or HORIZONTAL).
@@ -54,7 +54,7 @@ const getAllPlacementCells = (start, end, orientation, placementStart) => {
   const cells = [];
   for (let i = start; i <= end; i++) {
     cells.push(
-      orientation === ORIENTATION.VERTICAL ? [i, placementStart[1]] : [placementStart[0], i]
+      orientation === ORIENTATIONS.VERTICAL ? [i, placementStart[1]] : [placementStart[0], i]
     );
   }
   return cells;
@@ -71,9 +71,9 @@ const getAllPlacementCells = (start, end, orientation, placementStart) => {
  */
 const getPlacementFirstAndLastCells = (start, end, orientation, placementStart) => ({
   firstPlacementCell:
-    orientation === ORIENTATION.VERTICAL ? [start, placementStart[1]] : [placementStart[0], start],
+    orientation === ORIENTATIONS.VERTICAL ? [start, placementStart[1]] : [placementStart[0], start],
   lastPlacementCell:
-    orientation === ORIENTATION.VERTICAL ? [end, placementStart[1]] : [placementStart[0], end]
+    orientation === ORIENTATIONS.VERTICAL ? [end, placementStart[1]] : [placementStart[0], end]
 });
 
 /**

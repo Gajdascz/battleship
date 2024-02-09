@@ -1,14 +1,9 @@
-import { analyzeClustersForGaps } from './analyzeClustersForGaps';
 export const MoveStrategy = ({
   validateFn,
   getNumberOfOpponentShipsLeft,
   gridHelpers,
   sumCoordinates
 }) => {
-  // Number of ships required to be sunk before analyzing clusters.
-  const ANALYZE_CLUSTERS_AT = 3;
-  let _clusterLastAnalyzedAt = Infinity;
-
   const determineMoveStrategy = (getNextInChain, probabilityMap) => {
     const nextInChain = getNextInChain();
     console.log(`nextInChain: ${nextInChain}`);
@@ -17,22 +12,6 @@ export const MoveStrategy = ({
         return probabilityMap.getHighestProbabilityFromMoves(nextInChain);
       else return nextInChain;
     }
-
-    // const shipsLeft = getNumberOfOpponentShipsLeft();
-    // if (shipsLeft <= ANALYZE_CLUSTERS_AT && _clusterLastAnalyzedAt !== shipsLeft) {
-    //   const gaps = analyzeClustersForGaps({
-    //     gridHelpers,
-    //     validateFn,
-    //     sumCoordinates
-    //   });
-    //   console.log(`gaps: ${gaps}`);
-    //   _clusterLastAnalyzedAt = shipsLeft;
-    //   if (gaps.length > 0) {
-    //     probabilityMap.injectGaps(gaps);
-    //     probabilityMap.updateState(gridHelpers.copyGrid(), false);
-    //     return probabilityMap.getCellWithHighestProbability();
-    //   }
-    // }
     return probabilityMap.getCellWithHighestProbability();
   };
 

@@ -200,17 +200,17 @@ export default function initiateGameController({
     detail.attackingPlayer = _currentPlayer;
     switch (result) {
       case RESULTS.ALL_SHIPS_SUNK:
-        detail.result = 'lastShipSunk';
+        detail.result = RESULTS.ALL_SHIPS_SUNK;
         detail.sunkShipName = _waitingPlayer.board.lastShipSunk;
         break;
       case RESULTS.MISS:
-        detail.result = 'miss';
+        detail.result = RESULTS.MISS;
         break;
       case RESULTS.HIT:
-        detail.result = 'hit';
+        detail.result = RESULTS.HIT;
         break;
       case RESULTS.SHIP_SUNK:
-        detail.result = 'shipSunk';
+        detail.result = RESULTS.SHIP_SUNK;
         detail.sunkShipName = _waitingPlayer.board.lastShipSunk;
         break;
       default:

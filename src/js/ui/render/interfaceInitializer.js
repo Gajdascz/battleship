@@ -1,7 +1,8 @@
-import { buildGameBoard } from '../gameBoard/buildGameBoard';
-import { buildShip } from '../ship/_buildShip';
-import { ELEMENT_TYPES, FLEET_LIST, GAME } from '../common/uiConstants';
-import { buildUIElement } from '../common/uiUtility';
+import { ELEMENT_TYPES, FLEET_LIST, GAME } from '../common/constants/baseConstants';
+import { buildUIElement } from '../common/utility/uiBuilders';
+
+import { ShipController } from '../components/Ship/ShipController';
+import { FleetController } from '../components/Fleet/FleetController';
 
 export default function InterfaceInitializer(elementManager) {
   const buildGameContainer = (classAttr = GAME.CLASSES.CONTAINER) =>
@@ -13,26 +14,33 @@ export default function InterfaceInitializer(elementManager) {
   const buildBoardContainer = (classAttr = GAME.CLASSES.BOARD_CONTAINER) =>
     buildUIElement(ELEMENT_TYPES.DIV, { attributes: { class: classAttr } });
 
-  const buildFleetShipElementArray = (shipInfo, element) =>
-    shipInfo.map((info) => buildShip(info.health, info.name, element));
+  const initializeFleetManager = (playerFleet) => {
+    const fleetManager = FleetManager();
+    playerFleet.forEach((ship) => {
+      const controller = ShipController(ship.length, ship.name, ELEMENT_TYPES.BUTTON);
+      fleetManager.addShip(controller);
+    });
+    playerFleet.forEach((ship) => {
+      const controller = ShipController(ship.length, ship.name, ELEMENT_TYPES.DIV);
+      fleetManager.addTrackingShip(controller);
+    });
+    return fleetManager;
+  };
 
-  const populateFleetList = (shipElementArray, container) =>
-    shipElementArray.forEach((ship) => container.append(ship));
-
-  const buildAndPopulateFleet = (fleet, container, type) => {
-    const shipElements = buildFleetShipElementArray(fleet, type);
-    populateFleetList(shipElements, container);
+  const initializeBoardController = (boardOptions, playerID) => {
+    const boardController = BoardController(boardOptions);
+    boardController.assignID(playerID);
+    return boardController;
   };
 
   const buildGameBoardElement = (boardOptions, playerID, playerFleet) => {
-    const board = buildGameBoard(boardOptions);
-    board.setAttribute('data-player', playerID);
-    const mainFleetList = board.querySelector(`.${FLEET_LIST.MAIN.CLASS}`);
-    const trackingFleetList = board.querySelector(`.${FLEET_LIST.TRACKING.CLASS}`);
-    buildAndPopulateFleet(playerFleet, mainFleetList, ELEMENT_TYPES.BUTTON);
-    buildAndPopulateFleet(playerFleet, trackingFleetList, ELEMENT_TYPES.DIV);
-    elementManager.cacheElement(`${playerID}board`, board);
-    return board;
+    const fleetManager = initializeFleetManager(playerFleet);
+    const boardController = initializeBoardController(boardOptions, playerID);
+    boardController.populateFleetLists(
+      fleetManager.getAllShipElements(),
+      fleetManager.getAllTrackingShipElements()
+    );
+    return boardController.element;
   };
 
   const initializeBaseInterface = () => {
@@ -51,7 +59,10 @@ export default function InterfaceInitializer(elementManager) {
     buildCurrentPlayerDisplay,
     buildBoardContainer,
     buildGameBoardElement,
-    buildAndPopulateFleet,
+
+    initializeFleetManager,
+    initializeBoardController,
+
     initializeBaseInterface,
     reset: () => (document.querySelector('main').textContent = '')
   };

@@ -1,4 +1,4 @@
-import { ORIENTATION, RESULTS } from '../../../../utility/constants';
+import { ORIENTATIONS, RESULTS } from '../../../../utility/constants';
 
 const MAX_ORIENTATIONS = 2;
 
@@ -11,7 +11,7 @@ export const weightedCanShipFit = ({
   smallestShipLength
 }) => {
   let orientationScore = 0;
-  const orientations = Object.values(ORIENTATION);
+  const orientations = Object.values(ORIENTATIONS);
   for (const orientation of orientations) {
     let canFit = false;
     const directions = Object.values(getOrientationDirections(orientation));

@@ -1,6 +1,6 @@
-import { ELEMENT_TYPES, GAME_OVER_DIALOG } from '../../common/uiConstants';
-import { uiObj } from '../../common/uiUtility';
-import { buildElementTree } from '../../../utility/elementObjBuilder';
+import { ELEMENT_TYPES, GAME_OVER_DIALOG } from '../../common/constants/baseConstants';
+import { buildUIObj } from '../../common/utility/uiBuilders';
+import { buildElementTree } from '../../common/utility/elementObjBuilder';
 
 /**
  * @module GameOverDialogController.js
@@ -15,11 +15,15 @@ import { buildElementTree } from '../../../utility/elementObjBuilder';
  * @returns {Object} Contains details for the header Element.
  */
 const gameOverHeaderObj = () =>
-  uiObj(ELEMENT_TYPES.PARAGRAPH, {
+  buildUIObj(ELEMENT_TYPES.PARAGRAPH, {
     attributes: { class: GAME_OVER_DIALOG.CLASSES.HEADER },
     children: [
-      uiObj(ELEMENT_TYPES.SPAN, { attributes: { class: GAME_OVER_DIALOG.CLASSES.WINNER_NAME } }),
-      uiObj(ELEMENT_TYPES.SPAN, { attributes: { class: GAME_OVER_DIALOG.CLASSES.WINNER_WINS } })
+      buildUIObj(ELEMENT_TYPES.SPAN, {
+        attributes: { class: GAME_OVER_DIALOG.CLASSES.WINNER_NAME }
+      }),
+      buildUIObj(ELEMENT_TYPES.SPAN, {
+        attributes: { class: GAME_OVER_DIALOG.CLASSES.WINNER_WINS }
+      })
     ]
   });
 
@@ -29,14 +33,14 @@ const gameOverHeaderObj = () =>
  * @returns {Object} Contains details for the buttons container and Elements.
  */
 const gameOverButtonsObj = () =>
-  uiObj(ELEMENT_TYPES.DIV, {
+  buildUIObj(ELEMENT_TYPES.DIV, {
     attributes: { class: GAME_OVER_DIALOG.CLASSES.BUTTON_CONTAINER },
     children: [
-      uiObj(ELEMENT_TYPES.BUTTON, {
+      buildUIObj(ELEMENT_TYPES.BUTTON, {
         text: GAME_OVER_DIALOG.TEXTS.PLAY_AGAIN_BUTTON,
         attributes: { class: GAME_OVER_DIALOG.CLASSES.PLAY_AGAIN_BUTTON }
       }),
-      uiObj(ELEMENT_TYPES.BUTTON, {
+      buildUIObj(ELEMENT_TYPES.BUTTON, {
         text: GAME_OVER_DIALOG.TEXTS.CLOSE_BUTTON,
         attributes: { class: GAME_OVER_DIALOG.CLASSES.CLOSE_BUTTON }
       })
@@ -49,7 +53,7 @@ const gameOverButtonsObj = () =>
  * @returns {Object} Contains details and structure for creating dialog HTML Element.
  */
 const gameOverDialogObj = () =>
-  uiObj(ELEMENT_TYPES.DIALOG, {
+  buildUIObj(ELEMENT_TYPES.DIALOG, {
     attributes: { class: GAME_OVER_DIALOG.CLASSES.DIALOG },
     children: [gameOverHeaderObj(), gameOverButtonsObj()]
   });

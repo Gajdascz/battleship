@@ -1,4 +1,4 @@
-import { ORIENTATION, RESULTS } from '../../../../utility/constants';
+import { ORIENTATIONS, RESULTS } from '../../../../utility/constants';
 
 export const canShipFit = ({
   getValueAt,
@@ -9,7 +9,7 @@ export const canShipFit = ({
   getSmallestShipLength
 }) => {
   const smallestShipLength = getSmallestShipLength();
-  const orientations = Object.values(ORIENTATION);
+  const orientations = Object.values(ORIENTATIONS);
   for (const orientation of orientations) {
     let totalSpace = 1; // 1 to account for starting cell.
     const directions = Object.values(getOrientationDirections(orientation));

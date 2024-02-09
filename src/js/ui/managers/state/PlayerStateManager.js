@@ -1,66 +1,66 @@
 import { isHTMLElement, throwError } from '../managerUtilities';
 
 export default function PlayerStateManager() {
-  let _currentPlayer = null;
-  let _opponentPlayer = null;
-  let _p1Board = null;
-  let _p2Board = null;
-  let _p1ID = null;
-  let _p2ID = null;
+  const _p1 = {};
+  const _p2 = {};
+  const _current = { player: null, opponent: null };
   return {
     get currentPlayer() {
-      return _currentPlayer;
+      return _current.player;
     },
     get opponentPlayer() {
-      return _opponentPlayer;
+      return _current.opponent;
     },
     get currentPlayerBoard() {
-      return _currentPlayer?.id === _p1ID ? _p1Board : _p2Board;
+      return _current.player.boardController.element;
     },
     get opponentPlayerBoard() {
-      return _currentPlayer?.id === _p2ID ? _p2Board : _p1Board;
+      return _current.opponent.boardController.element;
+    },
+    get currentPlayerBoardController() {
+      return _current.player.boardController;
+    },
+    get currentPlayerFleetManager() {
+      return _current.player.fleetManager;
     },
     get p1Board() {
-      return _p1Board;
+      return _p1.boardController.element;
     },
     get p2Board() {
-      return _p2Board;
+      return _p2.boardController.element;
     },
-    switchCurrentPlayer: () => {
-      const tempPlayer = _currentPlayer;
-      _currentPlayer = _opponentPlayer;
-      _opponentPlayer = tempPlayer;
+    get p1BoardController() {
+      return _p1.boardController;
     },
-    initialize: ({ currentPlayer, opponentPlayer, p1Board, p2Board, p1ID, p2ID }) => {
+    get p2BoardController() {
+      return _p2.boardController;
+    },
+    get p1FleetManager() {
+      return _p1.fleetManager;
+    },
+    get p2FleetManager() {
+      return _p2.fleetManager;
+    },
+    switchCurrentPlayer: () =>
+      ([_current.player, _current.opponent] = [_current.opponent, _current.player]),
+    initialize: ({ currentPlayer, opponentPlayer }) => {
       if (!currentPlayer || !currentPlayer.isPlayer)
         throwError('currentPlayer', 'Player Object', currentPlayer);
       if (!opponentPlayer || !opponentPlayer.isPlayer)
         throwError('opponentPlayer', 'Player Object', opponentPlayer);
-      if (!isHTMLElement(p1Board)) throwError('p1Board', 'HTMLElement', p1Board);
-      if (!isHTMLElement(p2Board)) throwError('p2Board', 'HTMLElement', p2Board);
-      if (!(typeof p1ID === 'string')) throwError('p1ID', 'string', p1ID);
-      if (!(typeof p2ID === 'string')) throwError('p2ID', 'string', p2ID);
-      _currentPlayer = currentPlayer;
-      _opponentPlayer = opponentPlayer;
-      _p1Board = p1Board;
-      _p2Board = p2Board;
-      _p1ID = p1ID;
-      _p2ID = p2ID;
+      _current.player = currentPlayer;
+      _current.opponent = opponentPlayer;
     },
     isInitialized: () =>
-      _currentPlayer.isPlayer &&
-      _opponentPlayer.isPlayer &&
-      isHTMLElement(_p1Board) &&
-      isHTMLElement(_p2Board) &&
-      (_p1ID === _currentPlayer.id || _p1ID === _opponentPlayer.id) &&
-      (_p2ID === _currentPlayer.id || _p2ID === _opponentPlayer.id),
+      _current.player.isPlayer &&
+      _current.opponent.isPlayer &&
+      isHTMLElement(_p1.boardController.element) &&
+      isHTMLElement(_p2.boardController.element) &&
+      (_p1.id === _current.player.id || _p1.id === _current.opponent.id) &&
+      (_p2.id === _current.player.id || _p2.id === _current.opponent.id),
     reset: () => {
-      _currentPlayer = null;
-      _opponentPlayer = null;
-      _p1Board = null;
-      _p2Board = null;
-      _p1ID = null;
-      _p2ID = null;
+      _current.player = null;
+      _current.opponent = null;
     }
   };
 }

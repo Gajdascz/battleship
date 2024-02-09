@@ -1,7 +1,8 @@
+import { RESULTS } from '../../../utility/constants';
 import {
-  convertToDisplayFormat,
-  convertToInternalFormat
-} from '../../../utility/coordinatesConverters';
+  convertToInternalFormat,
+  convertToDisplayFormat
+} from '../../../utility/utils/coordinatesUtils';
 
 const getBoardGrids = (board) => {
   const aiDisplay = board.querySelector('.ai-display-tracking-grid');
@@ -75,14 +76,14 @@ export default function inProgressStateManager(p1Board, p2Board) {
     const attackingPlayerTrackingGrid =
       attackingPlayer.id === 'playerOne' ? p1Grids.tracking : p2Grids.tracking;
     const trackingCell = getTrackingCell(attackingPlayerTrackingGrid, displayCoordinates);
-    if (result === 'miss') displayMiss(trackingCell);
+    if (result === RESULTS.MISS) displayMiss(trackingCell);
     else {
       const opponentCell =
         attackingPlayer.id === 'playerOne'
           ? getMainCell(p2Grids.main, displayCoordinates)
           : getMainCell(p1Grids.main, displayCoordinates);
       displayHit(trackingCell, opponentCell);
-      if (result === 'shipSunk' || result === 'lastShipSunk') {
+      if (result === RESULTS.SHIP_SUNK || result === RESULTS.ALL_SHIPS_SUNK) {
         displayShipSunk(attackingPlayer.id, sunkShipName);
       }
     }

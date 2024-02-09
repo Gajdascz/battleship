@@ -12,7 +12,8 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
   const _ship = { selected: null };
   const _letterAxis = letterAxis;
   const _maxVertical = _grid.querySelectorAll('.board-row').length - 1;
-  const _maxHorizontal = _grid.querySelector('.board-row').querySelectorAll('.grid-cell').length - 1;
+  const _maxHorizontal =
+    _grid.querySelector('.board-row').querySelectorAll('.grid-cell').length - 1;
   const ACHARCODE = 'A'.charCodeAt();
 
   const setSelectedShip = (selectedShip) => (_ship.selected = selectedShip);
@@ -45,9 +46,10 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
   };
 
   // Formats processed coordinates based on letter axis.
-  const formatCoordinates = (row, column) => {
-    return _letterAxis === 'row' ? `${getLetter(row + ACHARCODE)}${column}` : `${row}${getLetter(column + ACHARCODE)}`;
-  };
+  const formatCoordinates = (row, column) =>
+    _letterAxis === 'row'
+      ? `${getLetter(row + ACHARCODE)}${column}`
+      : `${row}${getLetter(column + ACHARCODE)}`;
 
   /**
    * Provides valid preview starting and ending cells.
@@ -71,7 +73,8 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
    * @param {string} orientation - String defining ship's current orientation.
    * @returns {function} - Function relevant to ship's orientation; verticalStrategy or horizontalStrategy
    */
-  const getOrientationStrategy = (orientation) => (orientation === 'vertical' ? verticalStrategy : horizontalStrategy);
+  const getOrientationStrategy = (orientation) =>
+    orientation === 'vertical' ? verticalStrategy : horizontalStrategy;
   const verticalStrategy = (index, coordinates) => formatCoordinates(index, coordinates.column);
   const horizontalStrategy = (index, coordinates) => formatCoordinates(coordinates.row, index);
 
@@ -85,7 +88,8 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
     const cells = [];
     const coordinates = normalizeCoordinates(startingCoordinates);
     const max = _ship.selected.orientation === 'vertical' ? _maxVertical : _maxHorizontal;
-    const startCoordinate = _ship.selected.orientation === 'vertical' ? coordinates.row : coordinates.column;
+    const startCoordinate =
+      _ship.selected.orientation === 'vertical' ? coordinates.row : coordinates.column;
     const { start, end } = getStartEnd(startCoordinate, _ship.selected.length, max);
     const strategy = getOrientationStrategy(_ship.selected.orientation);
     for (let i = start; i <= end; i++) cells.push(strategy(i, coordinates));
@@ -108,9 +112,11 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
   };
   // Clears placement preview in grid.
   const clearPlacementPreview = () => {
-    _grid.querySelectorAll('.current-starting-cell, .valid-placement, .invalid-placement').forEach((cell) => {
-      cell.classList.remove('current-starting-cell', 'valid-placement', 'invalid-placement');
-    });
+    _grid
+      .querySelectorAll('.current-starting-cell, .valid-placement, .invalid-placement')
+      .forEach((cell) => {
+        cell.classList.remove('current-starting-cell', 'valid-placement', 'invalid-placement');
+      });
   };
   /**
    * Keeps the grid display updated when a selected ship's orientation is changed.
@@ -118,9 +124,10 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
    */
   const updateGridOnOrientationChange = (e) => {
     if (!isShipSelected()) return;
-    const { name, newOrientation } = e.detail;
-    if (name === _ship.selected.name) {
-      _ship.selected.orientation = newOrientation;
+    const { id, orientation } = e.detail;
+    if (id === _ship.selected.id) {
+      _ship.selected.orientation = orientation;
+      console.log(orientation);
       const startingCell = _grid.querySelector('.current-starting-cell');
       if (startingCell) {
         clearPlacementPreview(_grid);
@@ -148,7 +155,8 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
    */
   const shipSelected = (e) => {
     setSelectedShip(e.detail);
-    if (_grid.querySelector(`[data-placed-ship-name=${_ship.selected.name}]`)) clearPlacedShip(_ship.selected.name);
+    if (_grid.querySelector(`[data-placed-ship-name=${_ship.selected.id}]`))
+      clearPlacedShip(_ship.selected.id);
   };
 
   /**
@@ -162,7 +170,7 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
       new CustomEvent('shipPlaced', {
         detail: {
           placedCoordinates,
-          shipName: _ship.selected.name,
+          shipID: _ship.selected.id,
           shipElement: _ship.selected.element
         }
       })
@@ -175,8 +183,8 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
   const setPlacedShip = (placementCells) => {
     placementCells.forEach((cell) => {
       cell.classList.replace('valid-placement', 'placed-ship');
-      cell.setAttribute('data-placed-ship-name', _ship.selected.name);
-      cell.textContent = _ship.selected.name.charAt(0).toUpperCase();
+      cell.setAttribute('data-placed-ship-name', _ship.selected.id);
+      cell.textContent = _ship.selected.id.charAt(0).toUpperCase();
     });
   };
 

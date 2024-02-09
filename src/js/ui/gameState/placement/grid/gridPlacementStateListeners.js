@@ -29,23 +29,33 @@ export default function createGridPlacementStateListeners(gridPlacementManager) 
     init: function () {
       // Listens for ship selection and orientation change.
       document.addEventListener('shipSelected', gridPlacementManager.shipSelected);
-      document.addEventListener('shipOrientationChanged', gridPlacementManager.updateGridOnOrientationChange);
+      document.addEventListener(
+        'shipOrientationChanged',
+        gridPlacementManager.updateGridOnOrientationChange
+      );
       // Adds listeners to the grid for delegating click and mouseover events.
       gridPlacementManager.grid.addEventListener('click', processPlacementRequest);
       gridPlacementManager.grid.addEventListener('mouseover', showPlacementPreview);
       // Adds listeners to each cell for clearing placement preview.
       gridPlacementManager.grid
         .querySelectorAll('.grid-cell')
-        .forEach((cell) => cell.addEventListener('mouseout', gridPlacementManager.clearPlacementPreview));
+        .forEach((cell) =>
+          cell.addEventListener('mouseout', gridPlacementManager.clearPlacementPreview)
+        );
     },
     remove: function () {
       document.removeEventListener('shipSelected', gridPlacementManager.shipSelected);
-      document.removeEventListener('shipOrientationChanged', gridPlacementManager.updateGridOnOrientationChange);
+      document.removeEventListener(
+        'shipOrientationChanged',
+        gridPlacementManager.updateGridOnOrientationChange
+      );
       gridPlacementManager.grid.removeEventListener('click', processPlacementRequest);
       gridPlacementManager.grid.removeEventListener('mouseover', showPlacementPreview);
       gridPlacementManager.grid
         .querySelectorAll('.grid-cell')
-        .forEach((cell) => cell.removeEventListener('mouseout', gridPlacementManager.clearPlacementPreview));
+        .forEach((cell) =>
+          cell.removeEventListener('mouseout', gridPlacementManager.clearPlacementPreview)
+        );
     }
   };
 

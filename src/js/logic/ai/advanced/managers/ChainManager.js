@@ -1,4 +1,4 @@
-import { ORIENTATION } from '../../../../utility/constants';
+import { ORIENTATIONS } from '../../../../utility/constants';
 import Chain from '../../dataStructures/Chain';
 import Queue from '../../dataStructures/Queue';
 import { areCoordinatesEqual } from '../../utilities/helperFunctions';
@@ -19,7 +19,7 @@ export const ChainManager = ({
   const startNewChainFromUnresolved = () => (currentChain.chain = Chain(startNewChainAt.dequeue()));
 
   const getOppositeOrientation = (orientation) =>
-    orientation === ORIENTATION.VERTICAL ? ORIENTATION.HORIZONTAL : ORIENTATION.VERTICAL;
+    orientation === ORIENTATIONS.VERTICAL ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL;
 
   const getAfterTail = () =>
     sumCoordinates(currentChain.chain.peekTail(), currentChain.chain.getAfterTailDirection());

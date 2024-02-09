@@ -1,5 +1,5 @@
 import { GameOverDialogController } from './GameOverDialogController';
-import { ELEMENT_TYPES, GRID } from '../../common/uiConstants';
+import { ELEMENT_TYPES, GRID } from '../../common/constants/baseConstants';
 
 export default function renderGameOverState(winner) {
   document

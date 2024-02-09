@@ -3,13 +3,12 @@ import {
   getSubmitShipsPlacementButton,
   shipRotationButton
 } from '../gameStateElements';
-import fleetPlacementStateManager from './fleet/fleetPlacementStateManager';
-import fleetPlacementStateListeners from './fleet/fleetPlacementStateListeners';
 import gridPlacementStateManager from './grid/gridPlacementStateManager';
 import gridPlacementStateListeners from './grid/gridPlacementStateListeners';
+import { SHIP } from '../../common/constants/shipConstants';
 
-export default function renderPlacementState(board, shipListContainer, onPlacementSubmission) {
-  console.log(shipListContainer);
+export default function renderPlacementState(board, fleetManager, onPlacementSubmission) {
+  fleetManager.startPlacementState();
   const mainGrid = board.querySelector('.main-grid');
   const submitPlacementsButton = getSubmitShipsPlacementButton();
   const rotateShipButton = shipRotationButton();
@@ -20,31 +19,32 @@ export default function renderPlacementState(board, shipListContainer, onPlaceme
   board.append(placementInstructions);
   fleetListButtonContainer.append(submitPlacementsButton);
   fleetListButtonContainer.append(rotateShipButton);
-  const shipListButtons = shipListContainer.querySelectorAll('button.fleet-entry');
-  const fleetPlacementManager = fleetPlacementStateManager(
-    shipListContainer,
-    submitPlacementsButton,
-    rotateShipButton
-  );
-  const fleetPlacementListeners = fleetPlacementStateListeners(fleetPlacementManager);
   const gridPlacementManager = gridPlacementStateManager(mainGrid, board.dataset.letterAxis);
   const gridPlacementListeners = gridPlacementStateListeners(gridPlacementManager);
-  fleetPlacementListeners.init();
   gridPlacementListeners.init();
-  const disableFleetList = () =>
-    shipListButtons.forEach((button) => button.setAttribute('disabled', true));
+  const checkPlacements = () => {
+    if (fleetManager.allShipsPlaced()) submitPlacementsButton.removeAttribute('disabled');
+    else submitPlacementsButton.setAttribute('disabled', '');
+  };
 
-  document.addEventListener('placementsSubmitted', onPlacementSubmission);
+  const handlePlacementsSubmitted = (e) => {
+    fleetManager.startProgressState();
+    onPlacementSubmission(e);
+  };
+
+  document.addEventListener(SHIP.EVENTS.PLACED_SUCCESS, checkPlacements);
+  submitPlacementsButton.addEventListener('click', fleetManager.submitPlacements);
+  document.addEventListener('placementsSubmitted', handlePlacementsSubmitted);
   return {
     clearState: function () {
-      fleetPlacementListeners.remove();
+      //   fleetPlacementListeners.remove();
       gridPlacementListeners.remove();
-      document.removeEventListener('placementsSubmitted', onPlacementSubmission);
+      document.removeEventListener('placementsSubmitted', handlePlacementsSubmitted);
       trackingGridWrapper.classList.remove('hide');
       placementInstructions.remove();
       submitPlacementsButton.remove();
       rotateShipButton.remove();
-      disableFleetList();
+      //  disableFleetList();
     }
   };
 }

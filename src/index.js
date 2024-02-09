@@ -1,10 +1,10 @@
 import './styles/normalize.css';
 import './styles/style.css';
 
-import buildSettingsDialog from './js/ui/settings/buildSettingsDialog';
+import buildSettingsDialog from './js/ui/components/SettingsDialog/buildSettingsDialog';
 import RenderController from './js/ui/render/RenderController';
 
-import SessionStorage from './js/SessionStorage';
+import SessionStorage from './js/utility/SessionStorage';
 
 import initiateGameController from './js/logic/game/initialization/initiateGameController';
 

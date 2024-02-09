@@ -15,9 +15,9 @@ export default function StateManager() {
 
   const placementState = (currentBoard, currentPlayerFleetList, onPlacementSubmission) => {
     if (!isHTMLElement(currentBoard)) throwError('currentBoard', 'Element', currentBoard);
-    if (!isHTMLElement(currentPlayerFleetList)) {
-      throwError('currentPlayerFleetList', 'Element', currentPlayerFleetList);
-    }
+    // if (!isHTMLElement(currentPlayerFleetList)) {
+    //   throwError('currentPlayerFleetList', 'Element', currentPlayerFleetList);
+    // }
     if (!(onPlacementSubmission instanceof Function)) {
       throwError('placementState callback', 'Function', onPlacementSubmission);
     }
