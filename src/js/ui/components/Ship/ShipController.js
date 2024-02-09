@@ -81,29 +81,6 @@ export const ShipController = (shipModel, shipView) => {
     shipSunk: () => dispatch.shipSunk(shipModel.getID())
   };
 
-  // const handlerData = {
-  //   placementState: {
-  //     selected: {
-  //       key: 'selected',
-  //       attachToElement: true,
-  //       triggerFunctionObj: { click: [handlerFunctions.shipSelected] }
-  //     },
-  //     orientationToggled: {
-  //       key: 'orientationToggled',
-  //       attachToElement: false,
-  //       triggerFunctionObj: {
-  //         mouseDown: [handlerFunctions.orientationToggled],
-  //         keyDown: [handlerFunctions.orientationToggled]
-  //       }
-  //     },
-  //     placed: {
-  //       key: 'placed',
-  //       attachToElement: false,
-  //       triggerFunctionObj: { [SHIP.EVENTS.PLACED]: [handlerFunctions.shipPlaced] }
-  //     }
-  //   }
-  // };
-
   return {
     setToPlacementState,
     select,
@@ -112,3 +89,26 @@ export const ShipController = (shipModel, shipView) => {
     hitShip
   };
 };
+
+// const handlerData = {
+//   placementState: {
+//     selected: {
+//       key: 'selected',
+//       attachToElement: true,
+//       triggerFunctionObj: { click: [handlerFunctions.shipSelected] }
+//     },
+//     orientationToggled: {
+//       key: 'orientationToggled',
+//       attachToElement: false,
+//       triggerFunctionObj: {
+//         mouseDown: [handlerFunctions.orientationToggled],
+//         keyDown: [handlerFunctions.orientationToggled]
+//       }
+//     },
+//     placed: {
+//       key: 'placed',
+//       attachToElement: false,
+//       triggerFunctionObj: { [SHIP.EVENTS.PLACED]: [handlerFunctions.shipPlaced] }
+//     }
+//   }
+// };
