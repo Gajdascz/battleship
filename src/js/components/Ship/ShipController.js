@@ -1,54 +1,103 @@
 import { STATUSES } from '../../utility/constants/common';
-import { handle } from './utility/controllerHandlers';
+import {
+  MOUSE_EVENTS,
+  KEY_EVENTS,
+  PLACEMENT_EVENTS,
+  PROGRESS_EVENTS
+} from '../../utility/constants/events';
+import eventEmitter from '../../utility/eventEmitter';
 
-export const ShipController = (shipModel, shipView) => {
+const isRotateRequest = (e) =>
+  e.code === KEY_EVENTS.CODES.SPACE ||
+  e.code === KEY_EVENTS.CODES.R ||
+  e.button === 1 ||
+  (e.target.classList.contains('rotate-ship-button') && e instanceof PointerEvent);
+
+export const ShipController = ({ shipModel, shipView }) => {
   const _model = shipModel;
   const _view = shipView;
-  const updateView = () => _view.render(shipModel);
+
+  const interactivityControl = {
+    enable: () => {
+      _view.getElement().addEventListener(MOUSE_EVENTS.CLICK, select);
+      document.addEventListener(KEY_EVENTS.DOWN, toggleOrientation);
+      document.addEventListener(MOUSE_EVENTS.DOWN, toggleOrientation);
+      _view.getElement().disabled = true;
+    },
+   
+  };
+
+  const disableShipSelection = () =>
+    _view.getElement().removeEventListener(MOUSE_EVENTS.CLICK, select);
+  const disableShipOrientationToggle = () => {
+    document.removeEventListener(KEY_EVENTS.DOWN, toggleOrientation);
+    document.removeEventListener(MOUSE_EVENTS.DOWN, toggleOrientation);
+  };
+  const enableInteractivity = () => {
+  };
+
+  const disableInteractivity = () => {
+    disableShipSelection();
+    disableShipOrientationToggle();
+    _view.getElement().disabled = true;
+  };
+
+  }
+
 
   const select = () => {
-    if (!_model.isPlacementState()) return;
     if (_model.isSelected()) pickup();
     _model.setIsSelected(true);
-    handle.placementState.shipSelect(_view, _model);
-    updateView();
+    _view.updateSelectedStatus(true);
+    publish.shipSelected({
+      element: _view.getElement(),
+      length: _model.getLength(),
+      id: _model.getID(),
+      orientation: _model.getOrientation()
+    });
   };
+
   const deselect = () => {
-    if (!_model.isPlacementState()) return;
     _model.setIsSelected(false);
-    updateView();
+    _view.updateSelectedStatus(false);
   };
+
+  const toggleOrientation = (e) => {
+    if (!isRotateRequest(e)) return;
+    e.preventDefault();
+    _model.toggleOrientation();
+    _view.updateOrientation(_model.getOrientation());
+    publish.orientationToggled(_model.getID(), _model.getOrientation());
+  };
+
+  const place = (coordinates) => {
+    _model.setPlacedCoordinates(coordinates);
+    _model.setIsPlaced(true);
+    _view.updatePlacementStatus(true);
+    publish.placementSuccessful();
+  };
+
   const pickup = () => {
     _model.setPlacedCoordinates([]);
     _model.setIsPlaced(false);
-    updateView();
+    _view.updatePlacementStatus(false);
   };
 
-  const setToPlacementState = () => {
-    if (_model.isPlacementState()) return;
-    handle.placementState.initiate(_model);
-    updateView();
-  };
-  const setToProgressState = () => {
-    if (_model.isProgressState()) return;
-    _view.updateForProgressState();
-    handle.progressState.initiate(_model);
-    updateView();
-  };
-  const hitShip = () => {
-    if (!_model.isProgressState()) return;
+  const hit = () => {
     const result = _model.hit();
-    if (result === STATUSES.SHIP_SUNK) handle.progressState.shipSunk();
-    else handle.progressState.shipHit();
-    updateView();
+    if (result === STATUSES.SHIP_SUNK) {
+      _view.updateSunkStatus(true);
+      publish.shipSunk(_model.getID());
+    } else {
+      publish.shipHit(_model.getID());
+    }
   };
+
+  const handleAttack = ({ coordinates }) => {};
 
   return {
-    setToPlacementState,
     select,
     deselect,
-    setToProgressState,
-    hitShip,
     getModel: () => _model,
     getElement: () => _view.getElement()
   };

@@ -21,4 +21,5 @@ export const BoardCoordinator = ({
   _trackingGridController.displayGrid(boardContainer);
   const mainGridWrapper = document.querySelector(`.${MAIN_GRID.CLASSES.WRAPPER}`);
   _fleetController.displayMainFleet(mainGridWrapper);
+  // _mainGridController.setPlacementState();
 };

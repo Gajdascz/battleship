@@ -1,4 +1,4 @@
-import { eventEmitter } from '../../../utility/eventEmitter';
+import eventEmitter from '../../../utility/eventEmitter';
 import {
   GENERAL_EVENTS,
   PLACEMENT_EVENTS,

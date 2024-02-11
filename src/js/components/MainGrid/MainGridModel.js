@@ -4,7 +4,7 @@ import {
   convertToInternalFormat
 } from '../../utility/utils/coordinatesUtils';
 
-import { ORIENTATIONS, STATUSES, STATES } from '../../utility/constants/common';
+import { ORIENTATIONS, STATUSES } from '../../utility/constants/common';
 
 export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {}) => {
   if (rows > 26 || cols > 26) throw new Error('Board cannot have more than 25 rows or columns.');
@@ -14,23 +14,25 @@ export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {})
   const _maxVertical = _mainGrid.length;
   const _maxHorizontal = _mainGrid[0].length;
   let _numberOfShipsPlaced = 0;
-  let _state = STATES.START;
 
   const isInBounds = (coordinates) => isWithinGrid(_mainGrid, coordinates);
   const isVertical = (orientation) => orientation === ORIENTATIONS.VERTICAL;
 
-  const getCellValue = (coordinates) => getValueAt(_mainGrid, coordinates);
-  const setCellValue = (coordinates, value) => (_mainGrid[coordinates[0]][coordinates[1]] = value);
+  const getCellStatus = (coordinates) => getValueAt(_mainGrid, coordinates);
+  const setCellStatus = (coordinates, status) =>
+    (_mainGrid[coordinates[0]][coordinates[1]] = status);
 
   const isPlacementValid = (start, end, orientation) => {
     if (!isInBounds(start) || !isInBounds(end)) return false;
     if (isVertical(orientation)) {
       for (let i = start[1]; i <= end[1]; i++) {
-        if (_mainGrid[start[0]][i] !== STATUSES.UNEXPLORED) return false;
+        const status = getCellStatus([start[0], i]);
+        if (status.status !== STATUSES.UNEXPLORED) return false;
       }
     } else {
       for (let i = start[0]; i <= end[0]; i++) {
-        if (_mainGrid[i][start[1]] !== STATUSES.UNEXPLORED) return false;
+        const status = getCellStatus([i, start[1]]);
+        if (status.status !== STATUSES.UNEXPLORED) return false;
       }
     }
     return true;
@@ -75,9 +77,9 @@ export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {})
   const place = ({ start, end, orientation }) => {
     if (isPlacementValid(start, end, orientation)) {
       if (orientation === ORIENTATIONS.VERTICAL) {
-        for (let i = start[1]; i <= end[1]; i++) _mainGrid[start[0]][i] = STATUSES.OCCUPIED;
+        for (let i = start[1]; i <= end[1]; i++) setCellStatus([start[0], i], STATUSES.OCCUPIED);
       } else {
-        for (let i = start[0]; i <= end[0]; i++) _mainGrid[i][start[1]] = STATUSES.OCCUPIED;
+        for (let i = start[0]; i <= end[0]; i++) setCellStatus([i, start[1]], STATUSES.OCCUPIED);
       }
     } else return false;
     _numberOfShipsPlaced += 1;
@@ -86,9 +88,9 @@ export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {})
 
   function incomingAttack(coordinates) {
     if (!isInBounds(coordinates)) return false;
-    const gridCell = getCellValue(coordinates);
-    if (gridCell === STATUSES.OCCUPIED) {
-      setCellValue(coordinates, STATUSES.HIT);
+    const cellStatus = getCellStatus(coordinates);
+    if (cellStatus.status === STATUSES.OCCUPIED) {
+      setCellStatus(coordinates, STATUSES.HIT);
       return STATUSES.HIT;
     } else return STATUSES.MISS;
   }
@@ -97,15 +99,11 @@ export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {})
     place,
     incomingAttack,
     isBoard: () => true,
-    isPlacementState: () => _state === STATES.PLACEMENT,
-    isProgressState: () => _state === STATES.PROGRESS,
     getMainGrid: () => copyGrid(_mainGrid),
     getLetterAxis: () => _letterAxis,
     getMaxVertical: () => _maxVertical,
     getMaxHorizontal: () => _maxHorizontal,
-    getState: () => _state,
     getNumberOfShipsPlaced: () => _numberOfShipsPlaced,
-    setState: (value) => (_state = value),
     calculateCells,
     reset() {
       _numberOfShipsPlaced = 0;

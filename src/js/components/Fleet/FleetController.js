@@ -6,7 +6,6 @@ export const FleetController = (fleetModel, fleetView) => {
   const _view = fleetView;
 
   const handlePlacementSubmission = () => {
-    if (!_model.isPlacementState()) return;
     const placements = new Map();
     _model.getFleet().forEach((ship) => {
       const startCoordinates = convertToInternalFormat(ship.placedCoordinates[0]);
@@ -19,7 +18,6 @@ export const FleetController = (fleetModel, fleetView) => {
   };
 
   const selectShip = (e) => {
-    if (!_model.isPlacementState()) return;
     _model.fleet.forEach((ship) => {
       if (ship.id === e.detail.id) ship.select();
       else ship.deselect();
@@ -36,8 +34,6 @@ export const FleetController = (fleetModel, fleetView) => {
     _model.addTrackingShip(shipModel);
   };
 
-  const shipSunk = (shipID) => fleetModel.setSunk(shipID);
-
   const displayMainFleet = (container) => _view.renderMainFleet(container);
   const displayTrackingFleet = (container) => _view.renderTrackingFleet(container);
 
@@ -45,8 +41,8 @@ export const FleetController = (fleetModel, fleetView) => {
     displayMainFleet,
     displayTrackingFleet,
     selectShip,
-    shipSunk,
     assignShipToMainFleet,
-    assignShipToTrackingFleet
+    assignShipToTrackingFleet,
+    getModel: () => _model
   };
 };

@@ -3,23 +3,25 @@ import { COMMON_GRID } from '../../utility/constants/components/grids';
 import { MOUSE_EVENTS } from '../../utility/constants/events';
 
 export const MainGridController = (mainGridModel, mainGridView) => {
-  const _mainGridModel = mainGridModel;
-  const _mainGridView = mainGridView;
+  const _model = mainGridModel;
+  const _view = mainGridView;
 
   const handleShipSelect = (detail) => {
-    const { length, orientation } = detail;
-    _mainGridView.getElement().addEventListener(MOUSE_EVENTS.OVER, (e) => {
+    console.log(detail);
+    const { id, length, orientation } = detail;
+    console.log(id, length, orientation);
+    _view.getElement().addEventListener(MOUSE_EVENTS.OVER, (e) => {
       const targetCoordinates = e.target.closest(COMMON_GRID.CELL_SELECTOR).dataset.coordinates;
-      const cells = _mainGridModel.calculateCells(targetCoordinates, length, orientation);
-      _mainGridView.displayPlacementPreview(cells);
+      const cells = _model.calculateCells(targetCoordinates, length, orientation);
+      _view.displayPlacementPreview(cells);
     });
   };
 
   const setPlacementState = () => {
-    subscribe.shipSelected(_mainGridModel.calculateCells);
+    subscribe.placementState.shipSelected(handleShipSelect);
   };
 
-  const displayGrid = (container) => _mainGridView.renderGrid(container);
+  const displayGrid = (container) => _view.renderGrid(container);
 
-  return { displayGrid };
+  return { displayGrid, setPlacementState };
 };

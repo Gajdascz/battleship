@@ -4,7 +4,7 @@ import { PLACEMENT_EVENTS } from '../events';
 export const SHIP_CLASSES = {
   ENTRY: 'fleet-entry',
   SHIP_NAME: 'ship-name',
-  BEING_PLACED: 'being-placed'
+  SELECTED: 'ship-selected'
 };
 export const SHIP_DATA_ATTRIBUTES = {
   NAME: GENERAL_ATTRIBUTES.DATA('name'),

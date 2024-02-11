@@ -12,24 +12,27 @@ export const MOUSE_EVENTS = {
   CONTEXT_MENU: 'contextmenu'
 };
 export const KEY_EVENTS = {
-  Q: 'KeyQ',
-  W: 'KeyW',
-  E: 'KeyE',
-  R: 'KeyR',
-  T: 'KeyT',
-  Y: 'KeyY',
-  SPACE: 'Space',
-  ESC: 'Escape',
-  ENTER: 'Enter',
-  ARROW_UP: 'ArrowUp',
-  ARROW_DOWN: 'ArrowDown',
-  ARROW_LEFT: 'ArrowLeft',
-  ARROW_RIGHT: 'ArrowRight',
-  TAB: 'Tab',
-  SHIFT: 'Shift',
-  CONTROL: 'Control',
-  ALT: 'Alt',
-  DELETE: 'Delete'
+  DOWN: 'keydown',
+  CODES: {
+    Q: 'KeyQ',
+    W: 'KeyW',
+    E: 'KeyE',
+    R: 'KeyR',
+    T: 'KeyT',
+    Y: 'KeyY',
+    SPACE: 'Space',
+    ESC: 'Escape',
+    ENTER: 'Enter',
+    ARROW_UP: 'ArrowUp',
+    ARROW_DOWN: 'ArrowDown',
+    ARROW_LEFT: 'ArrowLeft',
+    ARROW_RIGHT: 'ArrowRight',
+    TAB: 'Tab',
+    SHIFT: 'Shift',
+    CONTROL: 'Control',
+    ALT: 'Alt',
+    DELETE: 'Delete'
+  }
 };
 
 export const GENERAL_EVENTS = {
@@ -56,7 +59,6 @@ export const PLACEMENT_EVENTS = {
 
 export const PROGRESS_EVENTS = {
   STATE: STATES.PROGRESS,
-
   ATTACK: {
     PROCESSED: 'attackProcessed',
     INITIATED: 'playerAttacked',

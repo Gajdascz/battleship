@@ -7,8 +7,6 @@ export const FleetView = (mainFleetElement, trackingFleetElement) => {
   const _trackingFleetShipList = _trackingFleetElement.querySelector(
     `.${TRACKING_FLEET.CLASSES.SHIP_LIST}`
   );
-
-  console.log(_mainFleetElement);
   const _mainFleetShipElements = [];
   const _trackingFleetShipElements = [];
 

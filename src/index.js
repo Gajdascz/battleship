@@ -4,7 +4,19 @@ import './styles/style.css';
 import { buildGameComponent } from './js/builders/Game/buildGameComponent';
 
 const gameController = buildGameComponent();
-gameController.addPlayers({ p1Data: 'nolan', id: 'p1' });
+const boardConfigData = {
+  numberOfRows: 10,
+  numberOfCols: 10,
+  letterAxis: 'row'
+};
+const playerOne = {
+  playerData: {
+    name: 'nolan',
+    id: 'playerOne'
+  },
+  boardConfigData
+};
+gameController.initializePlayers({ p1Data: playerOne });
 
 // import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';
 // // import RenderController from './js/ui/render/RenderController';

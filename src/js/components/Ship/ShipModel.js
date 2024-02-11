@@ -1,5 +1,5 @@
 import { createSlug } from '../../utility/utils/stringUtils';
-import { STATES, ORIENTATIONS } from '../../utility/constants/common';
+import { ORIENTATIONS, STATUSES } from '../../utility/constants/common';
 
 export const ShipModel = ({ length, name }) => {
   const _length = length;
@@ -10,16 +10,12 @@ export const ShipModel = ({ length, name }) => {
   let _isSelected = false;
   let _health = length;
   let _orientation = ORIENTATIONS.VERTICAL;
-  let _state = STATES.PLACEMENT;
 
   return {
     isShip: () => true,
     isSunk: () => _health <= 0,
     isSelected: () => _isSelected,
     isPlaced: () => _isPlaced,
-    isVertical: () => _orientation === ORIENTATIONS.VERTICAL,
-    isPlacementState: () => _state === STATES.PLACEMENT,
-    isProgressState: () => _state === STATES.PROGRESS,
     getID: () => _id,
     getLength: () => _length,
     getName: () => _name,
@@ -27,22 +23,23 @@ export const ShipModel = ({ length, name }) => {
     getOrientation: () => _orientation,
     getPlacedCoordinates: () => _placedCoordinates.map((coordinates) => coordinates.slice()),
     setIsPlaced: (value) => (_isPlaced = value),
-    setOrientation: (value) => (_orientation = value),
     setIsSelected: (value) => (_isSelected = value),
-    setState: (value) => (_state = value),
     setPlacedCoordinates: (coordinates) => {
       _placedCoordinates.length = 0;
       _placedCoordinates.push(...coordinates);
     },
-    clearPlacedCoordinates: () => (_placedCoordinates.length = 0),
+    toggleOrientation: () =>
+      (_orientation =
+        _orientation === ORIENTATIONS.VERTICAL ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL),
     hit: () => {
-      if (_health <= 0) return;
       if (_health > 0) _health--;
-      return _health === 0 ? -1 : true;
+      return _health > 0 ? STATUSES.HIT : STATUSES.SHIP_SUNK;
     },
     reset: () => {
       _placedCoordinates.length = 0;
       _health = _length;
+      _isPlaced = false;
+      _isSelected = false;
     }
   };
 };

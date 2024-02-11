@@ -5,10 +5,15 @@ import { buildMainGridComponent } from '../../builders/MainGrid/buildMainGridCom
 import { buildTrackingGridComponent } from '../../builders/TrackingGrid/buildTrackingGridComponent';
 import { buildFleetComponent } from '../../builders/Fleet/buildFleetComponent';
 import { buildShipComponent } from '../../builders/Ship/buildShipComponent';
+import { handle } from './utility/controllerHandlers';
 
 export const GameController = (gameModel, gameView) => {
-  const _gameModel = gameModel;
-  const _gameView = gameView;
+  const _model = gameModel;
+  const _view = gameView;
+
+  const initiateStartState = () => {
+    handle.startGame(_model);
+  };
 
   const initializeBoardCoordinator = ({
     mainGridController,
@@ -22,33 +27,34 @@ export const GameController = (gameModel, gameView) => {
     });
   };
 
-  const populateFleet = (fleetController) => {
-    DEFAULT_FLEET.map((ship) => {
+  const populateFleet = (fleetController, fleetShipsData) =>
+    fleetShipsData.forEach((ship) => {
       const shipController = buildShipComponent(ship);
       const shipModel = shipController.getModel();
       const shipElement = shipController.getElement();
       fleetController.assignShipToMainFleet(shipModel, shipElement);
     });
+
+  const initializePlayer = ({ playerData, boardConfigData, fleetShipsData = DEFAULT_FLEET }) => {
+    const playerModel = PlayerModel({ name: playerData.name, id: playerData.id });
+    const mainGrid = buildMainGridComponent(boardConfigData);
+    const trackingGrid = buildTrackingGridComponent(boardConfigData);
+    const fleet = buildFleetComponent();
+    populateFleet(fleet, fleetShipsData);
+    initiateStartState();
+    return { playerModel, mainGrid, trackingGrid, fleet };
   };
 
-  const addPlayers = ({ p1Data, p2Data, boardConfigData }) => {
-    const p1Model = PlayerModel({ name: p1Data.name, id: p1Data.id });
-    const p1Fleet = buildFleetComponent();
-    const p1MainGrid = buildMainGridComponent({
-      numberOfRows: 10,
-      numberOfCols: 10,
-      letterAxis: 'row'
+  const initializePlayers = ({ p1Data, p2Data }) => {
+    const p1 = initializePlayer({
+      playerData: p1Data.playerData,
+      boardConfigData: p1Data.boardConfigData,
+      fleetShipsData: p1Data.fleetShipsData
     });
-    const p1TrackingGrid = buildTrackingGridComponent({
-      numberOfRows: 10,
-      numberOfCols: 10,
-      letterAxis: 'row'
-    });
-    populateFleet(p1Fleet);
     initializeBoardCoordinator({
-      mainGridController: p1MainGrid,
-      trackingGridController: p1TrackingGrid,
-      fleetController: p1Fleet
+      mainGridController: p1.mainGrid,
+      trackingGridController: p1.trackingGrid,
+      fleetController: p1.fleet
     });
   };
 
@@ -61,6 +67,6 @@ export const GameController = (gameModel, gameView) => {
   const setToProgressState = () => {};
 
   return {
-    addPlayers
+    initializePlayers
   };
 };

@@ -1,14 +1,11 @@
 import { SHIP_CLASSES } from '../../utility/constants/components/ship';
-import { ORIENTATIONS } from '../../utility/constants/common';
 import { BOOL } from '../../utility/constants/dom/attributes';
+import { KEY_EVENTS, MOUSE_EVENTS } from '../../utility/constants/events';
 export const ShipView = (shipElement, trackingElement) => {
   const _mainShipElement = shipElement;
   const _trackingShipElement = trackingElement;
 
-  const updateOrientation = (isVertical) =>
-    (_mainShipElement.dataset.orientation = isVertical
-      ? ORIENTATIONS.HORIZONTAL
-      : ORIENTATIONS.VERTICAL);
+  const updateOrientation = (orientation) => (_mainShipElement.dataset.orientation = orientation);
 
   const updatePlacementStatus = (isPlaced) =>
     (_mainShipElement.dataset.placed = isPlaced ? BOOL.T : BOOL.F);
@@ -19,21 +16,27 @@ export const ShipView = (shipElement, trackingElement) => {
   };
 
   const updateSelectedStatus = (isSelected) =>
-    _mainShipElement.classList.toggle(SHIP_CLASSES.BEING_PLACED, isSelected);
+    _mainShipElement.classList.toggle(SHIP_CLASSES.SELECTED, isSelected);
 
-  const updateForProgressState = () => (_mainShipElement.disabled = true);
+  const enableInteractivity = (selectCallback, toggleOrientationCallback) => {
+    _mainShipElement.getElement().addEventListener(MOUSE_EVENTS.CLICK, selectCallback);
+    document.addEventListener(KEY_EVENTS.DOWN, toggleOrientationCallback);
+    document.addEventListener(MOUSE_EVENTS.DOWN, toggleOrientationCallback);
+    _mainShipElement.disabled = false;
+  };
 
-  const render = (shipModel) => {
-    if (shipModel.isPlacementState()) {
-      updateOrientation(shipModel.getOrientation());
-      updatePlacementStatus(shipModel.isPlaced());
-      updateSelectedStatus(shipModel.isSelected());
-    } else updateSunkStatus(shipModel.isSunk());
+  const disableInteractivity = () => {
+    _view.getElement().removeEventListener(MOUSE_EVENTS.CLICK, select);
+    document.removeEventListener(KEY_EVENTS.DOWN, toggleOrientation);
+    document.removeEventListener(MOUSE_EVENTS.DOWN, toggleOrientation);
   };
 
   return {
     getElement: () => _mainShipElement,
-    render,
-    updateForProgressState
+    updateOrientation,
+    updatePlacementStatus,
+    updateSunkStatus,
+    updateSelectedStatus,
+    enableInteractivity
   };
 };
