@@ -8,8 +8,8 @@ export const MainGridView = (mainGridElement) => {
 
   const displayPlacementPreview = (cells) => {
     clearPlacementPreview(_mainGridElement);
-    cells.forEach(({ x, y }) => {
-      const cell = getCell(x, y);
+    cells.forEach(({ row, col }) => {
+      const cell = getCell(row, col);
       if (isAtopAnotherShip(cell)) cell.classList.add('invalid-placement');
       else cell.classList.add('valid-placement');
     });
@@ -22,6 +22,7 @@ export const MainGridView = (mainGridElement) => {
   };
 
   const displayPlacedShip = (placementCells, shipID) => {
+    clearPlacementPreview();
     placementCells.forEach((cell) => {
       cell.classList.replace('valid-placement', 'placed-ship');
       cell.setAttribute('data-placed-ship-name', shipID);
@@ -41,9 +42,14 @@ export const MainGridView = (mainGridElement) => {
   const displayShipHit = (coordinates) =>
     getCell(coordinates[0], coordinates[1]).classList.add('main-grid-hit-marker');
 
-  const render = (mainGridModel) => {};
+  const renderGrid = (container) => container.append(_mainGridElement);
 
   return {
-    getElement: () => _mainGridElement
+    renderGrid,
+    displayPlacementPreview,
+    clearPlacementPreview,
+    displayPlacedShip,
+    clearPlacedShip,
+    displayShipHit
   };
 };

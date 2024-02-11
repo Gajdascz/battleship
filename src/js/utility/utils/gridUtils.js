@@ -1,4 +1,15 @@
 /**
+ * Creates a Row x Column grid 2D array.
+ *
+ * @param {number} rows Number of rows.
+ * @param {number} cols Number of columns.
+ * @param {*} fill Default values to fill grid with.
+ * @returns
+ */
+const createGrid = (rows, cols, fill) =>
+  Array.from({ length: rows }).map(() => Array.from({ length: cols }).fill(fill));
+
+/**
  * Checks if a cell's coordinates are within the boundaries of a grid.
  *
  * @param {array[][]} grid The game grid.
@@ -53,4 +64,4 @@ const getValueAt = (grid, coordinates) => {
   return undefined;
 };
 
-export { isWithinGrid, copyGrid, isAtEdge, getValueAt };
+export { isWithinGrid, copyGrid, isAtEdge, getValueAt, createGrid };

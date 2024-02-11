@@ -1,11 +1,32 @@
-import { STATUSES } from '../../utility/constants/common';
-
 export const GameModel = () => {
-  const _players = { current: null, opponent: null };
+  const _players = {
+    p1: { model: null, board: null, fleet: null },
+    p2: { model: null, board: null, fleet: null }
+  };
+  const _playerStates = { current: _players.p1, opponent: _players.p2 };
+  const _state = { current: null };
+  const _mode = { current: null };
   return {
-    switchCurrentPlayer: () =>
-      ([_players.current, _players.opponent] = [_players.opponent, _players.current]),
-    getCurrentState: () => _current.state,
-    setCurrentState: (value) => (_current.state = value)
+    getCurrentPlayer: () => _playerStates.current,
+    getOpponentPlayer: () => _playerStates.opponent,
+    getState: () => _state.current,
+    getGameMode: () => _mode.current,
+    setP1: (playerModel, boardModel, fleetModel) => {
+      _players.p1.model = playerModel;
+      _players.p1.board = boardModel;
+      _players.p1.fleet = fleetModel;
+    },
+    setP2: (playerModel, boardModel, fleetModel) => {
+      _players.p2.model = playerModel;
+      _players.p2.board = boardModel;
+      _players.p2.fleet = fleetModel;
+    },
+    setState: (value) => (_state.current = value),
+    setGameMode: (value) => (_mode.current = value),
+    switchCurrentPlayer: () => {
+      const currentPlayer = _playerStates.current;
+      _playerStates.current = _playerStates.opponent;
+      _playerStates.opponent = currentPlayer;
+    }
   };
 };

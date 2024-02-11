@@ -1,3 +1,4 @@
+import { STATUSES } from '../../utility/constants/common';
 import { handle } from './utility/controllerHandlers';
 
 export const ShipController = (shipModel, shipView) => {
@@ -9,7 +10,7 @@ export const ShipController = (shipModel, shipView) => {
     if (!_model.isPlacementState()) return;
     if (_model.isSelected()) pickup();
     _model.setIsSelected(true);
-    handle.placementState.shipSelected(_view, _model);
+    handle.placementState.shipSelect(_view, _model);
     updateView();
   };
   const deselect = () => {
@@ -37,14 +38,8 @@ export const ShipController = (shipModel, shipView) => {
   const hitShip = () => {
     if (!_model.isProgressState()) return;
     const result = _model.hit();
-    if (result === -1) shipSunk();
+    if (result === STATUSES.SHIP_SUNK) handle.progressState.shipSunk();
     else handle.progressState.shipHit();
-    updateView();
-  };
-  const shipSunk = () => {
-    if (!_model.isProgressState()) return;
-    handle.progressState.shipSunk();
-    _view.updateSunkStatus(_model.isSunk());
     updateView();
   };
 
@@ -53,6 +48,8 @@ export const ShipController = (shipModel, shipView) => {
     select,
     deselect,
     setToProgressState,
-    hitShip
+    hitShip,
+    getModel: () => _model,
+    getElement: () => _view.getElement()
   };
 };

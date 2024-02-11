@@ -1,5 +1,8 @@
-import { ELEMENT_TYPES, GRID } from '../../../common/uiConstants';
-import { getLetter, uiObj } from '../../../common/uiUtility';
+import { COMMON_ELEMENTS } from '../../utility/constants/dom/elements';
+import { MAIN_GRID, TRACKING_GRID, COMMON_GRID } from '../../utility/constants/components/grids';
+import { buildUIObj } from '../utility/uiBuilders';
+import { STATUSES } from '../../utility/constants/common';
+import { convertIndexToLetter, convertLetterToIndex } from '../../utility/utils/stringUtils';
 /**
  * @module buildGridObj.js
  * Provides the structured Object for the game board's specified grid.
@@ -10,7 +13,7 @@ import { getLetter, uiObj } from '../../../common/uiUtility';
  *
  */
 
-const isMain = (gridType) => gridType === GRID.COMMON.CLASSES.GRID_TYPES.MAIN;
+const isMain = (gridType) => gridType === MAIN_GRID.TYPE;
 
 /**
  * Creates the grid's header Object.
@@ -19,13 +22,15 @@ const isMain = (gridType) => gridType === GRID.COMMON.CLASSES.GRID_TYPES.MAIN;
  * @returns {Object} Contains details for creating the grid's header Element.
  */
 const gridHeaderObj = (gridType) =>
-  uiObj(ELEMENT_TYPES.DIV, {
+  buildUIObj(COMMON_ELEMENTS.DIV, {
     attributes: {
-      class: isMain(gridType) ? GRID.MAIN.HEADER_CLASS : GRID.TRACKING.CLASSES.HEADER
+      class: isMain(gridType) ? MAIN_GRID.CLASSES.HEADER : TRACKING_GRID.CLASSES.HEADER
     },
     children: [
-      uiObj(ELEMENT_TYPES.PARAGRAPH, {
-        text: isMain(gridType) ? GRID.MAIN.TEXTS.HEADER : GRID.TRACKING.TEXTS.HEADER
+      buildUIObj(COMMON_ELEMENTS.PARAGRAPH, {
+        text: isMain(gridType)
+          ? MAIN_GRID.PROPERTIES.HEADER_TEXT
+          : TRACKING_GRID.PROPERTIES.HEADER_TEXT
       })
     ]
   });
@@ -41,14 +46,16 @@ const gridHeaderObj = (gridType) =>
 const gridCellObj = (row, col, gridType) => {
   const isMainResult = isMain(gridType);
 
-  return uiObj(isMainResult ? ELEMENT_TYPES.DIV : ELEMENT_TYPES.BUTTON, {
+  return buildUIObj(isMainResult ? COMMON_ELEMENTS.DIV : COMMON_ELEMENTS.BUTTON, {
     attributes: {
-      class: GRID.COMMON.CLASSES.CELL,
-      ...(!isMainResult && { [GRID.TRACKING.ATTRIBUTES.VALUE]: `${row + col}` }),
+      class: COMMON_GRID.CLASSES.CELL,
+      ...(!isMainResult && { [TRACKING_GRID.PROPERTIES.ATTRIBUTES.VALUE]: `${row + col}` }),
       ...(!isMainResult && {
-        [GRID.TRACKING.ATTRIBUTES.CELL_STATUS]: GRID.TRACKING.STATUS_VALUES.UNEXPLORED
+        [TRACKING_GRID.PROPERTIES.ATTRIBUTES.CELL_STATUS_DATA]: STATUSES.UNEXPLORED
       }),
-      ...(isMainResult && { [GRID.MAIN.ATTRIBUTES.COORDINATES]: `${row + col}` })
+      ...(isMainResult && {
+        [MAIN_GRID.PROPERTIES.ATTRIBUTES.CELL_COORDINATES_DATA]: `${row + col}`
+      })
     }
   });
 };
@@ -63,8 +70,8 @@ const gridCellObj = (row, col, gridType) => {
  */
 const generateLabels = (count, type, axisLabelClass) =>
   Array.from({ length: count }).map((_, i) =>
-    uiObj(ELEMENT_TYPES.PARAGRAPH, {
-      text: type === 'letter' ? getLetter(i) : `${i}`,
+    buildUIObj(COMMON_ELEMENTS.PARAGRAPH, {
+      text: type === COMMON_GRID.LABEL_TYPES.LETTER ? convertIndexToLetter(i) : `${i}`,
       attributes: { class: axisLabelClass }
     })
   );
@@ -77,12 +84,12 @@ const generateLabels = (count, type, axisLabelClass) =>
  * @returns {Object} Contains details for creating the column label Element.
  */
 const colLabelsObj = (cols, letterAxis) =>
-  uiObj(ELEMENT_TYPES.DIV, {
-    attributes: { class: GRID.COMMON.CLASSES.LABELS.COL_CONTAINER },
+  buildUIObj(COMMON_ELEMENTS.DIV, {
+    attributes: { class: COMMON_GRID.CLASSES.LABELS.COL_CONTAINER },
     children:
-      letterAxis === 'col'
-        ? generateLabels(cols, 'letter', GRID.COMMON.CLASSES.LABELS.COL)
-        : generateLabels(cols, 'numeric', GRID.COMMON.CLASSES.LABELS.COL)
+      letterAxis === COMMON_GRID.LETTER_AXES.COL
+        ? generateLabels(cols, COMMON_GRID.LABEL_TYPES.LETTER, COMMON_GRID.CLASSES.LABELS.COL)
+        : generateLabels(cols, COMMON_GRID.LABEL_TYPES.NUMERIC, COMMON_GRID.CLASSES.LABELS.COL)
   });
 
 /**
@@ -92,9 +99,9 @@ const colLabelsObj = (cols, letterAxis) =>
  * @returns {Object} Contains details for creating the row label Element.
  */
 const boardRowLabelObj = (label) =>
-  uiObj(ELEMENT_TYPES.PARAGRAPH, {
+  buildUIObj(COMMON_ELEMENTS.PARAGRAPH, {
     text: label,
-    attributes: { class: GRID.COMMON.CLASSES.LABELS.ROW }
+    attributes: { class: COMMON_GRID.CLASSES.LABELS.ROW }
   });
 
 /**
@@ -111,8 +118,8 @@ const buildGridRowObj = (rowLabel, cols, colLabels, gridType) => {
     gridCellObj(rowLabel, colLabels[col], gridType)
   );
   const rowLabelObj = boardRowLabelObj(rowLabel);
-  return uiObj(ELEMENT_TYPES.DIV, {
-    attributes: { class: GRID.COMMON.CLASSES.ROW },
+  return buildUIObj(COMMON_ELEMENTS.DIV, {
+    attributes: { class: COMMON_GRID.CLASSES.ROW },
     children: [rowLabelObj, ...cellObjs]
   });
 };
@@ -133,22 +140,18 @@ export const buildGridObj = (rows, cols, letterAxis, gridType) => {
   const columnLabelValues = columnLabelObjectArray.children.map((labelObj) => labelObj.text);
   const rowObjs = Array.from({ length: rows }).map((_, row) =>
     buildGridRowObj(
-      letterAxis === 'row' ? getLetter(row) : `${row}`,
+      letterAxis === COMMON_GRID.LETTER_AXES.ROW ? convertLetterToIndex(row) : `${row}`,
       cols,
       columnLabelValues,
       gridType
     )
   );
-  return uiObj(ELEMENT_TYPES.DIV, {
+  return buildUIObj(COMMON_ELEMENTS.DIV, {
     attributes: {
-      class:
-        gridType === GRID.COMMON.CLASSES.GRID_TYPES.MAIN
-          ? GRID.MAIN.CLASSES.WRAPPER
-          : GRID.TRACKING.CLASSES.WRAPPER
+      class: gridType === MAIN_GRID.TYPE ? MAIN_GRID.CLASSES.WRAPPER : TRACKING_GRID.CLASSES.WRAPPER
     },
     children: [
-      uiObj(ELEMENT_TYPES.DIV, {
-        type: ELEMENT_TYPES.DIV,
+      buildUIObj(COMMON_ELEMENTS.DIV, {
         attributes: { class: gridType },
         children: [gridHeaderObj(gridType), colLabelsObj(cols, letterAxis), ...rowObjs]
       })

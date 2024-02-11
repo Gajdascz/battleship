@@ -1,5 +1,5 @@
 import { convertIndexToLetter, convertLetterToIndex } from './stringUtils';
-import { LETTER_AXES, DIRECTIONS, ORIENTATIONS } from '../constants';
+import { LETTER_AXES, DIRECTIONS, ORIENTATIONS } from '../constants/common';
 /**
  * @module coordinatesHelpers
  * Provides utility functions for AI with 2D grid coordinate pairs in spatial analysis and navigation.

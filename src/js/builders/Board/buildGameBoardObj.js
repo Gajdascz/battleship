@@ -1,6 +1,6 @@
 import { buildElementTree } from '../../utility/elementObjBuilder';
 import { buildGridObj } from './buildGridObj';
-import { buildFleetListObj } from '../../Fleet/buildFleetListObj';
+import { buildFleetListObj } from '../Fleet/buildFleetUIObj';
 import { ELEMENT_TYPES, GRID } from '../common/uiConstants';
 import { uiObj } from '../common/uiUtility';
 

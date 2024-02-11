@@ -1,10 +1,10 @@
 import eventEmitter from '../../../utility/eventEmitter';
 
-import { SHIP } from '../../../___ui/common/constants/shipConstants';
+import { PLACEMENT_EVENTS } from '../../../utility/constants/events';
 
 export const publish = {
   shipSelected: (shipElement, id, orientation) => {
-    eventEmitter.publish(SHIP.EVENTS.SELECTED, {
+    eventEmitter.publish(PLACEMENT_EVENTS.SHIP.SELECTED, {
       element: shipElement,
       length,
       id,
@@ -12,7 +12,7 @@ export const publish = {
     });
   },
   orientationToggled: (id, orientation) => {
-    eventEmitter.publish(SHIP.EVENTS.ORIENTATION_CHANGED, { id, orientation });
+    eventEmitter.publish(PLACEMENT_EVENTS.SHIP.ORIENTATION_CHANGED, { id, orientation });
   },
   placementSuccessful: () => eventEmitter.publish('shipPlacementSuccessful'),
   shipHit: (id) => eventEmitter.publish('shipHit', { id }),

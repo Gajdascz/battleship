@@ -1,8 +1,8 @@
-import { FLEET_MANAGER } from '../../../common/constants/baseConstants';
+import { PLACEMENT_EVENTS } from '../../../utility/constants/events';
 
 export const dispatch = {
   submitPlacements: (placements) => {
-    const event = new CustomEvent(FLEET_MANAGER.EVENTS.PLACEMENTS_SUBMITTED, {
+    const event = new CustomEvent(PLACEMENT_EVENTS.SUBMITTED, {
       detail: {
         placements
       }

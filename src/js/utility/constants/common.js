@@ -24,7 +24,8 @@ export const STATUSES = {
   SHIP_SUNK: 'ship_sunk',
   ALL_SHIPS_SUNK: 'all_ships_sunk',
   UNEXPLORED: 'unexplored',
-  OCCUPIED: 'occupied'
+  OCCUPIED: 'occupied',
+  EMPTY: 'empty'
 };
 
 // Grid traversal in vertical and horizontal orientations.

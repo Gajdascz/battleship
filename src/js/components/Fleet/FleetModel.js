@@ -1,4 +1,4 @@
-import { STATES } from '../../../utility/constants';
+import { STATES } from '../../utility/constants/common';
 
 /**
  * Creates a model for managing the fleet in a battleship game. This model

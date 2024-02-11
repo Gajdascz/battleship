@@ -1,4 +1,4 @@
-import { buildElementTree } from './elementObjBuilder';
+import { buildElementTree } from './buildElementTree';
 
 /**
  * Simplifies creation of UI object descriptions for buildElementTree.

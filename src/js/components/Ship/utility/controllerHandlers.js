@@ -1,16 +1,16 @@
-import { SHIP } from '../../../___ui/common/constants/shipConstants';
+import { STATES, ORIENTATIONS } from '../../../utility/constants/common';
 import { publish } from './controllerPublishers';
 
 export const handle = {
   eventBridge: null,
   placementState: {
     initiate: (model) => {
-      model.setState(SHIP.STATES.PLACEMENT);
+      model.setState(STATES.PLACEMENT);
       handle.eventBridge = (e) => handle.placementState.orientationToggled(e, model);
       document.addEventListener('mousedown', handle.eventBridge);
       document.addEventListener('keydown', handle.eventBridge);
     },
-    shipSelected: (view, model) => {
+    selectShip: (view, model) => {
       publish.shipSelected(
         view.getElement(),
         model.getLength(),
@@ -18,7 +18,7 @@ export const handle = {
         model.getOrientation()
       );
     },
-    orientationToggled: (e, model) => {
+    toggleOrientation: (e, model) => {
       const isRotateRequest = (e) =>
         e.code === 'Space' ||
         e.code === 'KeyR' ||
@@ -27,13 +27,13 @@ export const handle = {
       if (!isRotateRequest(e)) return;
       e.preventDefault();
       model.setOrientation(
-        model.getOrientation() === SHIP.ORIENTATIONS.VERTICAL
-          ? SHIP.ORIENTATIONS.HORIZONTAL
-          : SHIP.ORIENTATIONS.VERTICAL
+        model.getOrientation() === ORIENTATIONS.VERTICAL
+          ? ORIENTATIONS.HORIZONTAL
+          : ORIENTATIONS.VERTICAL
       );
       publish.orientationToggled(model.getID(), model.getOrientation());
     },
-    shipPlaced: (e, model) => {
+    placeShip: (e, model) => {
       model.setPlacedCoordinates(e.detail.coordinates);
       model.setIsPlaced(true);
       publish.placementSuccessful();
@@ -41,13 +41,12 @@ export const handle = {
   },
   progressState: {
     initiate: (model) => {
-      model.setState(SHIP.STATES.PROGRESS);
+      model.setState(STATES.PROGRESS);
       document.removeEventListener('mousedown', handle.eventBridge);
       document.removeEventListener('keydown', handle.eventBridge);
       handle.eventBridge = null;
     },
-
-    shipHit: (model) => publish.shipHit(model.getID()),
-    shipSunk: (model) => publish.shipSunk(model.getID())
+    hitShip: (model) => publish.shipHit(model.getID()),
+    sinkShip: (model) => publish.shipSunk(model.getID())
   }
 };

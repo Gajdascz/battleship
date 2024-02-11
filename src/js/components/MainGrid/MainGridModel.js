@@ -1,23 +1,20 @@
-import { copyGrid, isWithinGrid, getValueAt } from '../../../../utility/utils/gridUtils';
+import { copyGrid, isWithinGrid, getValueAt, createGrid } from '../../utility/utils/gridUtils';
 import {
   convertToDisplayFormat,
   convertToInternalFormat
-} from '../../../../utility/utils/coordinatesUtils';
+} from '../../utility/utils/coordinatesUtils';
 
-import { ORIENTATIONS, STATUSES, STATES } from '../../../../utility/constants/common';
+import { ORIENTATIONS, STATUSES, STATES } from '../../utility/constants/common';
 
 export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {}) => {
   if (rows > 26 || cols > 26) throw new Error('Board cannot have more than 25 rows or columns.');
 
-  const createGrid = (rows, cols) =>
-    Array.from({ length: rows }).map(() => Array.from({ length: cols }).fill(STATUSES.UNEXPLORED));
-
-  const _mainGrid = createGrid(rows, cols);
+  const _mainGrid = createGrid(rows, cols, STATUSES.EMPTY);
   const _letterAxis = letterAxis;
   const _maxVertical = _mainGrid.length;
   const _maxHorizontal = _mainGrid[0].length;
   let _numberOfShipsPlaced = 0;
-  let _state = STATES.PLACEMENT;
+  let _state = STATES.START;
 
   const isInBounds = (coordinates) => isWithinGrid(_mainGrid, coordinates);
   const isVertical = (orientation) => orientation === ORIENTATIONS.VERTICAL;

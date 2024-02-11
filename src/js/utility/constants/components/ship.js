@@ -1,4 +1,4 @@
-import { ATTRIBUTES } from '../dom/attributes';
+import { GENERAL_ATTRIBUTES } from '../dom/attributes';
 import { PLACEMENT_EVENTS } from '../events';
 
 export const SHIP_CLASSES = {
@@ -7,10 +7,10 @@ export const SHIP_CLASSES = {
   BEING_PLACED: 'being-placed'
 };
 export const SHIP_DATA_ATTRIBUTES = {
-  NAME: ATTRIBUTES.DATA('name'),
-  SUNK: ATTRIBUTES.DATA('sunk'),
-  LENGTH: ATTRIBUTES.DATA('length'),
-  ORIENTATION: ATTRIBUTES.DATA('orientation'),
-  PLACED: ATTRIBUTES.DATA('placed')
+  NAME: GENERAL_ATTRIBUTES.DATA('name'),
+  SUNK: GENERAL_ATTRIBUTES.DATA('sunk'),
+  LENGTH: GENERAL_ATTRIBUTES.DATA('length'),
+  ORIENTATION: GENERAL_ATTRIBUTES.DATA('orientation'),
+  PLACED: GENERAL_ATTRIBUTES.DATA('placed')
 };
 export const SHIP_PLACEMENT_EVENTS = PLACEMENT_EVENTS.SHIP;

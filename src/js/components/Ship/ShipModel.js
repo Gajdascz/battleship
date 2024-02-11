@@ -3,13 +3,13 @@ import { STATES, ORIENTATIONS } from '../../utility/constants/common';
 
 export const ShipModel = ({ length, name }) => {
   const _length = length;
-  let _id = createSlug(name);
-  let _name = name;
+  const _id = createSlug(name);
+  const _name = name;
   const _placedCoordinates = [];
   let _isPlaced = false;
-  let _orientation = ORIENTATIONS.VERTICAL;
   let _isSelected = false;
   let _health = length;
+  let _orientation = ORIENTATIONS.VERTICAL;
   let _state = STATES.PLACEMENT;
 
   return {
@@ -26,13 +26,6 @@ export const ShipModel = ({ length, name }) => {
     getHealth: () => _health,
     getOrientation: () => _orientation,
     getPlacedCoordinates: () => _placedCoordinates.map((coordinates) => coordinates.slice()),
-    setName: (value) => {
-      if (!value) return;
-      const slug = createSlug(value);
-      if (slug.length <= 0) return;
-      _name = value;
-      _id = slug;
-    },
     setIsPlaced: (value) => (_isPlaced = value),
     setOrientation: (value) => (_orientation = value),
     setIsSelected: (value) => (_isSelected = value),

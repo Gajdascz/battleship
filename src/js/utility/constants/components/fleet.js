@@ -1,29 +1,30 @@
-export const FLEET = {
-  COMMON: {
-    CLASSES: {
-      FLEET_LIST_TYPES: {
-        MAIN: 'main-fleet-list',
-        TRACKING: 'tracking-fleet-list'
-      }
-    }
+export const DEFAULT_FLEET = [
+  { shipName: 'Carrier', shipLength: 5 },
+  { shipName: 'Battleship', shipLength: 4 },
+  { shipName: 'Destroyer', shipLength: 3 },
+  { shipName: 'Submarine', shipLength: 3 },
+  { shipName: 'Patrol Boat', shipLength: 2 }
+];
+
+export const MAIN_FLEET = {
+  TYPE: 'main-fleet',
+  CLASSES: {
+    SHIP_LIST: 'main-fleet-ship-list',
+    HEADER: 'main-fleet-header',
+    BUTTONS_CONTAINER: 'main-fleet-button-container'
   },
-  MAIN: {
-    CLASSES: {
-      CONTAINER: 'main-fleet-list-container',
-      HEADER_CONTAINER: 'main-fleet-list-container-header',
-      BUTTONS_CONTAINER: 'fleet-list-button-container'
-    },
-    TEXTS: {
-      HEADER: 'Your Fleet'
-    }
+  PROPERTIES: {
+    HEADER_TEXT: 'Your Fleet'
+  }
+};
+
+export const TRACKING_FLEET = {
+  TYPE: 'tracking-fleet',
+  CLASSES: {
+    SHIP_LIST: 'tracking-fleet-ship-list',
+    HEADER: 'tracking-fleet-header'
   },
-  TRACKING: {
-    CLASSES: {
-      CONTAINER: 'tracking-fleet-list-container',
-      HEADER_CONTAINER: 'tracking-fleet-list-container-header'
-    },
-    TEXTS: {
-      HEADER: 'Enemy Fleet'
-    }
+  PROPERTIES: {
+    HEADER_TEXT: 'Enemy Fleet'
   }
 };

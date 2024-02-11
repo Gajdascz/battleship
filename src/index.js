@@ -1,53 +1,58 @@
 import './styles/normalize.css';
 import './styles/style.css';
 
-import buildSettingsDialog from './js/ui/components/SettingsDialog/buildSettingsDialog';
-import RenderController from './js/ui/render/RenderController';
+import { buildGameComponent } from './js/builders/Game/buildGameComponent';
 
-import SessionStorage from './js/utility/SessionStorage';
+const gameController = buildGameComponent();
+gameController.addPlayers({ p1Data: 'nolan', id: 'p1' });
 
-import initiateGameController from './js/logic/game/initialization/initiateGameController';
+// import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';
+// // import RenderController from './js/ui/render/RenderController';
 
-const settingsDialog = buildSettingsDialog();
-document.querySelector('body').append(settingsDialog);
-settingsDialog.showModal();
-document
-  .querySelector('.settings-button')
-  .addEventListener('click', (e) => settingsDialog.showModal());
+// import SessionStorage from './js/utility/SessionStorage';
 
-const storage = SessionStorage();
+// // import initiateGameController from './js/logic/game/initialization/initiateGameController';
 
-const renderController = { current: RenderController() };
-const resetRender = () => {
-  if (renderController.current) {
-    renderController.current.reset();
-    renderController.current = null;
-  }
-  renderController.current = RenderController();
-};
+// // const settingsDialog = buildSettingsDialog();
+// // document.querySelector('body').append(settingsDialog);
+// // settingsDialog.showModal();
+// // document
+// //   .querySelector('.settings-button')
+// //   .addEventListener('click', (e) => settingsDialog.showModal());
 
-const getGameInfoObj = (e) => {
-  if (!e.detail) {
-    return {
-      playerOneInformation: storage.getPlayerOneDataObj(),
-      playerTwoInformation: storage.getPlayerTwoDataObj(),
-      boardOptions: storage.getBoardOptionsObj()
-    };
-  } else {
-    const { playerOneInformation, playerTwoInformation, boardOptions } = e.detail;
-    storage.clear();
-    storage.storePlayerOne(playerOneInformation);
-    storage.storePlayerTwo(playerTwoInformation);
-    storage.storeBoardOptions(boardOptions);
-    return e.detail;
-  }
-};
+// const storage = SessionStorage();
 
-const startGame = (e) => {
-  const gameInfo = getGameInfoObj(e);
-  resetRender();
-  initiateGameController(gameInfo);
-};
+// // const renderController = { current: RenderController() };
+// // const resetRender = () => {
+// //   if (renderController.current) {
+// //     renderController.current.reset();
+// //     renderController.current = null;
+// //   }
+// //   renderController.current = RenderController();
+// // };
 
-document.addEventListener('settingsSubmit', startGame);
-document.addEventListener('gameRestarted', startGame);
+// const getGameInfoObj = (e) => {
+//   if (!e.detail) {
+//     return {
+//       playerOneInformation: storage.getPlayerOneDataObj(),
+//       playerTwoInformation: storage.getPlayerTwoDataObj(),
+//       boardOptions: storage.getBoardOptionsObj()
+//     };
+//   } else {
+//     const { playerOneInformation, playerTwoInformation, boardOptions } = e.detail;
+//     storage.clear();
+//     storage.storePlayerOne(playerOneInformation);
+//     storage.storePlayerTwo(playerTwoInformation);
+//     storage.storeBoardOptions(boardOptions);
+//     return e.detail;
+//   }
+// };
+
+// const startGame = (e) => {
+//   // const gameInfo = getGameInfoObj(e);
+//   //  resetRender();
+//   // initiateGameController(gameInfo);
+// };
+
+// document.addEventListener('settingsSubmit', startGame);
+// document.addEventListener('gameRestarted', startGame);
