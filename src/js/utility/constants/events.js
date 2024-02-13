@@ -35,7 +35,7 @@ export const KEY_EVENTS = {
   }
 };
 
-export const GENERAL_EVENTS = {
+export const COMMON_EVENTS = {
   GAME_STARTED: STATES.START,
   GAME_ENDED: STATES.OVER,
   STATE_TRANSITIONED: 'stateTransitioned',

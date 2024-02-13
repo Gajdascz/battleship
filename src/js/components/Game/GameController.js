@@ -6,67 +6,29 @@ import { buildTrackingGridComponent } from '../../builders/TrackingGrid/buildTra
 import { buildFleetComponent } from '../../builders/Fleet/buildFleetComponent';
 import { buildShipComponent } from '../../builders/Ship/buildShipComponent';
 import { handle } from './utility/controllerHandlers';
+import stateManagerRegistry from '../../utility/stateManagement/stateManagerRegistry';
+import eventEmitter from '../../utility/eventEmitter';
+import { COMMON_EVENTS, GENERAL_EVENTS, PLACEMENT_EVENTS } from '../../utility/constants/events';
+import { STATES } from '../../utility/constants/common';
+import { initializePlayer } from './utility/initializers/initializePlayer';
+import { initializeGameState } from './utility/initializers/gameStateInitializer';
 
 export const GameController = (gameModel, gameView) => {
   const _model = gameModel;
   const _view = gameView;
+  const _transition = { fn: null };
 
-  const initiateStartState = () => {
-    handle.startGame(_model);
-  };
-
-  const initializeBoardCoordinator = ({
-    mainGridController,
-    trackingGridController,
-    fleetController
-  }) => {
-    const boardCoordinator = BoardCoordinator({
-      mainGridController,
-      trackingGridController,
-      fleetController
-    });
-  };
-
-  const populateFleet = (fleetController, fleetShipsData) =>
-    fleetShipsData.forEach((ship) => {
-      const shipController = buildShipComponent(ship);
-      const shipModel = shipController.getModel();
-      const shipElement = shipController.getElement();
-      fleetController.assignShipToMainFleet(shipModel, shipElement);
-    });
-
-  const initializePlayer = ({ playerData, boardConfigData, fleetShipsData = DEFAULT_FLEET }) => {
-    const playerModel = PlayerModel({ name: playerData.name, id: playerData.id });
-    const mainGrid = buildMainGridComponent(boardConfigData);
-    const trackingGrid = buildTrackingGridComponent(boardConfigData);
-    const fleet = buildFleetComponent();
-    populateFleet(fleet, fleetShipsData);
-    initiateStartState();
-    return { playerModel, mainGrid, trackingGrid, fleet };
-  };
-
-  const initializePlayers = ({ p1Data, p2Data }) => {
-    const p1 = initializePlayer({
+  const startGame = ({ p1Data, p2Data }) => {
+    const playerOne = initializePlayer({
       playerData: p1Data.playerData,
       boardConfigData: p1Data.boardConfigData,
-      fleetShipsData: p1Data.fleetShipsData
+      fleetShipData: p1Data.fleetShipData
     });
-    initializeBoardCoordinator({
-      mainGridController: p1.mainGrid,
-      trackingGridController: p1.trackingGrid,
-      fleetController: p1.fleet
-    });
+    _transition.fn = initializeGameState();
+    _transition.fn();
   };
-
-  const transition = () => {};
 
   const switchCurrentPlayer = () => {};
 
-  const setToPlacementState = () => {};
-
-  const setToProgressState = () => {};
-
-  return {
-    initializePlayers
-  };
+  return { startGame };
 };

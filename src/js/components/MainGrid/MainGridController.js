@@ -1,6 +1,6 @@
-import { subscribe } from './utility/controllerSubscribers';
 import { COMMON_GRID } from '../../utility/constants/components/grids';
-import { MOUSE_EVENTS } from '../../utility/constants/events';
+import { MOUSE_EVENTS, PLACEMENT_EVENTS } from '../../utility/constants/events';
+import { STATES } from '../../utility/constants/common';
 
 export const MainGridController = (mainGridModel, mainGridView) => {
   const _model = mainGridModel;
@@ -17,11 +17,15 @@ export const MainGridController = (mainGridModel, mainGridView) => {
     });
   };
 
-  const setPlacementState = () => {
-    subscribe.placementState.shipSelected(handleShipSelect);
+  return {
+    displayGrid: (container) => _view.renderGrid(container),
+    getPlacementStateData: () => ({
+      state: STATES.PLACEMENT,
+      fns: {
+        execute: [],
+        subscribe: [{ event: PLACEMENT_EVENTS.SHIP.SELECTED, callback: handleShipSelect }]
+      }
+    }),
+    getProgressStateData: () => {}
   };
-
-  const displayGrid = (container) => _view.renderGrid(container);
-
-  return { displayGrid, setPlacementState };
 };

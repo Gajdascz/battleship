@@ -4,8 +4,8 @@ import { ShipView } from '../../components/Ship/ShipView';
 import { ShipController } from '../../components/Ship/ShipController';
 
 export const buildShipComponent = ({ shipName, shipLength }) => {
-  const { mainElement, trackingElement, id } = buildShipUIObj(shipName, shipLength);
-  const model = ShipModel(id);
+  const { mainElement, trackingElement } = buildShipUIObj(shipName, shipLength);
+  const model = ShipModel({ length, name: shipName });
   const view = ShipView(mainElement, trackingElement);
-  return ShipController(model, view);
+  return ShipController({ model, view });
 };

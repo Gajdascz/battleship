@@ -36,7 +36,6 @@ export const buildShipUIObj = (name, length) => {
   const trackingShipElement = buildElementFromUIObj(trackingShipBaseObj);
   return {
     mainElement: interactiveShipElement,
-    trackingElement: trackingShipElement,
-    id
+    trackingElement: trackingShipElement
   };
 };

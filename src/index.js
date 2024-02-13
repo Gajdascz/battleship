@@ -16,7 +16,7 @@ const playerOne = {
   },
   boardConfigData
 };
-gameController.initializePlayers({ p1Data: playerOne });
+gameController.startGame({ p1Data: playerOne });
 
 // import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';
 // // import RenderController from './js/ui/render/RenderController';

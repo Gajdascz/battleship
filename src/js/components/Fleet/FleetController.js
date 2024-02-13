@@ -43,6 +43,9 @@ export const FleetController = (fleetModel, fleetView) => {
     selectShip,
     assignShipToMainFleet,
     assignShipToTrackingFleet,
-    getModel: () => _model
+    getModel: () => _model,
+    forEach: (callback) => {
+      _model.forEach((ship) => callback(ship));
+    }
   };
 };

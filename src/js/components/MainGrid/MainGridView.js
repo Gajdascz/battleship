@@ -1,13 +1,16 @@
-export const MainGridView = (mainGridElement) => {
-  const _mainGridElement = mainGridElement;
+import { COMMON_GRID } from '../../utility/constants/components/grids';
+import { MOUSE_EVENTS } from '../../utility/constants/events';
 
-  const getCell = (row, col) => _mainGridElement.querySelector(`[data-coordinates="${row + col}"]`);
+export const MainGridView = (mainGridElement) => {
+  const _element = mainGridElement;
+
+  const getCell = (row, col) => _element.querySelector(`[data-coordinates="${row + col}"]`);
   const isAtopAnotherShip = (cell) => cell.classList.contains('placed-ship');
   const getShipPlacementCells = (shipID) =>
-    _mainGridElement.querySelectorAll(`[data-placed-ship-name=${shipID}]`);
+    _element.querySelectorAll(`[data-placed-ship-name=${shipID}]`);
 
   const displayPlacementPreview = (cells) => {
-    clearPlacementPreview(_mainGridElement);
+    clearPlacementPreview(_element);
     cells.forEach(({ row, col }) => {
       const cell = getCell(row, col);
       if (isAtopAnotherShip(cell)) cell.classList.add('invalid-placement');
@@ -16,7 +19,7 @@ export const MainGridView = (mainGridElement) => {
   };
 
   const clearPlacementPreview = () => {
-    _mainGridElement.querySelectorAll('.valid-placement, .invalid-placement').forEach((cell) => {
+    _element.querySelectorAll('.valid-placement, .invalid-placement').forEach((cell) => {
       cell.classList.remove('valid-placement', 'invalid-placement');
     });
   };
@@ -42,7 +45,13 @@ export const MainGridView = (mainGridElement) => {
   const displayShipHit = (coordinates) =>
     getCell(coordinates[0], coordinates[1]).classList.add('main-grid-hit-marker');
 
-  const renderGrid = (container) => container.append(_mainGridElement);
+  const enableInteractivity = () => {
+    _element.addEventListener(MOUSE_EVENTS.OVER, (e) =>
+      e.target.closest(COMMON_GRID.CELL_SELECTOR)
+    );
+  };
+
+  const renderGrid = (container) => container.append(_element);
 
   return {
     renderGrid,
@@ -50,6 +59,7 @@ export const MainGridView = (mainGridElement) => {
     clearPlacementPreview,
     displayPlacedShip,
     clearPlacedShip,
-    displayShipHit
+    displayShipHit,
+    enableInteractivity
   };
 };
