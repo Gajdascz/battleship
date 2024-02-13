@@ -1,6 +1,6 @@
 import { STATES } from '../constants/common';
 
-export const CreateStateBundler = () => {
+export const StateBundler = () => {
   const _stateBundles = {
     [STATES.START]: {
       state: STATES.START,

@@ -1,31 +1,17 @@
-import { COMMON_GRID } from '../../utility/constants/components/grids';
-import { MOUSE_EVENTS } from '../../utility/constants/events';
-
+import { MAIN_GRID } from '../../utility/constants/components/grids';
+import { PreviewManager } from './utility/PreviewManager';
 export const MainGridView = (mainGridElement) => {
+  // wrapped element
   const _element = mainGridElement;
+  const _grid = mainGridElement.querySelector(`.${MAIN_GRID.TYPE}`);
+  const _previewManager = PreviewManager();
 
-  const getCell = (row, col) => _element.querySelector(`[data-coordinates="${row + col}"]`);
-  const isAtopAnotherShip = (cell) => cell.classList.contains('placed-ship');
+  const getCell = (coordinates) => _grid.querySelector(`[data-coordinates="${coordinates}"]`);
   const getShipPlacementCells = (shipID) =>
-    _element.querySelectorAll(`[data-placed-ship-name=${shipID}]`);
-
-  const displayPlacementPreview = (cells) => {
-    clearPlacementPreview(_element);
-    cells.forEach(({ row, col }) => {
-      const cell = getCell(row, col);
-      if (isAtopAnotherShip(cell)) cell.classList.add('invalid-placement');
-      else cell.classList.add('valid-placement');
-    });
-  };
-
-  const clearPlacementPreview = () => {
-    _element.querySelectorAll('.valid-placement, .invalid-placement').forEach((cell) => {
-      cell.classList.remove('valid-placement', 'invalid-placement');
-    });
-  };
+    _grid.querySelectorAll(`[data-placed-ship-name=${shipID}]`);
 
   const displayPlacedShip = (placementCells, shipID) => {
-    clearPlacementPreview();
+    _previewManager.clearPreview();
     placementCells.forEach((cell) => {
       cell.classList.replace('valid-placement', 'placed-ship');
       cell.setAttribute('data-placed-ship-name', shipID);
@@ -45,21 +31,23 @@ export const MainGridView = (mainGridElement) => {
   const displayShipHit = (coordinates) =>
     getCell(coordinates[0], coordinates[1]).classList.add('main-grid-hit-marker');
 
-  const enableInteractivity = () => {
-    _element.addEventListener(MOUSE_EVENTS.OVER, (e) =>
-      e.target.closest(COMMON_GRID.CELL_SELECTOR)
-    );
-  };
-
   const renderGrid = (container) => container.append(_element);
 
   return {
     renderGrid,
-    displayPlacementPreview,
-    clearPlacementPreview,
     displayPlacedShip,
     clearPlacedShip,
     displayShipHit,
-    enableInteractivity
+    initializePreviewManager: ({ maxVertical, maxHorizontal, letterAxis }) => {
+      _previewManager.attachToGrid({
+        element: _grid,
+        getCell,
+        maxVertical,
+        maxHorizontal,
+        letterAxis
+      });
+    },
+    updateShipPreview: ({ length, orientation }) =>
+      _previewManager.updateShipPreview({ length, orientation })
   };
 };

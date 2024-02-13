@@ -5,14 +5,16 @@ import {
 } from '../../utility/utils/coordinatesUtils';
 
 import { ORIENTATIONS, STATUSES } from '../../utility/constants/common';
+import { generateRandomID } from '../../utility/utils/stringUtils';
 
-export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {}) => {
+export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row', id = null } = {}) => {
   if (rows > 26 || cols > 26) throw new Error('Board cannot have more than 25 rows or columns.');
 
+  const _id = id ?? generateRandomID();
   const _mainGrid = createGrid(rows, cols, STATUSES.EMPTY);
   const _letterAxis = letterAxis;
-  const _maxVertical = _mainGrid.length;
-  const _maxHorizontal = _mainGrid[0].length;
+  const _maxVertical = _mainGrid.length - 1;
+  const _maxHorizontal = _mainGrid[0].length - 1;
   let _numberOfShipsPlaced = 0;
 
   const isInBounds = (coordinates) => isWithinGrid(_mainGrid, coordinates);
@@ -36,42 +38,6 @@ export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {})
       }
     }
     return true;
-  };
-
-  /**
-   * Dynamically calculates the valid cells a ship can occupy.
-   * Keeps all placement cells within the bounds of the grid.
-   *
-   * @param {number} start Starting cell row or column.
-   * @param {number} length Selected Ship's length.
-   * @param {number} max Grid's maximum row or column.
-   * @returns {object} Starting and Ending row or column.
-   */
-  const getStartEnd = (start, length, max) => {
-    const end = Math.min(start + length - 1, max);
-    return {
-      start: Math.max(end - length + 1, 0),
-      end
-    };
-  };
-
-  /**
-   * Calculates and returns a list of cells for placement preview based on the starting cell and ship orientation.
-   * It considers the ship's orientation (vertical/horizontal) and length to determine which cells will be occupied.
-   * @param {string} startingCoordinates - String representation of the cell coordinates where the preview starts.
-   * @returns {array} - Array of valid cells for preview.
-   */
-  const calculateCells = (startingCoordinatesString, length, orientation) => {
-    const cells = [];
-    const coordinates = convertToInternalFormat(startingCoordinatesString);
-    const startMax = isVertical(orientation)
-      ? { max: _maxVertical, startCoordinate: coordinates[1] }
-      : { max: _maxHorizontal, startCoordinate: coordinates[0] };
-    const { start, end } = getStartEnd(startMax.startCoordinate, length, startMax.max);
-    for (let i = start; i <= end; i++) {
-      cells.push(convertToDisplayFormat(coordinates[0], coordinates[1], _letterAxis));
-    }
-    return cells;
   };
 
   const place = ({ start, end, orientation }) => {
@@ -104,7 +70,7 @@ export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row' } = {})
     getMaxVertical: () => _maxVertical,
     getMaxHorizontal: () => _maxHorizontal,
     getNumberOfShipsPlaced: () => _numberOfShipsPlaced,
-    calculateCells,
+    getID: () => _id,
     reset() {
       _numberOfShipsPlaced = 0;
       _mainGrid.length = 0;

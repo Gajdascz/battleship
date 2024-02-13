@@ -1,31 +1,46 @@
-import { COMMON_GRID } from '../../utility/constants/components/grids';
-import { MOUSE_EVENTS, PLACEMENT_EVENTS } from '../../utility/constants/events';
+import { PLACEMENT_EVENTS } from '../../utility/constants/events';
 import { STATES } from '../../utility/constants/common';
+import { StateManager } from '../../utility/stateManagement/StateManager';
+import { StateBundler } from '../../utility/stateManagement/StateBundler';
+import stateManagerRegistry from '../../utility/stateManagement/stateManagerRegistry';
 
-export const MainGridController = (mainGridModel, mainGridView) => {
-  const _model = mainGridModel;
-  const _view = mainGridView;
+export const MainGridController = ({ model, view }) => {
+  const _model = model;
+  const _view = view;
+  const _stateManager = StateManager(_model.getID());
 
-  const handleShipSelect = (detail) => {
-    console.log(detail);
-    const { id, length, orientation } = detail;
-    console.log(id, length, orientation);
-    _view.getElement().addEventListener(MOUSE_EVENTS.OVER, (e) => {
-      const targetCoordinates = e.target.closest(COMMON_GRID.CELL_SELECTOR).dataset.coordinates;
-      const cells = _model.calculateCells(targetCoordinates, length, orientation);
-      _view.displayPlacementPreview(cells);
+  const initPreviewManager = () => {
+    _view.initializePreviewManager({
+      maxVertical: _model.getMaxVertical(),
+      maxHorizontal: _model.getMaxHorizontal(),
+      letterAxis: _model.getLetterAxis()
     });
+  };
+
+  const updateShipPreview = (detail) => {
+    console.log(detail);
+    const { length, orientation } = detail;
+    _view.updateShipPreview({ length, orientation });
+  };
+
+  const initializeStateManager = () => {
+    const bundler = StateBundler();
+    bundler.addSubscriptionToState(STATES.PLACEMENT, {
+      event: PLACEMENT_EVENTS.SHIP.SELECTED,
+      callback: updateShipPreview
+    });
+    bundler.addExecuteFnToState(STATES.PLACEMENT, initPreviewManager);
+    bundler.addSubscriptionToState(STATES.PLACEMENT, {
+      event: PLACEMENT_EVENTS.SHIP.ORIENTATION_CHANGED,
+      callback: updateShipPreview
+    });
+    const bundles = bundler.getBundles();
+    bundles.forEach((bundle) => _stateManager.storeState(bundle));
   };
 
   return {
     displayGrid: (container) => _view.renderGrid(container),
-    getPlacementStateData: () => ({
-      state: STATES.PLACEMENT,
-      fns: {
-        execute: [],
-        subscribe: [{ event: PLACEMENT_EVENTS.SHIP.SELECTED, callback: handleShipSelect }]
-      }
-    }),
-    getProgressStateData: () => {}
+    initializeStateManager,
+    registerStateManager: () => stateManagerRegistry.registerManager(_stateManager)
   };
 };

@@ -2,17 +2,16 @@ import { MOUSE_EVENTS, PLACEMENT_EVENTS, PROGRESS_EVENTS } from '../../../utilit
 import eventEmitter from '../../../utility/eventEmitter';
 
 export const publish = {
-  shipSelected: ({ element, length, id, orientation }) => {
+  shipSelected: ({ length, id, orientation }) => {
     eventEmitter.publish(PLACEMENT_EVENTS.SHIP.SELECTED, {
-      element,
-      length,
       id,
+      length,
       orientation
     });
   },
-  orientationToggled: ({ id, orientation }) => {
+  orientationToggled: ({ length, orientation }) => {
     eventEmitter.publish(PLACEMENT_EVENTS.SHIP.ORIENTATION_CHANGED, {
-      id,
+      length,
       orientation
     });
   }

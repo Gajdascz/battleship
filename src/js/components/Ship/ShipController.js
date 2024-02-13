@@ -2,7 +2,7 @@ import { STATES, STATUSES } from '../../utility/constants/common';
 import { KEY_EVENTS, PLACEMENT_EVENTS, PROGRESS_EVENTS } from '../../utility/constants/events';
 import { publish } from './utility/publishers';
 import { StateManager } from '../../utility/stateManagement/StateManager';
-import { CreateStateBundler } from '../../utility/stateManagement/CreateStateBundler';
+import { StateBundler } from '../../utility/stateManagement/StateBundler';
 import stateManagerRegistry from '../../utility/stateManagement/stateManagerRegistry';
 
 export const ShipController = ({ model, view }) => {
@@ -24,9 +24,8 @@ export const ShipController = ({ model, view }) => {
     _model.setIsSelected(true);
     _view.updateSelectedStatus(true);
     publish.shipSelected({
-      element: _view.getElement(),
-      length: _model.getLength(),
       id: _model.getID(),
+      length: _model.getLength(),
       orientation: _model.getOrientation()
     });
   };
@@ -47,7 +46,10 @@ export const ShipController = ({ model, view }) => {
     e.preventDefault();
     _model.toggleOrientation();
     _view.updateOrientation(_model.getOrientation());
-    publish.orientationToggled(_model.getID(), _model.getOrientation());
+    publish.orientationToggled({
+      length: _model.getLength(),
+      orientation: _model.getOrientation()
+    });
   };
 
   const place = (coordinates) => {
@@ -74,7 +76,7 @@ export const ShipController = ({ model, view }) => {
   const handleAttack = ({ coordinates }) => {};
 
   const initializeStateManager = () => {
-    const stateBundler = CreateStateBundler();
+    const stateBundler = StateBundler();
     stateBundler.addExecuteFnToState(STATES.PLACEMENT, enableInteractivity);
     stateBundler.addSubscriptionToState(STATES.PLACEMENT, {
       event: PLACEMENT_EVENTS.SHIP.PLACED,
@@ -94,6 +96,7 @@ export const ShipController = ({ model, view }) => {
     deselect,
     getModel: () => _model,
     getElement: () => _view.getElement(),
+    getID: () => _model.getID(),
     initializeStateManager,
     registerStateManager: () => stateManagerRegistry.registerManager(_stateManager)
   };

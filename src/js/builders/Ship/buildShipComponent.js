@@ -5,7 +5,10 @@ import { ShipController } from '../../components/Ship/ShipController';
 
 export const buildShipComponent = ({ shipName, shipLength }) => {
   const { mainElement, trackingElement } = buildShipUIObj(shipName, shipLength);
-  const model = ShipModel({ length, name: shipName });
+  const model = ShipModel({ length: shipLength, name: shipName });
   const view = ShipView(mainElement, trackingElement);
-  return ShipController({ model, view });
+  const controller = ShipController({ model, view });
+  controller.initializeStateManager();
+  controller.registerStateManager();
+  return controller;
 };

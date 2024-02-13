@@ -56,7 +56,7 @@ const convertToInternalFormat = (coordinatesString) => {
  * convertToDisplayFormat(0, 0, true);
  */
 const convertToDisplayFormat = (row, col, letterAxis) => {
-  const isLetterRow = (letterAxis = LETTER_AXES.ROW);
+  const isLetterRow = letterAxis === LETTER_AXES.ROW;
   const letterPart = convertIndexToLetter(isLetterRow ? row : col);
   const numberPart = isLetterRow ? col : row;
   return isLetterRow ? `${letterPart}${numberPart}` : `${numberPart}${letterPart}`;

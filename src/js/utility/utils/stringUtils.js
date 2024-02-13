@@ -27,4 +27,7 @@ const convertIndexToLetter = (index) => String.fromCharCode(A_CHARACTER_CODE + i
  */
 const convertLetterToIndex = (letter) => letter.charCodeAt() - A_CHARACTER_CODE;
 
-export { createSlug, convertIndexToLetter, convertLetterToIndex };
+// Generates a simple random ID
+const generateRandomID = () => Math.floor((Date.now() / 10 ** 7) * Math.random() ** Math.PI);
+
+export { createSlug, convertIndexToLetter, convertLetterToIndex, generateRandomID };

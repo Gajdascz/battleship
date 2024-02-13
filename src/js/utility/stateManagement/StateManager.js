@@ -1,5 +1,6 @@
 import eventEmitter from '../eventEmitter';
 import Queue from '../../components/AI/ai/dataStructures/Queue';
+import { generateRandomID } from '../utils/stringUtils';
 
 /**
  * Creates and manages the state of the application, handling transitions between states
@@ -7,8 +8,8 @@ import Queue from '../../components/AI/ai/dataStructures/Queue';
  *
  * @returns {Object} An object containing methods to interact with the state manager.
  */
-export const StateManager = (id) => {
-  const _id = id;
+export const StateManager = (id = null) => {
+  const _id = id ?? generateRandomID();
   const _state = { current: null };
   const unsubscribeQueue = Queue();
   const _storedStates = new Map();
