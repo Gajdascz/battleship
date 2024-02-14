@@ -3,16 +3,15 @@ import { buildFleetComponent } from '../../../../builders/Fleet/buildFleetCompon
 
 const populateFleet = (fleetController, shipsData) => {
   shipsData.forEach((ship) => {
-    console.log(ship);
     const shipController = buildShipComponent(ship);
+    shipController.initializeStateManagement();
     fleetController.assignShipToMainFleet(shipController);
   });
 };
 
 export const initializeFleet = (fleetShipsData) => {
-  const fleet = buildFleetComponent();
-  populateFleet(fleet, fleetShipsData);
-  fleet.initializeStateManager();
-  fleet.registerStateManager();
-  return fleet;
+  const fleetController = buildFleetComponent();
+  populateFleet(fleetController, fleetShipsData);
+  fleetController.initializeSateManagement();
+  return fleetController;
 };

@@ -5,6 +5,8 @@ import { BoardCoordinator } from '../../BoardCoordinator';
 export const initializeBoard = (boardConfigData, fleetController) => {
   const mainGridController = buildMainGridComponent(boardConfigData);
   const trackingGridController = buildTrackingGridComponent(boardConfigData);
+  mainGridController.initializeSateManagement();
+  trackingGridController.initializeStateManagement();
   const boardCoordinator = BoardCoordinator({
     mainGridController,
     trackingGridController,

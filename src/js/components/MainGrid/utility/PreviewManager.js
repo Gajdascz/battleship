@@ -81,6 +81,8 @@ export const PreviewManager = () => {
 
   const handleMouseOver = (e) => {
     if (!_currentShip.orientation) return;
+    const target = e.target;
+    if (!target.classList.contains(COMMON_GRID.CLASSES.CELL)) clearPlacementPreview();
     const targetCell = e.target.closest(COMMON_GRID.CELL_SELECTOR);
     if (!targetCell) return;
     _currentTarget.coordinates = targetCell.dataset.coordinates;
@@ -88,14 +90,23 @@ export const PreviewManager = () => {
   };
 
   return {
-    updateShipPreview: ({ length, orientation }) => {
+    enable: () => {
+      _grid.element.addEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
+    },
+    disable: () => {
+      clearPlacementPreview();
+      _grid.element.removeEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
+    },
+    updateOrientation: (newOrientation) => {
+      clearPlacementPreview();
+      _currentShip.orientation = newOrientation;
+      processPreview(_currentTarget.coordinates);
+    },
+    setCurrentShip: ({ length, orientation }) => {
       clearPlacementPreview();
       _currentShip.length = length;
       _currentShip.orientation = orientation;
-      if (!_currentTarget.coordinates) return;
-      processPreview(_currentTarget.coordinates);
     },
-    clearPreview: () => clearPlacementPreview(),
     attachToGrid: ({ element, maxVertical, maxHorizontal, letterAxis, getCell }) => {
       _grid.element = element;
       _grid.maxVertical = maxVertical;

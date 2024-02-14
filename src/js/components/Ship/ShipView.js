@@ -18,13 +18,13 @@ export const ShipView = (shipElement, trackingElement) => {
   const updateSelectedStatus = (isSelected) =>
     _mainShipElement.classList.toggle(SHIP_CLASSES.SELECTED, isSelected);
 
-  const enableSelection = (selectCallback) => {
+  const enableRequestSelection = (requestSelectCallback) => {
     _mainShipElement.disabled = false;
-    _mainShipElement.addEventListener(MOUSE_EVENTS.CLICK, selectCallback);
+    _mainShipElement.addEventListener(MOUSE_EVENTS.CLICK, requestSelectCallback);
   };
-  const disableSelection = (selectCallback) => {
+  const disabledRequestSelection = (requestSelectCallback) => {
     _mainShipElement.disabled = true;
-    _mainShipElement.removeEventListener(MOUSE_EVENTS.CLICK, selectCallback);
+    _mainShipElement.removeEventListener(MOUSE_EVENTS.CLICK, requestSelectCallback);
   };
   const enableOrientationToggle = (toggleOrientationCallback) => {
     document.addEventListener(KEY_EVENTS.DOWN, toggleOrientationCallback);
@@ -34,15 +34,23 @@ export const ShipView = (shipElement, trackingElement) => {
     document.removeEventListener(KEY_EVENTS.DOWN, toggleOrientationCallback);
     document.removeEventListener(MOUSE_EVENTS.DOWN, toggleOrientationCallback);
   };
+  const enableRequestPlacement = (requestPlacementCallback) =>
+    document.addEventListener(MOUSE_EVENTS.CLICK, requestPlacementCallback);
+
+  const disableRequestPlacement = (requestPlacementCallback) =>
+    document.removeEventListener(MOUSE_EVENTS.CLICK, requestPlacementCallback);
+
   return {
     getElement: () => _mainShipElement,
     updateOrientation,
     updatePlacementStatus,
     updateSunkStatus,
     updateSelectedStatus,
-    enableSelection,
-    disableSelection,
+    enableRequestSelection,
+    disabledRequestSelection,
     enableOrientationToggle,
-    disableOrientationToggle
+    disableOrientationToggle,
+    enableRequestPlacement,
+    disableRequestPlacement
   };
 };

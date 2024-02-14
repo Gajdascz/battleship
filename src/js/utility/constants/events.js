@@ -50,6 +50,8 @@ export const PLACEMENT_EVENTS = {
   SUBMITTED: 'placementsSubmitted',
   PROCESSED: 'placementsProcessed',
   SHIP: {
+    SELECT_REQUESTED: 'shipSelectRequested',
+    PLACEMENT_REQUESTED: 'shipPlacementRequested',
     SELECTED: 'shipSelected',
     ORIENTATION_CHANGED: 'shipOrientationChanged',
     PLACED: 'shipPlaced',

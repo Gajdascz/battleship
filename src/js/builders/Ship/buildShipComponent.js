@@ -8,7 +8,5 @@ export const buildShipComponent = ({ shipName, shipLength }) => {
   const model = ShipModel({ length: shipLength, name: shipName });
   const view = ShipView(mainElement, trackingElement);
   const controller = ShipController({ model, view });
-  controller.initializeStateManager();
-  controller.registerStateManager();
   return controller;
 };

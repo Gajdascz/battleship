@@ -27,7 +27,9 @@ export const ShipModel = ({ length, name }) => {
     setPlacedCoordinates: (coordinates) => {
       _placedCoordinates.length = 0;
       _placedCoordinates.push(...coordinates);
+      console.log(_placedCoordinates);
     },
+    clearPlacedCoordinates: () => (_placedCoordinates.length = 0),
     toggleOrientation: () =>
       (_orientation =
         _orientation === ORIENTATIONS.VERTICAL ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL),

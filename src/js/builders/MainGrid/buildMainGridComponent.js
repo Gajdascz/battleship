@@ -8,7 +8,5 @@ export const buildMainGridComponent = (gridConfig) => {
   const model = MainGridModel(gridConfig);
   const view = MainGridView(mainGridObj.element);
   const controller = MainGridController({ model, view });
-  controller.initializeStateManager();
-  controller.registerStateManager();
   return controller;
 };

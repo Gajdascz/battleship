@@ -1,5 +1,6 @@
 import { COMMON_GRID } from '../../utility/constants/components/grids';
 import { MOUSE_EVENTS } from '../../utility/constants/events';
+import { initializeSateManagement } from '../../utility/stateManagement/initializeStateManagement';
 
 export const TrackingGridController = (trackingGridModel, trackingGridView) => {
   const _model = trackingGridModel;
@@ -7,5 +8,11 @@ export const TrackingGridController = (trackingGridModel, trackingGridView) => {
 
   const displayGrid = (container) => _view.renderGrid(container);
 
-  return { displayGrid };
+  const getStateBundles = () => [{}];
+
+  return {
+    displayGrid,
+    initializeStateManagement: () =>
+      initializeSateManagement({ id: _model.getID(), stateBundles: getStateBundles() })
+  };
 };

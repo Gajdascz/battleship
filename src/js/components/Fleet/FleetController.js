@@ -4,12 +4,13 @@ import { StateBundler } from '../../utility/stateManagement/StateBundler';
 import { STATES } from '../../utility/constants/common';
 import { PLACEMENT_EVENTS } from '../../utility/constants/events';
 import { convertToInternalFormat } from '../../utility/utils/coordinatesUtils';
-import { dispatch } from './utility/fleetControllerDispatch';
+
+import { bundleComponentStates } from './utility/bundleComponentStates';
+import { initializeSateManagement } from '../../utility/stateManagement/initializeStateManagement';
 
 export const FleetController = (fleetModel, fleetView) => {
   const _model = fleetModel;
   const _view = fleetView;
-  const _stateManager = StateManager(_model.getID());
   const _shipControllers = new Map();
 
   // const handlePlacementSubmission = () => {
@@ -46,15 +47,7 @@ export const FleetController = (fleetModel, fleetView) => {
   const displayMainFleet = (container) => _view.renderMainFleet(container);
   const displayTrackingFleet = (container) => _view.renderTrackingFleet(container);
 
-  const initializeStateManager = () => {
-    const bundler = StateBundler();
-    bundler.addSubscriptionToState(STATES.PLACEMENT, {
-      event: PLACEMENT_EVENTS.SHIP.SELECTED,
-      callback: selectShip
-    });
-    const bundles = bundler.getBundles();
-    bundles.forEach((bundle) => _stateManager.storeState(bundle));
-  };
+  // const getStateBundles = () => {}; //bundleComponentStates({ selectShip });
 
   return {
     displayMainFleet,
@@ -63,8 +56,8 @@ export const FleetController = (fleetModel, fleetView) => {
     assignShipToMainFleet,
     assignShipToTrackingFleet,
     getModel: () => _model,
-    forEach: (callback) => _model.forEach((ship) => callback(ship)),
-    initializeStateManager,
-    registerStateManager: () => stateManagerRegistry.registerManager(_stateManager)
+    forEach: (callback) => _shipControllers.forEach((ship) => callback(ship)),
+    initializeSateManagement: () =>
+      initializeSateManagement({ id: _model.getID(), stateBundles: [{}] })
   };
 };
