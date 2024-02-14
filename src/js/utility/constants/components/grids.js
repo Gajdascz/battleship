@@ -2,7 +2,7 @@ import { INTERACTIVE_ELEMENTS, STRUCTURAL_ELEMENTS } from '../dom/elements';
 import { GENERAL_ATTRIBUTES, INPUT_ATTRIBUTES } from '../dom/attributes';
 import { LETTER_AXES } from '../common';
 
-const createCellSelector = ({ elementType, attribute, value }) =>
+const createCellAttributeSelector = ({ elementType, attribute, value }) =>
   `${elementType}[${attribute}='${value}']`;
 
 export const COMMON_GRID = {
@@ -39,7 +39,7 @@ export const TRACKING_GRID = {
     }
   },
   CELL_SELECTOR: (coordinates) =>
-    createCellSelector({
+    createCellAttributeSelector({
       elementType: TRACKING_GRID.PROPERTIES.CELL_ELEMENT,
       attribute: TRACKING_GRID.PROPERTIES.ATTRIBUTES.VALUE,
       value: coordinates
@@ -51,19 +51,35 @@ export const MAIN_GRID = {
   CLASSES: {
     HEADER: 'main-grid-header',
     WRAPPER: 'main-grid-wrapper',
-    HIT_MARKER: 'main-grid-hit-marker'
+    HIT_MARKER: 'main-grid-hit-marker',
+    VALID_PLACEMENT: 'valid-placement',
+    INVALID_PLACEMENT: 'invalid-placement',
+    PLACED_SHIP: 'placed-ship'
   },
   PROPERTIES: {
     CELL_ELEMENT: STRUCTURAL_ELEMENTS.DIV,
     HEADER_TEXT: 'Home Territory',
     ATTRIBUTES: {
-      CELL_COORDINATES_DATA: GENERAL_ATTRIBUTES.DATA('coordinates')
+      CELL_COORDINATES_DATA: GENERAL_ATTRIBUTES.DATA('coordinates'),
+      PLACED_SHIP_NAME: GENERAL_ATTRIBUTES.DATA('placed-ship-name')
     }
   },
+  get INVALID_PLACEMENT_SELECTOR() {
+    return `${MAIN_GRID.PROPERTIES.CELL_ELEMENT}.${MAIN_GRID.CLASSES.INVALID_PLACEMENT}`;
+  },
+  get VALID_PLACEMENT_SELECTOR() {
+    return `${MAIN_GRID.PROPERTIES.CELL_ELEMENT}.${MAIN_GRID.CLASSES.VALID_PLACEMENT}`;
+  },
   CELL_SELECTOR: (coordinates) =>
-    createCellSelector({
+    createCellAttributeSelector({
       elementType: MAIN_GRID.PROPERTIES.CELL_ELEMENT,
       attribute: MAIN_GRID.PROPERTIES.ATTRIBUTES.CELL_COORDINATES_DATA,
       value: coordinates
+    }),
+  PLACED_SHIP_SELECTOR: (id) =>
+    createCellAttributeSelector({
+      elementType: MAIN_GRID.PROPERTIES.CELL_ELEMENT,
+      attribute: MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME,
+      value: id
     })
 };

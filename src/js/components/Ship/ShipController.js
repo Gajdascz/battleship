@@ -34,6 +34,11 @@ export const ShipController = ({ model, view }) => {
   return {
     getModel: () => _model,
     getElement: () => _view.getElement(),
+    getRotateButtonElement: () => _view.getRotateButtonElement(),
+    renderRotateButton: (container) => _view.renderRotateButton(container),
+    removeRotateButton: () => _view.removeRotateButton(),
+    renderShip: (container) => _view.renderShip(container),
+    removeShip: () => _view.removeShip(),
     getID: () => _model.getID(),
     initializeStateManagement: () =>
       initializeSateManagement({ id: _model.getID(), stateBundles: getStateBundles() })

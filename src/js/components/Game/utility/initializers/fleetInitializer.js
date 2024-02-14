@@ -13,5 +13,6 @@ export const initializeFleet = (fleetShipsData) => {
   const fleetController = buildFleetComponent();
   populateFleet(fleetController, fleetShipsData);
   fleetController.initializeSateManagement();
+  fleetController.renderMainFleet();
   return fleetController;
 };

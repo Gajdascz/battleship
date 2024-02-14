@@ -1,5 +1,4 @@
 import { GENERAL_ATTRIBUTES } from '../dom/attributes';
-import { PLACEMENT_EVENTS } from '../events';
 
 export const SHIP_CLASSES = {
   ENTRY: 'fleet-entry',
@@ -13,4 +12,8 @@ export const SHIP_DATA_ATTRIBUTES = {
   ORIENTATION: GENERAL_ATTRIBUTES.DATA('orientation'),
   PLACED: GENERAL_ATTRIBUTES.DATA('placed')
 };
-export const SHIP_PLACEMENT_EVENTS = PLACEMENT_EVENTS.SHIP;
+
+export const ROTATE_SHIP_BUTTON = {
+  CLASS: 'rotate-ship-button',
+  TEXT: 'Rotate Ship'
+};

@@ -82,10 +82,14 @@ export const PreviewManager = () => {
   const handleMouseOver = (e) => {
     if (!_currentShip.orientation) return;
     const target = e.target;
-    if (!target.classList.contains(COMMON_GRID.CLASSES.CELL)) clearPlacementPreview();
+    if (!target.classList.contains(COMMON_GRID.CLASSES.CELL)) {
+      _currentTarget.coordinates = null;
+      clearPlacementPreview();
+    }
     const targetCell = e.target.closest(COMMON_GRID.CELL_SELECTOR);
     if (!targetCell) return;
     _currentTarget.coordinates = targetCell.dataset.coordinates;
+    if (!_currentTarget.coordinates) return;
     processPreview(_currentTarget.coordinates);
   };
 
@@ -100,6 +104,7 @@ export const PreviewManager = () => {
     updateOrientation: (newOrientation) => {
       clearPlacementPreview();
       _currentShip.orientation = newOrientation;
+      if (!_currentTarget.coordinates) return;
       processPreview(_currentTarget.coordinates);
     },
     setCurrentShip: ({ length, orientation }) => {

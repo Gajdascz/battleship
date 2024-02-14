@@ -7,6 +7,7 @@ import { convertToInternalFormat } from '../../utility/utils/coordinatesUtils';
 
 import { bundleComponentStates } from './utility/bundleComponentStates';
 import { initializeSateManagement } from '../../utility/stateManagement/initializeStateManagement';
+import eventEmitter from '../../utility/eventEmitter';
 
 export const FleetController = (fleetModel, fleetView) => {
   const _model = fleetModel;
@@ -25,16 +26,7 @@ export const FleetController = (fleetModel, fleetView) => {
   //   dispatch.submitPlacements(placements);
   // };
 
-  const selectShip = (e) => {
-    const { id } = e;
-    _shipControllers.forEach((ship) => {
-      if (ship.getID() === id);
-      else ship.deselect();
-    });
-  };
-
   const assignShipToMainFleet = (shipController) => {
-    _view.addMainFleetShipElement(shipController.getElement());
     _model.addShip(shipController.getModel());
     _shipControllers.set(shipController.getID(), shipController);
   };
@@ -44,18 +36,27 @@ export const FleetController = (fleetModel, fleetView) => {
     _model.addTrackingShip(shipModel);
   };
 
+  const renderMainFleet = () => {
+    _shipControllers.forEach((ship) => ship.renderShip(_view.getMainFleetShipList()));
+  };
   const displayMainFleet = (container) => _view.renderMainFleet(container);
   const displayTrackingFleet = (container) => _view.renderTrackingFleet(container);
 
-  // const getStateBundles = () => {}; //bundleComponentStates({ selectShip });
+  const handleShipSelected = (detail) => {
+    const { id } = detail;
+    const button = _shipControllers.get(id).getRotateButtonElement();
+    _view.updateRotateButton(button);
+  };
 
+  eventEmitter.subscribe(PLACEMENT_EVENTS.SHIP.SELECTED, handleShipSelected);
   return {
+    renderMainFleet,
     displayMainFleet,
     displayTrackingFleet,
-    selectShip,
     assignShipToMainFleet,
     assignShipToTrackingFleet,
     getModel: () => _model,
+    getMainFleetButtonContainer: () => _view.getMainFleetButtonContainer(),
     forEach: (callback) => _shipControllers.forEach((ship) => callback(ship)),
     initializeSateManagement: () =>
       initializeSateManagement({ id: _model.getID(), stateBundles: [{}] })

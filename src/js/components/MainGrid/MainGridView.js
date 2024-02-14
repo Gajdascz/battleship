@@ -1,6 +1,6 @@
 import { MAIN_GRID } from '../../utility/constants/components/grids';
-import { MOUSE_EVENTS } from '../../utility/constants/events';
 import { PreviewManager } from './utility/PreviewManager';
+
 export const MainGridView = (mainGridElement) => {
   // wrapped element
   const _element = mainGridElement;
@@ -8,20 +8,20 @@ export const MainGridView = (mainGridElement) => {
   const _previewManager = PreviewManager();
 
   const isShipPlaced = (shipID) =>
-    _grid.querySelector(`[data-placed-ship-name='${shipID}']`) !== null;
+    _grid.querySelector(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID)) !== null;
 
   const isValidPlacement = () =>
-    _grid.querySelector('.invalid-placement') === null &&
-    _grid.querySelector('.valid-placement') !== null;
+    _grid.querySelector(MAIN_GRID.INVALID_PLACEMENT_SELECTOR) === null &&
+    _grid.querySelector(MAIN_GRID.VALID_PLACEMENT_SELECTOR) !== null;
 
-  const getCell = (coordinates) => _grid.querySelector(`[data-coordinates="${coordinates}"]`);
+  const getCell = (coordinates) => _grid.querySelector(MAIN_GRID.CELL_SELECTOR(coordinates));
   const getShipPlacementCells = (shipID) =>
-    _grid.querySelectorAll(`[data-placed-ship-name=${shipID}]`);
+    _grid.querySelectorAll(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID));
 
   const displayPlacedShip = (placementCells, shipID) => {
     placementCells.forEach((cell) => {
-      cell.classList.replace('valid-placement', 'placed-ship');
-      cell.setAttribute('data-placed-ship-name', shipID);
+      cell.classList.replace(MAIN_GRID.CLASSES.VALID_PLACEMENT, MAIN_GRID.CLASSES.PLACED_SHIP);
+      cell.setAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME, shipID);
       cell.textContent = shipID.charAt(0).toUpperCase();
     });
     _previewManager.disable();
@@ -29,10 +29,9 @@ export const MainGridView = (mainGridElement) => {
 
   const clearPlacedShip = (shipID) => {
     const shipCells = getShipPlacementCells(shipID);
-    console.log(shipCells);
     shipCells.forEach((cell) => {
-      cell.classList.remove('placed-ship');
-      cell.removeAttribute('data-placed-ship-name');
+      cell.classList.remove(MAIN_GRID.CLASSES.PLACED_SHIP);
+      cell.removeAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME);
       cell.textContent = '';
     });
   };
@@ -47,7 +46,7 @@ export const MainGridView = (mainGridElement) => {
 
   const handlePlacementRequest = ({ shipLength, shipID }) => {
     if (!isValidPlacement()) return;
-    const placementCells = [..._grid.querySelectorAll('.valid-placement')];
+    const placementCells = [..._grid.querySelectorAll(MAIN_GRID.VALID_PLACEMENT_SELECTOR)];
     if (placementCells.length !== shipLength) return;
     displayPlacedShip(placementCells, shipID);
     const placedCoordinates = placementCells.map((cell) => cell.dataset.coordinates);
@@ -55,7 +54,7 @@ export const MainGridView = (mainGridElement) => {
   };
 
   const displayShipHit = (coordinates) =>
-    getCell(coordinates[0], coordinates[1]).classList.add('main-grid-hit-marker');
+    getCell(coordinates[0], coordinates[1]).classList.add(MAIN_GRID.CLASSES.HIT_MARKER);
 
   const renderGrid = (container) => container.append(_element);
 

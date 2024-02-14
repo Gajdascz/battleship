@@ -1,4 +1,4 @@
-import { buildElementFromUIObj, buildUIObj } from '../utility/uiBuilders';
+import { buildUIObj, buildElementFromUIObj } from '../../utility/uiBuilderUtils/uiBuilders';
 import { COMMON_ELEMENTS } from '../../utility/constants/dom/elements';
 import { MAIN_FLEET, TRACKING_FLEET } from '../../utility/constants/components/fleet';
 /**

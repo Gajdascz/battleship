@@ -153,7 +153,7 @@ main {
 button.fleet-entry[data-placed='false'] {
   color: var(--unplaced-ship);
 }
-button.fleet-entry[data-placed='false'].being-placed,
+button.fleet-entry[data-placed='false'].ship-selected,
 button.fleet-entry[data-placed='false']:hover {
   color: var(--radar-green);
   border-bottom: 2px solid var(--text-white);

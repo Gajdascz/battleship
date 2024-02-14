@@ -1,7 +1,7 @@
-import { COMMON_ELEMENTS } from '../../utility/constants/dom/elements';
-import { COMMON_GRID } from '../../utility/constants/components/grids';
-import { buildUIObj } from '../utility/uiBuilders';
-import { convertIndexToLetter } from '../../utility/utils/stringUtils';
+import { COMMON_ELEMENTS } from '../constants/dom/elements';
+import { COMMON_GRID } from '../constants/components/grids';
+import { buildUIObj } from './uiBuilders';
+import { convertIndexToLetter } from '../utils/stringUtils';
 
 const buildGridHeaderObj = ({ headerClass, headerText }) =>
   buildUIObj(COMMON_ELEMENTS.DIV, {
