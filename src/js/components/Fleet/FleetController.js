@@ -14,18 +14,6 @@ export const FleetController = (fleetModel, fleetView) => {
   const _view = fleetView;
   const _shipControllers = new Map();
 
-  // const handlePlacementSubmission = () => {
-  //   const placements = new Map();
-  //   _model.getFleet().forEach((ship) => {
-  //     const startCoordinates = convertToInternalFormat(ship.placedCoordinates[0]);
-  //     const endCoordinates = convertToInternalFormat(
-  //       ship.placedCoordinates[ship.placedCoordinates.length - 1]
-  //     );
-  //     placements.set(ship.id, { start: startCoordinates, end: endCoordinates });
-  //   });
-  //   dispatch.submitPlacements(placements);
-  // };
-
   const assignShipToMainFleet = (shipController) => {
     _model.addShip(shipController.getModel());
     _shipControllers.set(shipController.getID(), shipController);
