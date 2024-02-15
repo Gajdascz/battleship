@@ -1,5 +1,5 @@
-import createPlayer from '../Player/PlayerView';
-import createAI from '../AI/AI';
+import createPlayer from '../js/components/Player/PlayerView';
+import createAI from '../js/components/AI/AI';
 import createBoard from '../../../logic/game/factories/Board';
 import createShip from '../../../logic/game/factories/Ship';
 

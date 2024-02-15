@@ -1,7 +1,7 @@
-import { FleetModel } from '../../components/Fleet/FleetModel';
-import { FleetView } from '../../components/Fleet/FleetView';
-import { FleetController } from '../../components/Fleet/FleetController';
-import { buildFleetUIObj } from './buildFleetUIObj';
+import { FleetModel } from './model/FleetModel';
+import { FleetView } from './view/FleetView';
+import { FleetController } from './FleetController';
+import { buildFleetUIObj } from './view/buildFleetUIObj';
 
 export const buildFleetComponent = () => {
   const _fleetUIObj = buildFleetUIObj();

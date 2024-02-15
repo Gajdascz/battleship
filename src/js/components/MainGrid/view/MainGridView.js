@@ -1,22 +1,27 @@
-import { MAIN_GRID } from '../../utility/constants/components/grids';
-import { PreviewManager } from './utility/PreviewManager';
+import { MAIN_GRID } from '../../../utility/constants/components/grids';
+import { PreviewManager } from '../utility/PreviewManager';
+import { buildMainGridUIObj } from './buildMainGridUIObj';
 
-export const MainGridView = (mainGridElement) => {
-  // wrapped element
-  const _element = mainGridElement;
-  const _grid = mainGridElement.querySelector(`.${MAIN_GRID.TYPE}`);
-  const _previewManager = PreviewManager();
+export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
+  const { wrappedMainGridElement, submitPlacementsButtonElement } = buildMainGridUIObj({
+    numberOfRows,
+    numberOfCols,
+    letterAxis
+  });
+  const mainGridElement = wrappedMainGridElement.querySelector(`.${MAIN_GRID.TYPE}`);
+  const previewManager = PreviewManager();
 
   const isShipPlaced = (shipID) =>
-    _grid.querySelector(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID)) !== null;
+    mainGridElement.querySelector(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID)) !== null;
 
   const isValidPlacement = () =>
-    _grid.querySelector(MAIN_GRID.INVALID_PLACEMENT_SELECTOR) === null &&
-    _grid.querySelector(MAIN_GRID.VALID_PLACEMENT_SELECTOR) !== null;
+    mainGridElement.querySelector(MAIN_GRID.INVALID_PLACEMENT_SELECTOR) === null &&
+    mainGridElement.querySelector(MAIN_GRID.VALID_PLACEMENT_SELECTOR) !== null;
 
-  const getCell = (coordinates) => _grid.querySelector(MAIN_GRID.CELL_SELECTOR(coordinates));
+  const getCell = (coordinates) =>
+    mainGridElement.querySelector(MAIN_GRID.CELL_SELECTOR(coordinates));
   const getShipPlacementCells = (shipID) =>
-    _grid.querySelectorAll(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID));
+    mainGridElement.querySelectorAll(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID));
 
   const displayPlacedShip = (placementCells, shipID) => {
     placementCells.forEach((cell) => {
@@ -24,7 +29,7 @@ export const MainGridView = (mainGridElement) => {
       cell.setAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME, shipID);
       cell.textContent = shipID.charAt(0).toUpperCase();
     });
-    _previewManager.disable();
+    previewManager.disable();
   };
 
   const clearPlacedShip = (shipID) => {
@@ -38,15 +43,17 @@ export const MainGridView = (mainGridElement) => {
 
   const handleShipSelected = ({ length, id, orientation }) => {
     if (isShipPlaced(id)) clearPlacedShip(id);
-    _previewManager.setCurrentShip({ length, orientation });
-    _previewManager.enable();
+    previewManager.setCurrentShip({ length, orientation });
+    previewManager.enable();
   };
   const handleOrientationToggle = ({ orientation }) =>
-    _previewManager.updateOrientation(orientation);
+    previewManager.updateOrientation(orientation);
 
   const handlePlacementRequest = ({ shipLength, shipID }) => {
     if (!isValidPlacement()) return;
-    const placementCells = [..._grid.querySelectorAll(MAIN_GRID.VALID_PLACEMENT_SELECTOR)];
+    const placementCells = [
+      ...mainGridElement.querySelectorAll(MAIN_GRID.VALID_PLACEMENT_SELECTOR)
+    ];
     if (placementCells.length !== shipLength) return;
     displayPlacedShip(placementCells, shipID);
     const placedCoordinates = placementCells.map((cell) => cell.dataset.coordinates);
@@ -56,16 +63,17 @@ export const MainGridView = (mainGridElement) => {
   const displayShipHit = (coordinates) =>
     getCell(coordinates[0], coordinates[1]).classList.add(MAIN_GRID.CLASSES.HIT_MARKER);
 
-  const renderGrid = (container) => container.append(_element);
+  const renderGrid = (container) => container.append(wrappedMainGridElement);
 
   return {
+    getSubmitPlacementsButton: () => submitPlacementsButtonElement,
     renderGrid,
     displayPlacedShip,
     clearPlacedShip,
     displayShipHit,
     initializePreviewManager: ({ maxVertical, maxHorizontal, letterAxis }) => {
-      _previewManager.attachToGrid({
-        element: _element,
+      previewManager.attachToGrid({
+        element: wrappedMainGridElement,
         getCell,
         maxVertical,
         maxHorizontal,
@@ -74,6 +82,11 @@ export const MainGridView = (mainGridElement) => {
     },
     handleShipSelected,
     handleOrientationToggle,
-    handlePlacementRequest
+    handlePlacementRequest,
+    getElementBundle: () => ({
+      wrapper: wrappedMainGridElement,
+      grid: mainGridElement,
+      submitBtn: submitPlacementsButtonElement
+    })
   };
 };

@@ -1,17 +1,18 @@
 import { copyGrid, isWithinGrid, getValueAt, createGrid } from '../../utility/utils/gridUtils';
-import {
-  convertToDisplayFormat,
-  convertToInternalFormat
-} from '../../utility/utils/coordinatesUtils';
-
-import { ORIENTATIONS, STATUSES } from '../../utility/constants/common';
+import { LETTER_AXES, ORIENTATIONS, STATUSES } from '../../utility/constants/common';
 import { generateRandomID } from '../../utility/utils/stringUtils';
 
-export const MainGridModel = ({ rows = 10, cols = 10, letterAxis = 'row', id = null } = {}) => {
-  if (rows > 26 || cols > 26) throw new Error('Board cannot have more than 25 rows or columns.');
+export const MainGridModel = ({
+  numberOfRows = 10,
+  numberOfCols = 10,
+  letterAxis = LETTER_AXES.ROW,
+  id = null
+} = {}) => {
+  if (numberOfRows > 26 || numberOfCols > 26)
+    throw new Error('Board cannot have more than 25 rows or columns.');
 
   const _id = id ?? generateRandomID();
-  const _mainGrid = createGrid(rows, cols, STATUSES.EMPTY);
+  const _mainGrid = createGrid(numberOfRows, numberOfCols, STATUSES.EMPTY);
   const _letterAxis = letterAxis;
   const _maxVertical = _mainGrid.length - 1;
   const _maxHorizontal = _mainGrid[0].length - 1;

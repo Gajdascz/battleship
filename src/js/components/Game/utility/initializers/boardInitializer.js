@@ -1,10 +1,10 @@
-import { buildMainGridComponent } from '../../../../builders/MainGrid/buildMainGridComponent';
-import { buildTrackingGridComponent } from '../../../../builders/TrackingGrid/buildTrackingGridComponent';
-import { BoardCoordinator } from '../../BoardCoordinator';
+import { MainGridController } from '../../../MainGrid/MainGridController';
+import { TrackingGridController } from '../../../TrackingGrid/TrackingGridController';
+import { BoardCoordinator } from '../../../Board/BoardCoordinator';
 
 export const initializeBoard = (boardConfigData, fleetController) => {
-  const mainGridController = buildMainGridComponent(boardConfigData);
-  const trackingGridController = buildTrackingGridComponent(boardConfigData);
+  const mainGridController = MainGridController(boardConfigData);
+  const trackingGridController = TrackingGridController(boardConfigData);
   mainGridController.initializeSateManagement();
   trackingGridController.initializeStateManagement();
   const boardCoordinator = BoardCoordinator({

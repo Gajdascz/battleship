@@ -1,10 +1,6 @@
 import { DEFAULT_FLEET } from '../../utility/constants/components/fleet';
-import { BoardCoordinator } from './BoardCoordinator';
+import { BoardCoordinator } from '../Board/BoardCoordinator';
 import { PlayerModel } from '../Player/PlayerModel';
-import { buildMainGridComponent } from '../../builders/MainGrid/buildMainGridComponent';
-import { buildTrackingGridComponent } from '../../builders/TrackingGrid/buildTrackingGridComponent';
-import { buildFleetComponent } from '../../builders/Fleet/buildFleetComponent';
-import { buildShipComponent } from '../../builders/Ship/buildShipComponent';
 import { handle } from './utility/controllerHandlers';
 import stateManagerRegistry from '../../utility/stateManagement/stateManagerRegistry';
 import eventEmitter from '../../utility/eventEmitter';

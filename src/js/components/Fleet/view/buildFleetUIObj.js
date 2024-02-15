@@ -1,6 +1,6 @@
-import { buildUIObj, buildElementFromUIObj } from '../../utility/uiBuilderUtils/uiBuilders';
-import { COMMON_ELEMENTS } from '../../utility/constants/dom/elements';
-import { MAIN_FLEET, TRACKING_FLEET } from '../../utility/constants/components/fleet';
+import { buildUIObj, buildElementFromUIObj } from '../../../utility/uiBuilderUtils/uiBuilders';
+import { COMMON_ELEMENTS } from '../../../utility/constants/dom/elements';
+import { MAIN_FLEET, TRACKING_FLEET } from '../../../utility/constants/components/fleet';
 /**
  * @module fleetListObjs.js
  * Provides the structured object for the provided grid's fleet list to create an HTML Element.
@@ -89,7 +89,7 @@ export const buildFleetUIObj = () => {
   mainFleetContainer.children = [mainFleetHeader, mainShipList, buttonContainerObj];
   trackingFleetContainer.children = [trackingFleetHeader, trackingShipList];
   return {
-    mainElement: buildElementFromUIObj(mainFleetContainer),
-    trackingElement: buildElementFromUIObj(trackingFleetContainer)
+    mainFleetElement: buildElementFromUIObj(mainFleetContainer),
+    trackingFleetElement: buildElementFromUIObj(trackingFleetContainer)
   };
 };

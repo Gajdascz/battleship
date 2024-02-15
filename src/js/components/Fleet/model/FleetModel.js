@@ -1,4 +1,4 @@
-import { generateRandomID } from '../../utility/utils/stringUtils';
+import { generateRandomID } from '../../../utility/utils/stringUtils';
 
 export const FleetModel = (id = null) => {
   const _id = id ?? generateRandomID();

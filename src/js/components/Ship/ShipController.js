@@ -1,20 +1,22 @@
+import { ShipModel } from './model/ShipModel';
+import { ShipView } from './view/ShipView';
+import { initializeSateManagement } from '../../utility/stateManagement/initializeStateManagement';
+import { bundleComponentStates } from './utility/bundleComponentStates';
+
 import { STATUSES } from '../../utility/constants/common';
 import { publish } from './utility/publishers';
-import { bundleComponentStates } from './utility/bundleComponentStates';
 import { buildPlacementManager } from './utility/buildPlacementManager';
 
-import { initializeSateManagement } from '../../utility/stateManagement/initializeStateManagement';
-
-export const ShipController = ({ model, view }) => {
-  const _model = model;
-  const _view = view;
+export const ShipController = ({ name, length }) => {
+  const model = ShipModel({ name, length });
+  const view = ShipView({ name, length });
   const _placementManager = buildPlacementManager(model, view);
 
   const hit = () => {
-    const result = _model.hit();
+    const result = model.hit();
     if (result === STATUSES.SHIP_SUNK) {
-      _view.updateSunkStatus(true);
-      publish.shipSunk(_model.getID());
+      view.updateSunkStatus(true);
+      publish.shipSunk(model.getID());
     }
   };
 
@@ -32,15 +34,15 @@ export const ShipController = ({ model, view }) => {
     });
 
   return {
-    getModel: () => _model,
-    getElement: () => _view.getElement(),
-    getRotateButtonElement: () => _view.getRotateButtonElement(),
-    renderRotateButton: (container) => _view.renderRotateButton(container),
-    removeRotateButton: () => _view.removeRotateButton(),
-    renderShip: (container) => _view.renderShip(container),
-    removeShip: () => _view.removeShip(),
-    getID: () => _model.getID(),
+    getModel: () => model,
+    getElement: () => view.getElement(),
+    getRotateButtonElement: () => view.getRotateButtonElement(),
+    renderRotateButton: (container) => view.renderRotateButton(container),
+    removeRotateButton: () => view.removeRotateButton(),
+    renderShip: (container) => view.renderShip(container),
+    removeShip: () => view.removeShip(),
+    getID: () => model.getID(),
     initializeStateManagement: () =>
-      initializeSateManagement({ id: _model.getID(), stateBundles: getStateBundles() })
+      initializeSateManagement({ id: model.getID(), stateBundles: getStateBundles() })
   };
 };

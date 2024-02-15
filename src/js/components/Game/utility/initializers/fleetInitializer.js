@@ -1,9 +1,9 @@
-import { buildShipComponent } from '../../../../builders/Ship/buildShipComponent';
-import { buildFleetComponent } from '../../../../builders/Fleet/buildFleetComponent';
-
+import { buildFleetComponent } from '../../../Fleet/buildFleetComponent';
+import { ShipController } from '../../../Ship/ShipController';
 const populateFleet = (fleetController, shipsData) => {
   shipsData.forEach((ship) => {
-    const shipController = buildShipComponent(ship);
+    console.log(ship);
+    const shipController = ShipController(ship);
     shipController.initializeStateManagement();
     fleetController.assignShipToMainFleet(shipController);
   });

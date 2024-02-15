@@ -1,6 +1,6 @@
-import { COMMON_ELEMENTS } from '../../utility/constants/dom/elements';
-import { MAIN_GRID, COMMON_GRID } from '../../utility/constants/components/grids';
-import { buildUIObj, buildElementFromUIObj } from '../../utility/uiBuilderUtils/uiBuilders';
+import { COMMON_ELEMENTS } from '../../../utility/constants/dom/elements';
+import { MAIN_GRID, COMMON_GRID } from '../../../utility/constants/components/grids';
+import { buildUIObj, buildElementFromUIObj } from '../../../utility/uiBuilderUtils/uiBuilders';
 import {
   buildGridCellObj,
   buildGridHeaderObj,
@@ -8,7 +8,7 @@ import {
   generateLabels,
   getLabelTypes,
   wrapColLabels
-} from '../../utility/uiBuilderUtils/gridBuilderUtils';
+} from '../../../utility/uiBuilderUtils/gridBuilderUtils';
 
 /**
  * Creates the specified grid's structured object.
@@ -66,7 +66,12 @@ export const buildMainGridUIObj = ({ numberOfRows, numberOfCols, letterAxis }) =
       })
     ]
   });
+
+  const submitPlacementsButtonUIObj = buildUIObj(COMMON_ELEMENTS.BUTTON, {
+    attributes: { class: 'submit-ships-placement-butt', disabled: '' }
+  });
   return {
-    element: buildElementFromUIObj(mainGridUIObj)
+    wrappedMainGridElement: buildElementFromUIObj(mainGridUIObj),
+    submitPlacementsButtonElement: buildElementFromUIObj(submitPlacementsButtonUIObj)
   };
 };

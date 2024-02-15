@@ -1,5 +1,5 @@
-import { createSlug } from '../../utility/utils/stringUtils';
-import { ORIENTATIONS, STATUSES } from '../../utility/constants/common';
+import { createSlug } from '../../../utility/utils/stringUtils';
+import { ORIENTATIONS, STATUSES } from '../../../utility/constants/common';
 
 export const ShipModel = ({ length, name }) => {
   const _length = length;

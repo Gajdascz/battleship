@@ -8,32 +8,34 @@ import { convertToInternalFormat } from '../../utility/utils/coordinatesUtils';
 import { bundleComponentStates } from './utility/bundleComponentStates';
 import { initializeSateManagement } from '../../utility/stateManagement/initializeStateManagement';
 import eventEmitter from '../../utility/eventEmitter';
+import { FleetModel } from './model/FleetModel';
+import { FleetView } from './view/FleetView';
 
-export const FleetController = (fleetModel, fleetView) => {
-  const _model = fleetModel;
-  const _view = fleetView;
+export const FleetController = () => {
+  const model = FleetModel();
+  const view = FleetView();
   const _shipControllers = new Map();
 
   const assignShipToMainFleet = (shipController) => {
-    _model.addShip(shipController.getModel());
+    model.addShip(shipController.getModel());
     _shipControllers.set(shipController.getID(), shipController);
   };
 
   const assignShipToTrackingFleet = (shipModel, shipElement) => {
-    _view.addTrackingFleetShipElement(shipElement);
-    _model.addTrackingShip(shipModel);
+    view.addTrackingFleetShipElement(shipElement);
+    model.addTrackingShip(shipModel);
   };
 
   const renderMainFleet = () => {
-    _shipControllers.forEach((ship) => ship.renderShip(_view.getMainFleetShipList()));
+    _shipControllers.forEach((ship) => ship.renderShip(view.getMainFleetShipList()));
   };
-  const displayMainFleet = (container) => _view.renderMainFleet(container);
-  const displayTrackingFleet = (container) => _view.renderTrackingFleet(container);
+  const displayMainFleet = (container) => view.renderMainFleet(container);
+  const displayTrackingFleet = (container) => view.renderTrackingFleet(container);
 
   const handleShipSelected = (detail) => {
     const { id } = detail;
     const button = _shipControllers.get(id).getRotateButtonElement();
-    _view.updateRotateButton(button);
+    view.updateRotateButton(button);
   };
 
   eventEmitter.subscribe(PLACEMENT_EVENTS.SHIP.SELECTED, handleShipSelected);
@@ -43,10 +45,10 @@ export const FleetController = (fleetModel, fleetView) => {
     displayTrackingFleet,
     assignShipToMainFleet,
     assignShipToTrackingFleet,
-    getModel: () => _model,
-    getMainFleetButtonContainer: () => _view.getMainFleetButtonContainer(),
+    getModel: () => model,
+    getMainFleetButtonContainer: () => view.getMainFleetButtonContainer(),
     forEach: (callback) => _shipControllers.forEach((ship) => callback(ship)),
     initializeSateManagement: () =>
-      initializeSateManagement({ id: _model.getID(), stateBundles: [{}] })
+      initializeSateManagement({ id: model.getID(), stateBundles: [{}] })
   };
 };

@@ -1,4 +1,4 @@
-export const DEFAULT_FLEET = [
+export const DEFAULT = [
   { name: 'Carrier', length: 5 },
   { name: 'Battleship', length: 4 },
   { name: 'Destroyer', length: 3 },
@@ -6,7 +6,7 @@ export const DEFAULT_FLEET = [
   { name: 'Patrol Boat', length: 2 }
 ];
 
-export const MAIN_FLEET = {
+export const MAIN = {
   TYPE: 'main-fleet',
   CLASSES: {
     SHIP_LIST: 'main-fleet-ship-list',
@@ -18,7 +18,7 @@ export const MAIN_FLEET = {
   }
 };
 
-export const TRACKING_FLEET = {
+export const TRACKING = {
   TYPE: 'tracking-fleet',
   CLASSES: {
     SHIP_LIST: 'tracking-fleet-ship-list',
