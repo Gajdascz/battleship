@@ -1,7 +1,10 @@
-import { MAIN_GRID, TRACKING_GRID } from '../../utility/constants/components/grids';
-import { COMMON_ELEMENTS } from '../../utility/constants/dom/elements';
-import { buildUIElement } from '../../utility/uiBuilderUtils/uiBuilders';
 import { BoardView } from './BoardView';
+import { BoardModel } from './BoardModel';
+import eventEmitter from '../../utility/events/eventEmitter';
+import { PLACEMENT_EVENTS } from '../../utility/constants/events';
+import { initializeStateCoordinator } from './utility/initializeStateCoordinator';
+import { initializeStateManagement } from '../../utility/stateManagement/initializeStateManagement';
+import { generateComponentID } from '../../utility/utils/stringUtils';
 
 // const handlePlacementSubmission = () => {
 //   const placements = new Map();
@@ -15,22 +18,44 @@ import { BoardView } from './BoardView';
 //   dispatch.submitPlacements(placements);
 // };
 
-export const BoardController = (componentControllers) => {
-  const { mainGridController, trackingGridController, fleetController } = componentControllers;
+export const BoardController = ({
+  playerID,
+  fleetController,
+  mainGridController,
+  trackingGridController
+}) => {
+  const id = generateComponentID({ scope: playerID, name: `board` });
+  const controllers = {
+    fleet: fleetController,
+    mainGrid: mainGridController,
+    trackingGrid: trackingGridController
+  };
   const view = BoardView(
-    mainGridController.getView(),
-    trackingGridController.getView(),
-    fleetController.getView()
+    {
+      mainGridView: controllers.mainGrid.getView(),
+      trackingGridView: controllers.trackingGrid.getView(),
+      fleetView: controllers.fleet.getView()
+    },
+    id
   );
+  const model = BoardModel({
+    mainGridModel: controllers.mainGrid.getModel(),
+    trackingGridModel: controllers.trackingGrid.getModel(),
+    fleetModel: controllers.fleet.getModel()
+  });
+  view.displaySubmitPlacementsButton();
+  const checkPlacementStatus = () => {
+    if (model.isAllShipsPlaced()) view.enableSubmitPlacementsButton();
+  };
 
-  const _mainGridController = mainGridController;
-  const _trackingGridController = trackingGridController;
-  const _fleetController = fleetController;
-  const boardContainer = buildBoardContainer();
-  const main = document.querySelector('main');
-  main.append(boardContainer);
-  _mainGridController.displayGrid(boardContainer);
-  _trackingGridController.displayGrid(boardContainer);
-  const mainGridWrapper = document.querySelector(`.${MAIN_GRID.CLASSES.WRAPPER}`);
-  _fleetController.displayMainFleet(mainGridWrapper);
+  return {
+    attachTo: (container) => view.attachBoard(container),
+    setTrackingFleet: (opponentTrackingFleet) => view.setTrackingFleet(opponentTrackingFleet),
+    initializeStateManagement: () =>
+      initializeStateCoordinator(id, playerID, {
+        disableSubmitPlacementsButton: view.disableSubmitPlacementsButton,
+        checkPlacementStatus,
+        hideTrackingGrid: view.hideTrackingGrid
+      })
+  };
 };

@@ -11,15 +11,13 @@ export const GameModel = () => {
     getOpponentPlayer: () => _playerStates.opponent,
     getState: () => _state.current,
     getGameMode: () => _mode.current,
-    setP1: (playerModel, mainGridModel, trackingGridModel, fleetModel) => {
+    setP1: ({ playerModel, boardController }) => {
       _players.p1.model = playerModel;
-      _players.p1.board = { mainGrid: mainGridModel, trackingGrid: trackingGridModel };
-      _players.p1.fleet = fleetModel;
+      _players.p1.board = boardController;
     },
-    setP2: (playerModel, mainGridModel, trackingGridModel, fleetModel) => {
+    setP2: ({ playerModel, boardController }) => {
       _players.p2.model = playerModel;
-      _players.p2.board = { mainGrid: mainGridModel, trackingGrid: trackingGridModel };
-      _players.p2.fleet = fleetModel;
+      _players.p2.board = boardController;
     },
     setState: (value) => (_state.current = value),
     setGameMode: (value) => (_mode.current = value),

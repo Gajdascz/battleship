@@ -28,6 +28,22 @@ const convertIndexToLetter = (index) => String.fromCharCode(A_CHARACTER_CODE + i
 const convertLetterToIndex = (letter) => letter.charCodeAt() - A_CHARACTER_CODE;
 
 // Generates a simple random ID
-const generateRandomID = () => Math.floor((Date.now() / 10 ** 7) * Math.random() ** Math.PI);
+const generateRandomID = () => `#${Math.floor((Date.now() / 10 ** 7) * Math.random() ** Math.PI)}`;
 
-export { createSlug, convertIndexToLetter, convertLetterToIndex, generateRandomID };
+const generateComponentID = ({ scope, name }) => `${scope}#${name}`;
+
+const createEventKeyGenerator = (scope) => ({
+  getKey: (event) => {
+    if (!scope) throw new Error(`Scope not set.`);
+    return `${scope}@${event}`;
+  }
+});
+
+export {
+  createSlug,
+  convertIndexToLetter,
+  convertLetterToIndex,
+  generateRandomID,
+  generateComponentID,
+  createEventKeyGenerator
+};

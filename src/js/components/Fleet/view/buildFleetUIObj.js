@@ -1,4 +1,8 @@
-import { buildUIObj, buildElementFromUIObj } from '../../../utility/uiBuilderUtils/uiBuilders';
+import {
+  buildUIObj,
+  buildElementFromUIObj,
+  buildUIElement
+} from '../../../utility/uiBuilderUtils/uiBuilders';
 import { COMMON_ELEMENTS } from '../../../utility/constants/dom/elements';
 import { MAIN_FLEET, TRACKING_FLEET } from '../../../utility/constants/components/fleet';
 /**
@@ -88,8 +92,21 @@ export const buildFleetUIObj = () => {
   const buttonContainerObj = buildButtonContainerObj();
   mainFleetContainer.children = [mainFleetHeader, mainShipList, buttonContainerObj];
   trackingFleetContainer.children = [trackingFleetHeader, trackingShipList];
+  const mainFleetElement = buildElementFromUIObj(mainFleetContainer);
+  const trackingFleetElement = buildElementFromUIObj(trackingFleetContainer);
+  const buttonContainerElement = mainFleetElement.querySelector(
+    `.${MAIN_FLEET.CLASSES.BUTTONS_CONTAINER}`
+  );
+  buildUIElement(COMMON_ELEMENTS.DIV, { attributes: { class: 'rotate-button-wrapper' } });
+  const rotateShipWrapperElement = buildUIElement(COMMON_ELEMENTS.DIV, {
+    attributes: { class: 'rotate-button-wrapper' }
+  });
+
+  buttonContainerElement.append(rotateShipWrapperElement);
   return {
-    mainFleetElement: buildElementFromUIObj(mainFleetContainer),
-    trackingFleetElement: buildElementFromUIObj(trackingFleetContainer)
+    mainFleetElement,
+    trackingFleetElement,
+    buttonContainerElement,
+    rotateShipWrapperElement
   };
 };

@@ -1,21 +1,31 @@
+import { GameController } from './js/components/Game/GameController';
 import './styles/normalize.css';
 import './styles/style.css';
+import { DEFAULT_FLEET } from './js/utility/constants/components/fleet';
 
-import { buildGameComponent } from './js/builders/Game/buildGameComponent';
-
-const gameController = buildGameComponent();
-const boardConfigData = {
+const gridConfig = {
   numberOfRows: 10,
   numberOfCols: 10,
   letterAxis: 'row'
 };
 const playerOne = {
   playerData: {
-    name: 'nolan',
+    name: 'p1',
     id: 'playerOne'
   },
-  boardConfigData
+  gridConfig,
+  shipData: DEFAULT_FLEET
 };
+const playerTwo = {
+  playerData: {
+    name: 'p2',
+    id: 'playerTwo'
+  },
+  gridConfig,
+  shipData: DEFAULT_FLEET
+};
+
+const gameController = GameController();
 gameController.startGame({ p1Data: playerOne });
 
 // import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';

@@ -1,20 +1,18 @@
 import stateManagerRegistry from '../../../../utility/stateManagement/stateManagerRegistry';
-import eventEmitter from '../../../../utility/eventEmitter';
-import { COMMON_EVENTS } from '../../../../utility/constants/events';
+import eventEmitter from '../../../../utility/events/eventEmitter';
+import { GAME_EVENTS } from '../../../../utility/constants/events';
 import { STATES } from '../../../../utility/constants/common';
 
 export const initializeGameState = () => {
-  eventEmitter.subscribe(COMMON_EVENTS.STATE_TRANSITIONED, stateManagerRegistry.transition);
+  eventEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
 
-  const publishStateTransition = (state) =>
-    eventEmitter.publish(COMMON_EVENTS.STATE_TRANSITIONED, state);
+  const publishStateTransition = (state) => eventEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
 
   const transition = () => {
     const state = stateManagerRegistry.getCurrentState();
     switch (state) {
       case null:
         publishStateTransition(STATES.START);
-        transition();
         break;
       case STATES.START:
         publishStateTransition(STATES.PLACEMENT);

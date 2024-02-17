@@ -1,17 +1,17 @@
 import { STATES } from '../constants/common';
 
 const isValidState = (state) => Object.values(STATES).some((validState) => validState === state);
-const _registeredManagers = new Map();
-const _state = { current: null };
+const registeredManagers = new Map();
+const state = { current: null };
 
 const stateManagerRegistry = {
-  getCurrentState: () => _state.current,
+  getCurrentState: () => state.current,
   registerManager: (manager) =>
-    manager.isStateManager() ? _registeredManagers.set(manager.getID(), manager) : false,
-  transition: (state) => {
-    if (!isValidState(state)) throw new Error(`Invalid State: ${state}`);
-    _state.current = state;
-    _registeredManagers.forEach((manager) => manager.transition(state));
+    manager.isStateManager() ? registeredManagers.set(manager.getID(), manager) : false,
+  transition: ({ data }) => {
+    if (!isValidState(data)) throw new Error(`Invalid State: ${data}`);
+    state.current = data;
+    registeredManagers.forEach((manager) => manager.transition(state.current));
   }
 };
 

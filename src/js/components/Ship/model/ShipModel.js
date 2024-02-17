@@ -1,47 +1,51 @@
-import { createSlug } from '../../../utility/utils/stringUtils';
+import { createSlug, generateComponentID } from '../../../utility/utils/stringUtils';
 import { ORIENTATIONS, STATUSES } from '../../../utility/constants/common';
 
-export const ShipModel = ({ length, name }) => {
-  const _length = length;
-  const _id = createSlug(name);
-  const _name = name;
-  const _placedCoordinates = [];
-  let _isPlaced = false;
-  let _isSelected = false;
-  let _health = length;
-  let _orientation = ORIENTATIONS.VERTICAL;
+export const ShipModel = (shipScope, { shipLength, shipName }) => {
+  const length = shipLength;
+  const slug = createSlug(shipName);
+  const id = generateComponentID({ scope: shipScope, name: slug });
+  const scope = shipScope;
+  const name = shipName;
+  const placedCoordinates = [];
+  let isPlaced = false;
+  let isSelected = false;
+  let health = length;
+  let orientation = ORIENTATIONS.VERTICAL;
 
   return {
     isShip: () => true,
-    isSunk: () => _health <= 0,
-    isSelected: () => _isSelected,
-    isPlaced: () => _isPlaced,
-    getID: () => _id,
-    getLength: () => _length,
-    getName: () => _name,
-    getHealth: () => _health,
-    getOrientation: () => _orientation,
-    getPlacedCoordinates: () => _placedCoordinates.map((coordinates) => coordinates.slice()),
-    setIsPlaced: (value) => (_isPlaced = value),
-    setIsSelected: (value) => (_isSelected = value),
+    isSunk: () => health <= 0,
+    isSelected: () => isSelected,
+    isPlaced: () => isPlaced,
+    getID: () => id,
+    getScope: () => scope,
+    getSlug: () => slug,
+    getLength: () => length,
+    getName: () => name,
+    getHealth: () => health,
+    getOrientation: () => orientation,
+    getPlacedCoordinates: () => placedCoordinates.map((coordinates) => coordinates.slice()),
+    setIsPlaced: (value) => (isPlaced = value),
+    setIsSelected: (value) => (isSelected = value),
     setPlacedCoordinates: (coordinates) => {
-      _placedCoordinates.length = 0;
-      _placedCoordinates.push(...coordinates);
-      console.log(_placedCoordinates);
+      placedCoordinates.length = 0;
+      placedCoordinates.push(...coordinates);
+      console.log(placedCoordinates);
     },
-    clearPlacedCoordinates: () => (_placedCoordinates.length = 0),
+    clearPlacedCoordinates: () => (placedCoordinates.length = 0),
     toggleOrientation: () =>
-      (_orientation =
-        _orientation === ORIENTATIONS.VERTICAL ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL),
+      (orientation =
+        orientation === ORIENTATIONS.VERTICAL ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL),
     hit: () => {
-      if (_health > 0) _health--;
-      return _health > 0 ? STATUSES.HIT : STATUSES.SHIP_SUNK;
+      if (health > 0) health--;
+      return health > 0 ? STATUSES.HIT : STATUSES.SHIP_SUNK;
     },
     reset: () => {
-      _placedCoordinates.length = 0;
-      _health = _length;
-      _isPlaced = false;
-      _isSelected = false;
+      placedCoordinates.length = 0;
+      health = length;
+      shipName = shipScope;
+      isSelected = false;
     }
   };
 };

@@ -1,5 +1,3 @@
-import { STATES } from './common';
-
 export const MOUSE_EVENTS = {
   CLICK: 'click',
   DOUBLE_CLICK: 'dblclick',
@@ -13,6 +11,7 @@ export const MOUSE_EVENTS = {
 };
 export const KEY_EVENTS = {
   DOWN: 'keydown',
+  UP: 'keyup',
   CODES: {
     Q: 'KeyQ',
     W: 'KeyW',
@@ -35,36 +34,29 @@ export const KEY_EVENTS = {
   }
 };
 
-export const COMMON_EVENTS = {
-  GAME_STARTED: STATES.START,
-  GAME_ENDED: STATES.OVER,
-  STATE_TRANSITIONED: 'stateTransitioned',
-  RESTARTED: 'gameRestarted',
+export const GAME_EVENTS = {
+  STATE_CHANGED: 'stateChanged',
+  GAME_RESTARTED: 'gameRestarted',
   SETTINGS_SUBMITTED: 'settingsSubmitted',
-  TURN_CONCLUDED: 'turnConcluded',
+  TURN_ENDED: 'turnEnded',
   PLAYER_SWITCHED: 'playerSwitched'
 };
 
 export const PLACEMENT_EVENTS = {
-  STATE: STATES.PLACEMENT,
-  SUBMITTED: 'placementsSubmitted',
-  PROCESSED: 'placementsProcessed',
-  SHIP: {
-    SELECT_REQUESTED: 'shipSelectRequested',
-    PLACEMENT_REQUESTED: 'shipPlacementRequested',
-    SELECTED: 'shipSelected',
-    ORIENTATION_CHANGED: 'shipOrientationChanged',
-    PLACED: 'shipPlaced',
-    PLACED_SUCCESS: 'shipPlacementSuccessful'
-  }
+  PLACEMENTS_REQUESTED: 'placementsRequested', // Player submitted their ship placements for processing
+  PLACEMENTS_PROCESSED: 'placementsProcessed', // Placements have been processed and finalized
+  GRID_PLACEMENT_PROCESSED: 'gridPlacementProcessed', // Entity placed and accepted in grid
+  SHIP_SELECTED: 'shipSelected', // Ship selection request was realized and processed
+  SHIP_DESELECTED: 'shipDeselected',
+  SHIP_ORIENTATION_TOGGLED: 'shipOrientationToggled',
+  SHIP_PLACEMENT_SET: 'shipPlacementSet', // Ship received and stored placement details
+  SHIP_SELECTION_REQUESTED: 'shipSelectionRequested',
+  SHIP_PLACEMENT_REQUESTED: 'shipPlacementRequested'
 };
 
 export const PROGRESS_EVENTS = {
-  STATE: STATES.PROGRESS,
-  ATTACK: {
-    PROCESSED: 'attackProcessed',
-    INITIATED: 'playerAttacked',
-    SHIP_HIT: 'shipHit',
-    SHIP_SUNK: 'shipSunk'
-  }
+  ATTACK_PROCESSED: 'attackProcessed', // Sent attack has been processed
+  ATTACK_INITIATED: 'attackInitiated', // Attack sent between players
+  SHIP_HIT: 'shipHit',
+  SHIP_SUNK: 'shipSunk'
 };

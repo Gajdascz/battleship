@@ -1,6 +1,5 @@
-import eventEmitter from '../eventEmitter';
+import eventEmitter from '../events/eventEmitter';
 import Queue from '../../components/AI/ai/dataStructures/Queue';
-import { generateRandomID } from '../utils/stringUtils';
 
 /**
  * Creates and manages the state of the application, handling transitions between states
@@ -8,11 +7,12 @@ import { generateRandomID } from '../utils/stringUtils';
  *
  * @returns {Object} An object containing methods to interact with the state manager.
  */
-export const StateManager = (id = null) => {
-  const _id = id ?? generateRandomID();
-  const _state = { current: null };
+export const StateManager = (managerID) => {
+  const id = managerID;
+  const state = { current: null };
   const unsubscribeQueue = Queue();
-  const _storedStates = new Map();
+  const storedStates = new Map();
+  const activeDynamic = new Map();
 
   /**
    * Stores a state along with associated functions for execution, publishing events, and subscribing to events.
@@ -20,7 +20,7 @@ export const StateManager = (id = null) => {
    * @param {string} state The name of the state to store.
    * @param {{execute: Function[], subscribe: Function[]}} fns An object containing arrays of functions for execution, and event subscription.
    */
-  const storeState = ({ state, fns }) => _storedStates.set(state, fns);
+  const storeState = ({ state, fns }) => storedStates.set(state, fns);
 
   /**
    * Transitions to a given target state, unsubscribing from events of the current state and executing
@@ -33,6 +33,10 @@ export const StateManager = (id = null) => {
       const event = unsubscribeQueue.dequeue();
       eventEmitter.unsubscribe(event.name, event.callback);
     }
+    if (activeDynamic.size > 0) {
+      activeDynamic.forEach((callback, event) => eventEmitter.unsubscribe(event, callback));
+      activeDynamic.clear();
+    }
     setCurrentState(targetState);
   };
 
@@ -43,22 +47,36 @@ export const StateManager = (id = null) => {
    * @throws {Error} Throws an error if the target state is not stored.
    */
   const setCurrentState = (targetState) => {
-    const state = _storedStates.get(targetState);
+    const state = storedStates.get(targetState);
     if (!state) return;
-    _state.current = targetState;
-    const { execute, subscribe } = state;
+    state.current = targetState;
+    const { execute, subscribe, dynamic } = state;
     execute.forEach((fn) => fn());
     subscribe.forEach(({ event, callback }) => {
       eventEmitter.subscribe(event, callback);
       unsubscribeQueue.enqueue({ name: event, callback });
+    });
+    dynamic.forEach(({ event, callback, subscribeTrigger, unsubscribeTrigger }) => {
+      const dynamicSubscribe = () => {
+        activeDynamic.set(event, callback);
+        eventEmitter.subscribe(event, callback);
+      };
+      const dynamicUnsubscribe = () => {
+        activeDynamic.delete(event, callback);
+        eventEmitter.unsubscribe(event, callback);
+      };
+      eventEmitter.subscribe(subscribeTrigger, dynamicSubscribe);
+      eventEmitter.subscribe(unsubscribeTrigger, dynamicUnsubscribe);
+      unsubscribeQueue.enqueue({ name: subscribeTrigger, callback: dynamicSubscribe });
+      unsubscribeQueue.enqueue({ name: unsubscribeTrigger, callback: dynamicUnsubscribe });
     });
   };
 
   return {
     storeState,
     transition,
-    getCurrentState: () => _state.current,
-    getID: () => _id,
+    getCurrentState: () => state.current,
+    getID: () => id,
     isStateManager: () => true
   };
 };
