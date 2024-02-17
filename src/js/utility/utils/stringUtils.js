@@ -10,7 +10,15 @@
  * @returns {string | null} Converted text.
  *
  */
-const createSlug = (text) => (text ? text.toLowerCase().replaceAll(/ /g, '-') : null);
+const createSlug = (text) => {
+  const clean = cleanText(text);
+  return clean ? clean.toLowerCase().replaceAll(/ /g, '-') : null;
+};
+const cleanText = (text) => {
+  let clean = `${text}`;
+  clean = clean.replace(/\s+/g, ' ');
+  return clean.trim();
+};
 /**
  * Converts a numerical index to its corresponding alphabet letter (starting from 'A').
  *
@@ -40,6 +48,7 @@ const createEventKeyGenerator = (scope) => ({
 });
 
 export {
+  cleanText,
   createSlug,
   convertIndexToLetter,
   convertLetterToIndex,

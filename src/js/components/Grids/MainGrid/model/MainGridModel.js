@@ -1,3 +1,4 @@
+import { createIdentity } from '../../../../utility/utils/createIdentity';
 import {
   copyGrid,
   isWithinGrid,
@@ -13,21 +14,22 @@ export const MainGridModel = (
 ) => {
   if (numberOfRows > 26 || numberOfCols > 26)
     throw new Error('Board cannot have more than 25 rows or columns.');
+  const { scope, id, scopedID, name } = createIdentity({
+    scope: gridScope,
+    name: 'mainGrid'
+  });
+  const mainGrid = createGrid(numberOfRows, numberOfCols, STATUSES.EMPTY);
+  const ltrAxis = letterAxis;
+  const maxVertical = mainGrid.length - 1;
+  const maxHorizontal = mainGrid[0].length - 1;
+  let numberOfShipsPlaced = 0;
 
-  const id = generateComponentID({ scope: gridScope, name: 'main-grid' });
-  const scope = gridScope;
-  const _mainGrid = createGrid(numberOfRows, numberOfCols, STATUSES.EMPTY);
-  const _letterAxis = letterAxis;
-  const _maxVertical = _mainGrid.length - 1;
-  const _maxHorizontal = _mainGrid[0].length - 1;
-  let _numberOfShipsPlaced = 0;
-
-  const isInBounds = (coordinates) => isWithinGrid(_mainGrid, coordinates);
+  const isInBounds = (coordinates) => isWithinGrid(mainGrid, coordinates);
   const isVertical = (orientation) => orientation === ORIENTATIONS.VERTICAL;
 
-  const getCellStatus = (coordinates) => getValueAt(_mainGrid, coordinates);
+  const getCellStatus = (coordinates) => getValueAt(mainGrid, coordinates);
   const setCellStatus = (coordinates, status) =>
-    (_mainGrid[coordinates[0]][coordinates[1]] = status);
+    (mainGrid[coordinates[0]][coordinates[1]] = status);
 
   const isPlacementValid = (start, end, orientation) => {
     if (!isInBounds(start) || !isInBounds(end)) return false;
@@ -53,7 +55,7 @@ export const MainGridModel = (
         for (let i = start[0]; i <= end[0]; i++) setCellStatus([i, start[1]], STATUSES.OCCUPIED);
       }
     } else return false;
-    _numberOfShipsPlaced += 1;
+    numberOfShipsPlaced += 1;
     return true;
   };
 
@@ -70,17 +72,18 @@ export const MainGridModel = (
     place,
     incomingAttack,
     isBoard: () => true,
-    getMainGrid: () => copyGrid(_mainGrid),
-    getLetterAxis: () => _letterAxis,
-    getMaxVertical: () => _maxVertical,
-    getMaxHorizontal: () => _maxHorizontal,
-    getNumberOfShipsPlaced: () => _numberOfShipsPlaced,
+    getMainGrid: () => copyGrid(mainGrid),
+    getLetterAxis: () => ltrAxis,
+    getMaxVertical: () => maxVertical,
+    getMaxHorizontal: () => maxHorizontal,
+    getNumberOfShipsPlaced: () => numberOfShipsPlaced,
     getID: () => id,
     getScope: () => scope,
+    getScopedID: () => scopedID,
     reset() {
-      _numberOfShipsPlaced = 0;
-      _mainGrid.length = 0;
-      _mainGrid.push(...createGrid(_maxVertical, _maxHorizontal));
+      numberOfShipsPlaced = 0;
+      mainGrid.length = 0;
+      mainGrid.push(...createGrid(maxVertical, maxHorizontal));
     }
   };
 };

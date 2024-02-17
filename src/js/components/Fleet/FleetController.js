@@ -1,10 +1,12 @@
-import { initializeStateCoordinator } from './utility/initializeStateCoordinator';
 import { FleetModel } from './model/FleetModel';
 import { FleetView } from './view/FleetView';
+import { PLACEMENT_EVENTS } from '../../utility/constants/events';
+import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
 
 export const FleetController = (scope) => {
   const model = FleetModel(scope);
   const view = FleetView();
+  const stateCoordinator = StateCoordinator(model.getScopedID(), model.getScope());
   const shipControllers = new Map();
 
   const assignShipToFleet = (shipController) => {
@@ -38,10 +40,12 @@ export const FleetController = (scope) => {
     setShipPlacementContainer: (container) => view.setShipPlacementContainer(container),
     forEach: (callback) => shipControllers.forEach((ship) => callback(ship)),
     initializeStateManagement: () => {
-      initializeStateCoordinator(model.getID(), model.getScope(), {
-        handleShipSelectionRequest,
-        initializeShipStates
-      });
+      stateCoordinator.placement.addExecute(initializeShipStates);
+      stateCoordinator.placement.addSubscribe(
+        PLACEMENT_EVENTS.SHIP_SELECTION_REQUESTED,
+        handleShipSelectionRequest
+      );
+      stateCoordinator.initializeManager();
     }
   };
 };

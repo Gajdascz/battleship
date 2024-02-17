@@ -1,8 +1,10 @@
-import { generateComponentID } from '../../../utility/utils/stringUtils';
-
+import { createIdentity } from '../../../utility/utils/createIdentity';
 export const FleetModel = (fleetScope) => {
-  const id = generateComponentID({ scope: fleetScope, name: `fleet` });
-  const scope = fleetScope;
+  const { scope, id, scopedID, name } = createIdentity({
+    scope: fleetScope,
+    name: 'Fleet'
+  });
+
   const mainFleet = new Map();
   const trackingFleet = new Map();
 
@@ -15,6 +17,8 @@ export const FleetModel = (fleetScope) => {
     getTrackingFleet: () => [...trackingFleet.values()],
     getShipFromMainFleet: (shipID) => mainFleet.get(shipID),
     getID: () => id,
-    getScope: () => scope
+    getName: () => name,
+    getScope: () => scope,
+    getScopedID: () => scopedID
   };
 };

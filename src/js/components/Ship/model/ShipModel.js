@@ -1,12 +1,13 @@
-import { createSlug, generateComponentID } from '../../../utility/utils/stringUtils';
 import { ORIENTATIONS, STATUSES } from '../../../utility/constants/common';
+import { createIdentity } from '../../../utility/utils/createIdentity';
 
 export const ShipModel = (shipScope, { shipLength, shipName }) => {
+  const { scope, id, scopedID, name } = createIdentity({
+    scope: shipScope,
+    name: shipName
+  });
+
   const length = shipLength;
-  const slug = createSlug(shipName);
-  const id = generateComponentID({ scope: shipScope, name: slug });
-  const scope = shipScope;
-  const name = shipName;
   const placedCoordinates = [];
   let isPlaced = false;
   let isSelected = false;
@@ -20,7 +21,7 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
     isPlaced: () => isPlaced,
     getID: () => id,
     getScope: () => scope,
-    getSlug: () => slug,
+    getScopedID: () => scopedID,
     getLength: () => length,
     getName: () => name,
     getHealth: () => health,

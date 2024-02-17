@@ -36,22 +36,23 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
       });
     },
     handleShipSelected: ({ data }) => {
-      console.log(data);
       const { id, length, orientation } = data;
-      console.log(data);
       if (placement.isShipPlaced(id)) placement.clearPlacedShip(id);
       previewManager.setCurrentShip({ length, orientation });
       previewManager.enable();
     },
-    handleOrientationToggle: ({ orientation }) => previewManager.updateOrientation(orientation),
+    handleOrientationToggle: ({ data }) => {
+      const { orientation } = data;
+      previewManager.updateOrientation(orientation);
+    },
 
-    handlePlacementRequest: ({ shipLength, shipID }) => {
+    handlePlacementRequest: ({ name, length }) => {
       if (!placement.isValidPlacement()) return;
       const placementCells = [
         ...mainGridElement.querySelectorAll(MAIN_GRID.VALID_PLACEMENT_SELECTOR)
       ];
-      if (placementCells.length !== shipLength) return;
-      placement.displayPlacedShip(placementCells, shipID);
+      if (placementCells.length !== length) return;
+      placement.displayPlacedShip(placementCells, name);
       const placedCoordinates = placementCells.map((cell) => cell.dataset.coordinates);
       return placedCoordinates;
     }

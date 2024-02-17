@@ -51,17 +51,20 @@ export const StateManager = (managerID) => {
     if (!state) return;
     state.current = targetState;
     const { execute, subscribe, dynamic } = state;
+    execute.forEach((fn) => console.log(fn));
     execute.forEach((fn) => fn());
     subscribe.forEach(({ event, callback }) => {
       eventEmitter.subscribe(event, callback);
       unsubscribeQueue.enqueue({ name: event, callback });
     });
-    dynamic.forEach(({ event, callback, subscribeTrigger, unsubscribeTrigger }) => {
-      const dynamicSubscribe = () => {
+    dynamic.forEach(({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) => {
+      const dynamicSubscribe = ({ data }) => {
+        if (id !== undefined && id !== data.id) return;
         activeDynamic.set(event, callback);
         eventEmitter.subscribe(event, callback);
       };
-      const dynamicUnsubscribe = () => {
+      const dynamicUnsubscribe = ({ data }) => {
+        if (id !== undefined && id !== data.id) return;
         activeDynamic.delete(event, callback);
         eventEmitter.unsubscribe(event, callback);
       };

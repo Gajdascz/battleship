@@ -2,8 +2,8 @@ import { STATES } from '../constants/common';
 import { StateManager } from './StateManager';
 import stateManagerRegistry from './stateManagerRegistry';
 import { createEventKeyGenerator } from '../utils/stringUtils';
-export const StateCoordinator = (id, scope) => {
-  const manager = StateManager(id);
+export const StateCoordinator = (scopedID, scope) => {
+  const manager = StateManager(scopedID);
   const { getKey } = createEventKeyGenerator(scope);
   const stateBundles = {
     [STATES.START]: {
@@ -50,27 +50,76 @@ export const StateCoordinator = (id, scope) => {
     stateBundles[state].fns.execute.push(fn);
   };
   const addSubscriptionToState = (state, { event, callback }) => {
+    console.log(state, event, callback);
     validate(state, callback);
     stateBundles[state].fns.subscribe.push({ event: getKey(event), callback });
   };
 
   const addDynamicSubscriptionToState = (
     state,
-    { event, callback, subscribeTrigger, unsubscribeTrigger }
+    { event, callback, subscribeTrigger, unsubscribeTrigger, id }
   ) => {
     validate(state, callback);
     stateBundles[state].fns.dynamic.push({
       event: getKey(event),
       callback,
       subscribeTrigger: getKey(subscribeTrigger),
-      unsubscribeTrigger: getKey(unsubscribeTrigger)
+      unsubscribeTrigger: getKey(unsubscribeTrigger),
+      id
     });
   };
 
   return {
-    addExecuteFnToState,
-    addSubscriptionToState,
-    addDynamicSubscriptionToState,
+    start: {
+      addExecute: (fn) => addExecuteFnToState(STATES.START, fn),
+      addSubscribe: (event, callback) => addSubscriptionToState(STATES.START, { event, callback }),
+      addDynamic: ({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) =>
+        addDynamicSubscriptionToState(STATES.START, {
+          event,
+          callback,
+          subscribeTrigger,
+          unsubscribeTrigger,
+          id
+        })
+    },
+    placement: {
+      addExecute: (fn) => addExecuteFnToState(STATES.PLACEMENT, fn),
+      addSubscribe: (event, callback) =>
+        addSubscriptionToState(STATES.PLACEMENT, { event, callback }),
+      addDynamic: ({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) =>
+        addDynamicSubscriptionToState(STATES.PLACEMENT, {
+          event,
+          callback,
+          subscribeTrigger,
+          unsubscribeTrigger,
+          id
+        })
+    },
+    progress: {
+      addExecute: (fn) => addExecuteFnToState(STATES.PROGRESS, fn),
+      addSubscribe: (event, callback) =>
+        addSubscriptionToState(STATES.PROGRESS, { event, callback }),
+      addDynamic: ({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) =>
+        addDynamicSubscriptionToState(STATES.PROGRESS, {
+          event,
+          callback,
+          subscribeTrigger,
+          unsubscribeTrigger,
+          id
+        })
+    },
+    over: {
+      addExecute: (fn) => addExecuteFnToState(STATES.OVER, fn),
+      addSubscribe: (event, callback) => addSubscriptionToState(STATES.OVER, { event, callback }),
+      addDynamic: ({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) =>
+        addDynamicSubscriptionToState(STATES.OVER, {
+          event,
+          callback,
+          subscribeTrigger,
+          unsubscribeTrigger,
+          id
+        })
+    },
     initializeManager: () => {
       Object.values(stateBundles).forEach((bundle) => manager.storeState(bundle));
       stateManagerRegistry.registerManager(manager);

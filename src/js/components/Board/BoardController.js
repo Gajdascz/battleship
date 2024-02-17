@@ -2,10 +2,8 @@ import { BoardView } from './BoardView';
 import { BoardModel } from './BoardModel';
 import eventEmitter from '../../utility/events/eventEmitter';
 import { PLACEMENT_EVENTS } from '../../utility/constants/events';
-import { initializeStateCoordinator } from './utility/initializeStateCoordinator';
-import { initializeStateManagement } from '../../utility/stateManagement/initializeStateManagement';
 import { generateComponentID } from '../../utility/utils/stringUtils';
-
+import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
 // const handlePlacementSubmission = () => {
 //   const placements = new Map();
 //   _model.getFleet().forEach((ship) => {
@@ -25,6 +23,7 @@ export const BoardController = ({
   trackingGridController
 }) => {
   const id = generateComponentID({ scope: playerID, name: `board` });
+  const stateCoordinator = StateCoordinator(id, playerID);
   const controllers = {
     fleet: fleetController,
     mainGrid: mainGridController,
@@ -51,11 +50,18 @@ export const BoardController = ({
   return {
     attachTo: (container) => view.attachBoard(container),
     setTrackingFleet: (opponentTrackingFleet) => view.setTrackingFleet(opponentTrackingFleet),
-    initializeStateManagement: () =>
-      initializeStateCoordinator(id, playerID, {
-        disableSubmitPlacementsButton: view.disableSubmitPlacementsButton,
-        checkPlacementStatus,
-        hideTrackingGrid: view.hideTrackingGrid
-      })
+    initializeStateManagement: () => {
+      stateCoordinator.placement.addExecute(view.hideTrackingGrid);
+      console.log(view.disableSubmitPlacementsButton);
+      stateCoordinator.placement.addSubscribe(
+        PLACEMENT_EVENTS.SHIP_SELECTED,
+        view.disableSubmitPlacementsButton
+      );
+      stateCoordinator.placement.addSubscribe(
+        PLACEMENT_EVENTS.SHIP_PLACEMENT_SET,
+        checkPlacementStatus
+      );
+      stateCoordinator.initializeManager();
+    }
   };
 };

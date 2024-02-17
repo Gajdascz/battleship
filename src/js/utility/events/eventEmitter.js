@@ -4,6 +4,8 @@ const _hasEventSubscription = (event) => !!subscribers[event];
 const eventEmitter = {
   subscribe: (event, callback) => {
     if (!_hasEventSubscription(event)) subscribers[event] = [];
+    // console.log(event);
+    // console.log(callback);
     subscribers[event].push(callback);
   },
   unsubscribe: (event, callback) => {
@@ -12,8 +14,8 @@ const eventEmitter = {
   },
   publish: (event, data) => {
     if (!_hasEventSubscription(event)) return;
-    console.log(`${event} - published: `);
-    console.log(data);
+    // console.log(`${event} - published: `);
+    // console.log(data);
     const eventData = { data };
     subscribers[event].forEach((callback) => callback(eventData));
   },
