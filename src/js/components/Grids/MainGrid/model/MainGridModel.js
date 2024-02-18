@@ -6,7 +6,7 @@ import {
   createGrid
 } from '../../../../utility/utils/gridUtils';
 import { LETTER_AXES, ORIENTATIONS, STATUSES } from '../../../../utility/constants/common';
-import { generateComponentID } from '../../../../utility/utils/stringUtils';
+import { getRelativeOrientation } from '../../../../utility/utils/coordinatesUtils';
 
 export const MainGridModel = (
   gridScope,
@@ -14,7 +14,7 @@ export const MainGridModel = (
 ) => {
   if (numberOfRows > 26 || numberOfCols > 26)
     throw new Error('Board cannot have more than 25 rows or columns.');
-  const { scope, id, scopedID, name } = createIdentity({
+  const { scope, id, scopedID } = createIdentity({
     scope: gridScope,
     name: 'mainGrid'
   });
@@ -22,7 +22,6 @@ export const MainGridModel = (
   const ltrAxis = letterAxis;
   const maxVertical = mainGrid.length - 1;
   const maxHorizontal = mainGrid[0].length - 1;
-  let numberOfShipsPlaced = 0;
 
   const isInBounds = (coordinates) => isWithinGrid(mainGrid, coordinates);
   const isVertical = (orientation) => orientation === ORIENTATIONS.VERTICAL;
@@ -36,26 +35,28 @@ export const MainGridModel = (
     if (isVertical(orientation)) {
       for (let i = start[1]; i <= end[1]; i++) {
         const status = getCellStatus([start[0], i]);
-        if (status.status !== STATUSES.UNEXPLORED) return false;
+        if (status !== STATUSES.EMPTY) return false;
       }
     } else {
       for (let i = start[0]; i <= end[0]; i++) {
         const status = getCellStatus([i, start[1]]);
-        if (status.status !== STATUSES.UNEXPLORED) return false;
+        if (status !== STATUSES.EMPTY) return false;
       }
     }
     return true;
   };
 
-  const place = ({ start, end, orientation }) => {
-    if (isPlacementValid(start, end, orientation)) {
-      if (orientation === ORIENTATIONS.VERTICAL) {
-        for (let i = start[1]; i <= end[1]; i++) setCellStatus([start[0], i], STATUSES.OCCUPIED);
-      } else {
+  const place = ({ start, end, orientation = null }) => {
+    console.log(start, end);
+    let verifiedOrientation = orientation;
+    if (orientation === null) verifiedOrientation = getRelativeOrientation(start, end, false);
+    if (isPlacementValid(start, end, verifiedOrientation)) {
+      if (verifiedOrientation === ORIENTATIONS.VERTICAL) {
         for (let i = start[0]; i <= end[0]; i++) setCellStatus([i, start[1]], STATUSES.OCCUPIED);
+      } else {
+        for (let i = start[1]; i <= end[1]; i++) setCellStatus([start[0], i], STATUSES.OCCUPIED);
       }
     } else return false;
-    numberOfShipsPlaced += 1;
     return true;
   };
 
@@ -76,12 +77,11 @@ export const MainGridModel = (
     getLetterAxis: () => ltrAxis,
     getMaxVertical: () => maxVertical,
     getMaxHorizontal: () => maxHorizontal,
-    getNumberOfShipsPlaced: () => numberOfShipsPlaced,
+    getDimensions: () => ({ width: mainGrid[0].length, height: mainGrid.length }),
     getID: () => id,
     getScope: () => scope,
     getScopedID: () => scopedID,
     reset() {
-      numberOfShipsPlaced = 0;
       mainGrid.length = 0;
       mainGrid.push(...createGrid(maxVertical, maxHorizontal));
     }

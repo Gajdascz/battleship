@@ -6,14 +6,13 @@ const initializePredefined = (predefined, addFn) =>
 
 export const Publisher = (scope, { predefinedRequests = [], predefinedActions = [] }) => {
   const { getKey } = createEventKeyGenerator(scope);
-
+  const keys = { requests: {}, actions: {} };
   const requests = {};
   const actions = {};
 
   const addRequest = (name, event) => (requests[name] = getKey(event));
   const addAction = (name, event) => (actions[name] = getKey(event));
   const publish = (key, data) => {
-    console.log(key, data);
     eventEmitter.publish(key, data);
   };
 
@@ -24,13 +23,14 @@ export const Publisher = (scope, { predefinedRequests = [], predefinedActions = 
     addRequest,
     addAction,
     request: (name, data) => {
-      console.log(name, data);
       publish(requests[name], data);
     },
     execute: (name, data) => publish(actions[name], data),
+    publishGlobal: (event, data) => eventEmitter.publish(event, data),
     reset: () => {
       Object.keys(requests).forEach((key) => delete requests[key]);
       Object.keys(actions).forEach((key) => delete actions[key]);
-    }
+    },
+    keys
   };
 };

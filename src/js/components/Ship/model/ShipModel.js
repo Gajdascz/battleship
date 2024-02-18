@@ -1,4 +1,5 @@
 import { ORIENTATIONS, STATUSES } from '../../../utility/constants/common';
+import { convertToInternalFormat } from '../../../utility/utils/coordinatesUtils';
 import { createIdentity } from '../../../utility/utils/createIdentity';
 
 export const ShipModel = (shipScope, { shipLength, shipName }) => {
@@ -8,7 +9,7 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
   });
 
   const length = shipLength;
-  const placedCoordinates = [];
+  const placedCoordinates = { internal: null, display: null };
   let isPlaced = false;
   let isSelected = false;
   let health = length;
@@ -26,13 +27,16 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
     getName: () => name,
     getHealth: () => health,
     getOrientation: () => orientation,
-    getPlacedCoordinates: () => placedCoordinates.map((coordinates) => coordinates.slice()),
+    getPlacedCoordinates: () => ({
+      internal: placedCoordinates.internal.map((coordinates) => [...coordinates]),
+      display: [...placedCoordinates.display]
+    }),
     setIsPlaced: (value) => (isPlaced = value),
     setIsSelected: (value) => (isSelected = value),
     setPlacedCoordinates: (coordinates) => {
-      placedCoordinates.length = 0;
-      placedCoordinates.push(...coordinates);
-      console.log(placedCoordinates);
+      const { internal, display } = coordinates;
+      placedCoordinates.internal = internal;
+      placedCoordinates.display = display;
     },
     clearPlacedCoordinates: () => (placedCoordinates.length = 0),
     toggleOrientation: () =>

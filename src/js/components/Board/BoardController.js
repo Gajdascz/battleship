@@ -1,20 +1,11 @@
 import { BoardView } from './BoardView';
 import { BoardModel } from './BoardModel';
-import eventEmitter from '../../utility/events/eventEmitter';
 import { PLACEMENT_EVENTS } from '../../utility/constants/events';
 import { generateComponentID } from '../../utility/utils/stringUtils';
 import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
-// const handlePlacementSubmission = () => {
-//   const placements = new Map();
-//   _model.getFleet().forEach((ship) => {
-//     const startCoordinates = convertToInternalFormat(ship.placedCoordinates[0]);
-//     const endCoordinates = convertToInternalFormat(
-//       ship.placedCoordinates[ship.placedCoordinates.length - 1]
-//     );
-//     placements.set(ship.id, { start: startCoordinates, end: endCoordinates });
-//   });
-//   dispatch.submitPlacements(placements);
-// };
+import { mapShipQuadrants } from './utility/mapShipQuadrants';
+import { buildPublisher } from './utility/buildPublisher';
+import { PUBLISHER_KEYS } from './utility/constants';
 
 export const BoardController = ({
   playerID,
@@ -42,9 +33,28 @@ export const BoardController = ({
     trackingGridModel: controllers.trackingGrid.getModel(),
     fleetModel: controllers.fleet.getModel()
   });
+  const quadrantMap = { current: null };
+  const publisher = buildPublisher(playerID);
+
   view.displaySubmitPlacementsButton();
   const checkPlacementStatus = () => {
     if (model.isAllShipsPlaced()) view.enableSubmitPlacementsButton();
+  };
+
+  const handlePlacementFinalization = () => {
+    const placements = model.getFleetPlacements();
+    const placeAt = [];
+    placements.forEach((placement) => {
+      console.log(placement);
+      placeAt.push({
+        start: placement.internal[0],
+        end: placement.internal[placement.internal.length - 1]
+      });
+    });
+    controllers.mainGrid.finalizePlacements(placeAt);
+    const { width, height } = controllers.mainGrid.getDimensions();
+    quadrantMap.current = mapShipQuadrants(placements, width, height);
+    publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENTS_FINALIZED, { playerID });
   };
 
   return {
@@ -52,7 +62,6 @@ export const BoardController = ({
     setTrackingFleet: (opponentTrackingFleet) => view.setTrackingFleet(opponentTrackingFleet),
     initializeStateManagement: () => {
       stateCoordinator.placement.addExecute(view.hideTrackingGrid);
-      console.log(view.disableSubmitPlacementsButton);
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_SELECTED,
         view.disableSubmitPlacementsButton
@@ -60,6 +69,10 @@ export const BoardController = ({
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_PLACEMENT_SET,
         checkPlacementStatus
+      );
+      stateCoordinator.placement.addSubscribe(
+        PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZATION_REQUESTED,
+        handlePlacementFinalization
       );
       stateCoordinator.initializeManager();
     }

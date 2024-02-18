@@ -50,8 +50,7 @@ export const StateManager = (managerID) => {
     const state = storedStates.get(targetState);
     if (!state) return;
     state.current = targetState;
-    const { execute, subscribe, dynamic } = state;
-    execute.forEach((fn) => console.log(fn));
+    const { execute, subscribe, dynamic, global } = state;
     execute.forEach((fn) => fn());
     subscribe.forEach(({ event, callback }) => {
       eventEmitter.subscribe(event, callback);
@@ -59,12 +58,12 @@ export const StateManager = (managerID) => {
     });
     dynamic.forEach(({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) => {
       const dynamicSubscribe = ({ data }) => {
-        if (id !== undefined && id !== data.id) return;
+        if (id !== undefined && id !== data.id && id !== data.scopedID) return;
         activeDynamic.set(event, callback);
         eventEmitter.subscribe(event, callback);
       };
       const dynamicUnsubscribe = ({ data }) => {
-        if (id !== undefined && id !== data.id) return;
+        if (id !== undefined && id !== data.id && id !== data.scopedID) return;
         activeDynamic.delete(event, callback);
         eventEmitter.unsubscribe(event, callback);
       };
@@ -72,6 +71,10 @@ export const StateManager = (managerID) => {
       eventEmitter.subscribe(unsubscribeTrigger, dynamicUnsubscribe);
       unsubscribeQueue.enqueue({ name: subscribeTrigger, callback: dynamicSubscribe });
       unsubscribeQueue.enqueue({ name: unsubscribeTrigger, callback: dynamicUnsubscribe });
+    });
+    global.forEach(({ event, callback }) => {
+      eventEmitter.subscribe(event, callback);
+      unsubscribeQueue.enqueue({ name: event, callback });
     });
   };
 

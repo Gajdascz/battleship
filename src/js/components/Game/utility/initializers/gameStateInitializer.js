@@ -1,6 +1,6 @@
 import stateManagerRegistry from '../../../../utility/stateManagement/stateManagerRegistry';
 import eventEmitter from '../../../../utility/events/eventEmitter';
-import { GAME_EVENTS } from '../../../../utility/constants/events';
+import { GAME_EVENTS, PLACEMENT_EVENTS } from '../../../../utility/constants/events';
 import { STATES } from '../../../../utility/constants/common';
 
 export const initializeGameState = () => {
@@ -16,6 +16,7 @@ export const initializeGameState = () => {
         break;
       case STATES.START:
         publishStateTransition(STATES.PLACEMENT);
+        eventEmitter.subscribe(PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZED);
         break;
       case STATES.PLACEMENT:
         publishStateTransition(STATES.PROGRESS);

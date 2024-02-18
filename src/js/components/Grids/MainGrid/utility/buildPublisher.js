@@ -4,6 +4,12 @@ import { PUBLISHER_KEYS } from './constants';
 
 export const buildPublisher = (scope) =>
   Publisher(scope, {
+    predefinedRequests: [
+      {
+        name: PUBLISHER_KEYS.REQUESTS.PLACEMENT_FINALIZATION,
+        event: PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZATION_REQUESTED
+      }
+    ],
     predefinedActions: [
       {
         name: PUBLISHER_KEYS.ACTIONS.PLACEMENT_PROCESSED,

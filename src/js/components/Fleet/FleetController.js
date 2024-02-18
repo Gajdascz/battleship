@@ -11,7 +11,7 @@ export const FleetController = (scope) => {
 
   const assignShipToFleet = (shipController) => {
     const shipModel = shipController.getModel();
-    const shipID = shipModel.getID();
+    const shipID = shipModel.getScopedID();
     model.addMainShip(shipID, shipModel);
     shipControllers.set(shipID, shipController);
     view.addShipView(shipID, shipController.getView());
@@ -19,12 +19,13 @@ export const FleetController = (scope) => {
   };
 
   const handleShipSelectionRequest = ({ data }) => {
-    const { id, rotateButton } = data;
+    const { scopedID, rotateButton } = data;
+    console.log(scopedID);
     shipControllers.forEach((controller) => {
-      if (controller.getID() === id) controller.select();
+      if (controller.getScopedID() === scopedID) controller.select();
       else if (controller.isSelected()) controller.deselect();
     });
-    view.updateRotateShipButton(id, rotateButton);
+    view.updateRotateShipButton(scopedID, rotateButton);
   };
 
   const initializeShipStates = () => {

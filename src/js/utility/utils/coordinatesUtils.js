@@ -204,8 +204,8 @@ const isAdjacent = (coordinatesOne, coordinatesTwo) => {
  * @returns {string} Orientation relative to the two coordinates.
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
-const getRelativeOrientation = (coordinatesOne, coordinatesTwo) => {
-  const deltaVector = getDelta(coordinatesOne, coordinatesTwo, false);
+const getRelativeOrientation = (coordinatesOne, coordinatesTwo, adjacent = true) => {
+  const deltaVector = getDelta(coordinatesOne, coordinatesTwo, adjacent !== true);
   if (!isSingleStepVector(deltaVector)) return null;
   return coordinatesOne[0] === coordinatesTwo[0] ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL;
 };

@@ -43,9 +43,9 @@ export const GAME_EVENTS = {
 };
 
 export const PLACEMENT_EVENTS = {
-  PLACEMENTS_REQUESTED: 'placementsRequested', // Player submitted their ship placements for processing
-  PLACEMENTS_PROCESSED: 'placementsProcessed', // Placements have been processed and finalized
   GRID_PLACEMENT_PROCESSED: 'gridPlacementProcessed', // Entity placed and accepted in grid
+  GRID_PLACEMENTS_FINALIZATION_REQUESTED: 'gridPlacementsFinalizationRequested', // Player submitted their ship placements for processing
+  GRID_PLACEMENTS_FINALIZED: 'gridPlacementsFinalized', // Placements have been processed and finalized
   SHIP_SELECTED: 'shipSelected', // Ship selection request was realized and processed
   SHIP_DESELECTED: 'shipDeselected',
   SHIP_ORIENTATION_TOGGLED: 'shipOrientationToggled',

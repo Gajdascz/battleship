@@ -22,7 +22,7 @@ export const BoardView = (componentViews, boardID) => {
     hideTrackingGrid: () => trackingGridView.elements.wrapper.classList.add('hide'),
     displaySubmitPlacementsButton: () =>
       submitPlacementsButtonWrapper.append(mainGridView.elements.submitBtn),
-    disableSubmitPlacementsButton: () => (mainGridView.elements.submitBtn.disabled = true),
-    enableSubmitPlacementsButton: () => (mainGridView.elements.submitBtn.disabled = false)
+    disableSubmitPlacementsButton: () => mainGridView.placement.submit.disable(),
+    enableSubmitPlacementsButton: () => mainGridView.placement.submit.enable()
   };
 };

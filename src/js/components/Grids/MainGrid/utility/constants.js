@@ -1,5 +1,7 @@
 export const PUBLISHER_KEYS = {
-  REQUESTS: {},
+  REQUESTS: {
+    PLACEMENT_FINALIZATION: 'placementFinalization'
+  },
   ACTIONS: {
     PLACEMENT_PROCESSED: 'placementProcessed'
   }

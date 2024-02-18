@@ -40,11 +40,13 @@ const generateRandomID = () => `#${Math.floor((Date.now() / 10 ** 7) * Math.rand
 
 const generateComponentID = ({ scope, name }) => `${scope}#${name}`;
 
+const GLOBAL_KEY = 'global';
 const createEventKeyGenerator = (scope) => ({
   getKey: (event) => {
     if (!scope) throw new Error(`Scope not set.`);
     return `${scope}@${event}`;
-  }
+  },
+  getGlobalKey: (event) => `${GLOBAL_KEY}@${event}`
 });
 
 export {

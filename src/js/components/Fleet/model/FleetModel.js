@@ -9,6 +9,10 @@ export const FleetModel = (fleetScope) => {
   const trackingFleet = new Map();
 
   return {
+    getID: () => id,
+    getName: () => name,
+    getScope: () => scope,
+    getScopedID: () => scopedID,
     isAllShipsPlaced: () => [...mainFleet.values()].every((ship) => ship.isPlaced()),
     isAllShipSunk: () => [...mainFleet.values()].every((ship) => ship.isSunk()),
     addMainShip: (shipID, shipModel) => mainFleet.set(shipID, shipModel),
@@ -16,9 +20,12 @@ export const FleetModel = (fleetScope) => {
     getFleet: () => [...mainFleet.values()],
     getTrackingFleet: () => [...trackingFleet.values()],
     getShipFromMainFleet: (shipID) => mainFleet.get(shipID),
-    getID: () => id,
-    getName: () => name,
-    getScope: () => scope,
-    getScopedID: () => scopedID
+    getFleetPlacements: () => {
+      const placements = new Map();
+      [...mainFleet.values()].forEach((ship) => {
+        placements.set(ship.getScopedID(), ship.getPlacedCoordinates());
+      });
+      return placements;
+    }
   };
 };

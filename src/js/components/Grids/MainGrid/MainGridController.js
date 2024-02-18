@@ -9,41 +9,75 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
   const view = MainGridView({ numberOfRows, numberOfCols, letterAxis });
   const publisher = buildPublisher(scope);
   const stateCoordinator = StateCoordinator(model.getScopedID(), model.getScope());
-  const initPreviewManager = () => {
-    view.initializePreviewManager({
-      maxVertical: model.getMaxVertical(),
-      maxHorizontal: model.getMaxHorizontal(),
-      letterAxis: model.getLetterAxis()
-    });
+
+  const placementController = {
+    initPreviewManager: () => {
+      view.initializePreviewManager({
+        maxVertical: model.getMaxVertical(),
+        maxHorizontal: model.getMaxHorizontal(),
+        letterAxis: model.getLetterAxis()
+      });
+    },
+    handlePlacementRequest: ({ data }) => {
+      console.log(data);
+      const { id, length } = data;
+      const placedCoordinates = view.placement.processPlacementRequest({
+        length,
+        id
+      });
+      if (!placedCoordinates) return;
+      publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_PROCESSED, { placedCoordinates });
+    },
+    handleShipSelected: ({ data }) => {
+      const { id, scopedID, length, orientation } = data;
+      view.placement.updateSelectedShip({ id, scopedID, length, orientation });
+    },
+    handleOrientationToggle: ({ data }) => {
+      const { orientation } = data;
+      view.placement.updateOrientation(orientation);
+    },
+    requestPlacementFinalization: () => {
+      console.log('called');
+      publisher.request(PUBLISHER_KEYS.REQUESTS.PLACEMENT_FINALIZATION, {});
+    },
+    finalizePlacements: (placements) => {
+      placements.forEach((placement) => {
+        console.log(placement);
+        const result = model.place({
+          start: placement.start,
+          end: placement.end
+        });
+        if (!result) throw new Error(`Error finalizing placement: ${placement}`);
+      });
+      return true;
+    }
   };
 
-  const processPlacementRequest = ({ data }) => {
-    console.log(data);
-    const { name, length } = data;
-    const placedCoordinates = view.placement.handlePlacementRequest({
-      length,
-      name
-    });
-    if (!placedCoordinates) return;
-    publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_PROCESSED, { placedCoordinates });
+  const enablePlacementSettings = () => {
+    view.placement.submit.setRequestPlacementSubmissionCallback(
+      placementController.requestPlacementFinalization
+    );
+    placementController.initPreviewManager();
   };
 
   return {
     getModel: () => model,
     getView: () => view,
+    getDimensions: () => model.getDimensions(),
+    finalizePlacements: (placements) => placementController.finalizePlacements(placements),
     initializeStateManagement: () => {
-      stateCoordinator.placement.addExecute(initPreviewManager);
+      stateCoordinator.placement.addExecute(enablePlacementSettings);
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_SELECTED,
-        view.placement.handleShipSelected
+        placementController.handleShipSelected
       );
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_ORIENTATION_TOGGLED,
-        view.placement.handleOrientationToggle
+        placementController.handleOrientationToggle
       );
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_PLACEMENT_REQUESTED,
-        processPlacementRequest
+        placementController.handlePlacementRequest
       );
       stateCoordinator.initializeManager();
     }

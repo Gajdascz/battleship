@@ -4,14 +4,15 @@ import stateManagerRegistry from './stateManagerRegistry';
 import { createEventKeyGenerator } from '../utils/stringUtils';
 export const StateCoordinator = (scopedID, scope) => {
   const manager = StateManager(scopedID);
-  const { getKey } = createEventKeyGenerator(scope);
+  const { getKey, getGlobalKey } = createEventKeyGenerator(scope);
   const stateBundles = {
     [STATES.START]: {
       state: STATES.START,
       fns: {
         execute: [],
         subscribe: [],
-        dynamic: []
+        dynamic: [],
+        global: []
       }
     },
     [STATES.PLACEMENT]: {
@@ -19,7 +20,8 @@ export const StateCoordinator = (scopedID, scope) => {
       fns: {
         execute: [],
         subscribe: [],
-        dynamic: []
+        dynamic: [],
+        global: []
       }
     },
     [STATES.PROGRESS]: {
@@ -27,7 +29,8 @@ export const StateCoordinator = (scopedID, scope) => {
       fns: {
         execute: [],
         subscribe: [],
-        dynamic: []
+        dynamic: [],
+        global: []
       }
     },
     [STATES.OVER]: {
@@ -35,7 +38,8 @@ export const StateCoordinator = (scopedID, scope) => {
       fns: {
         execute: [],
         subscribe: [],
-        dynamic: []
+        dynamic: [],
+        global: []
       }
     }
   };
@@ -50,9 +54,13 @@ export const StateCoordinator = (scopedID, scope) => {
     stateBundles[state].fns.execute.push(fn);
   };
   const addSubscriptionToState = (state, { event, callback }) => {
-    console.log(state, event, callback);
     validate(state, callback);
     stateBundles[state].fns.subscribe.push({ event: getKey(event), callback });
+  };
+
+  const addGlobalSubscriptionToState = (state, { event, callback }) => {
+    validate(state, callback);
+    stateBundles[state].fns.global.push({ event: getGlobalKey(event), callback });
   };
 
   const addDynamicSubscriptionToState = (
@@ -80,7 +88,9 @@ export const StateCoordinator = (scopedID, scope) => {
           subscribeTrigger,
           unsubscribeTrigger,
           id
-        })
+        }),
+      addGlobal: (event, callback) =>
+        addGlobalSubscriptionToState(STATES.START, { event, callback })
     },
     placement: {
       addExecute: (fn) => addExecuteFnToState(STATES.PLACEMENT, fn),
@@ -93,7 +103,9 @@ export const StateCoordinator = (scopedID, scope) => {
           subscribeTrigger,
           unsubscribeTrigger,
           id
-        })
+        }),
+      addGlobal: (event, callback) =>
+        addGlobalSubscriptionToState(STATES.PLACEMENT, { event, callback })
     },
     progress: {
       addExecute: (fn) => addExecuteFnToState(STATES.PROGRESS, fn),
@@ -106,7 +118,9 @@ export const StateCoordinator = (scopedID, scope) => {
           subscribeTrigger,
           unsubscribeTrigger,
           id
-        })
+        }),
+      addGlobal: (event, callback) =>
+        addGlobalSubscriptionToState(STATES.PROGRESS, { event, callback })
     },
     over: {
       addExecute: (fn) => addExecuteFnToState(STATES.OVER, fn),
@@ -118,7 +132,8 @@ export const StateCoordinator = (scopedID, scope) => {
           subscribeTrigger,
           unsubscribeTrigger,
           id
-        })
+        }),
+      addGlobal: (event, callback) => addGlobalSubscriptionToState(STATES.OVER, { event, callback })
     },
     initializeManager: () => {
       Object.values(stateBundles).forEach((bundle) => manager.storeState(bundle));

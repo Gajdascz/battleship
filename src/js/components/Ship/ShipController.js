@@ -5,6 +5,7 @@ import { STATUSES } from '../../utility/constants/common';
 import { buildPublisher } from './utility/buildPublisher';
 import { PUBLISHER_KEYS } from './utility/constants';
 import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
+import { convertToInternalFormat } from '../../utility/utils/coordinatesUtils';
 
 export const ShipController = (scope, { name, length }) => {
   const model = ShipModel(scope, { shipName: name, shipLength: length });
@@ -32,7 +33,7 @@ export const ShipController = (scope, { name, length }) => {
     selection: {
       request: () => {
         publisher.request(PUBLISHER_KEYS.REQUESTS.SELECTION, {
-          id: model.getID(),
+          scopedID: model.getScopedID(),
           rotateButton: view.elements.rotateButton
         });
       },
@@ -41,7 +42,8 @@ export const ShipController = (scope, { name, length }) => {
         model.setIsSelected(true);
         view.update.selectedStatus(true);
         publisher.execute(PUBLISHER_KEYS.ACTIONS.SELECTED, {
-          id: model.getScopedID(),
+          id: model.getID(),
+          scopedID: model.getScopedID(),
           scope: model.getScope(),
           length: model.getLength(),
           orientation: model.getOrientation()
@@ -53,23 +55,28 @@ export const ShipController = (scope, { name, length }) => {
         view.update.selectedStatus(false);
         model.setIsSelected(false);
         publisher.execute(PUBLISHER_KEYS.ACTIONS.DESELECTED, {
-          id: model.getScopedID()
+          scopedID: model.getScopedID()
         });
       }
     },
     placement: {
       request: () =>
         publisher.request(PUBLISHER_KEYS.REQUESTS.PLACEMENT, {
-          name: model.getName(),
+          id: model.getID(),
+          scopedID: model.getScopedID(),
           length: model.getLength()
         }),
       place: ({ data }) => {
+        console.log(model.getID());
         const { placedCoordinates } = data;
         placementController.selection.deselect();
-        model.setPlacedCoordinates(placedCoordinates);
+        const internal = placedCoordinates.map((coordinates) =>
+          convertToInternalFormat(coordinates)
+        );
+        model.setPlacedCoordinates({ internal, display: placedCoordinates });
         model.setIsPlaced(true);
         view.update.placementStatus(true);
-        publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_SET, { id: model.getScope() });
+        publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_SET, { scopedID: model.getScopedID() });
       },
       pickup: () => {
         model.clearPlacedCoordinates();
@@ -107,6 +114,7 @@ export const ShipController = (scope, { name, length }) => {
   return {
     getScope: () => model.getScope(),
     getID: () => model.getID(),
+    getScopedID: () => model.getScopedID(),
     isSelected: () => model.isSelected(),
     getModel: () => model,
     getView: () => view,

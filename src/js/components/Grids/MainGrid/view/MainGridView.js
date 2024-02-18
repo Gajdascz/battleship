@@ -1,4 +1,5 @@
 import { MAIN_GRID } from '../../../../utility/constants/components/grids';
+import { MOUSE_EVENTS } from '../../../../utility/constants/events';
 import { PreviewManager } from '../utility/PreviewManager';
 import { buildMainGridUIObj } from './buildMainGridUIObj';
 
@@ -19,11 +20,11 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
       mainGridElement.querySelector(MAIN_GRID.VALID_PLACEMENT_SELECTOR) !== null,
     getShipPlacementCells: (shipID) =>
       mainGridElement.querySelectorAll(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID)),
-    displayPlacedShip: (placementCells, shipID) => {
+    displayPlacedShip: (placementCells, id) => {
       placementCells.forEach((cell) => {
         cell.classList.replace(MAIN_GRID.CLASSES.VALID_PLACEMENT, MAIN_GRID.CLASSES.PLACED_SHIP);
-        cell.setAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME, shipID);
-        cell.textContent = shipID.charAt(0).toUpperCase();
+        cell.setAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME, id);
+        cell.textContent = id.charAt(0).toUpperCase();
       });
       previewManager.disable();
     },
@@ -35,26 +36,46 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
         cell.textContent = '';
       });
     },
-    handleShipSelected: ({ data }) => {
-      const { id, length, orientation } = data;
+    updateSelectedShip: ({ id, scopedID, length, orientation }) => {
+      console.log(id);
+      console.log(placement.isShipPlaced(id));
       if (placement.isShipPlaced(id)) placement.clearPlacedShip(id);
       previewManager.setCurrentShip({ length, orientation });
       previewManager.enable();
     },
-    handleOrientationToggle: ({ data }) => {
-      const { orientation } = data;
-      previewManager.updateOrientation(orientation);
-    },
-
-    handlePlacementRequest: ({ name, length }) => {
+    updateOrientation: (orientation) => previewManager.updateOrientation(orientation),
+    processPlacementRequest: ({ id, length }) => {
       if (!placement.isValidPlacement()) return;
       const placementCells = [
         ...mainGridElement.querySelectorAll(MAIN_GRID.VALID_PLACEMENT_SELECTOR)
       ];
       if (placementCells.length !== length) return;
-      placement.displayPlacedShip(placementCells, name);
+      placement.displayPlacedShip(placementCells, id);
       const placedCoordinates = placementCells.map((cell) => cell.dataset.coordinates);
       return placedCoordinates;
+    },
+    submit: {
+      requestPlacementSubmissionCallback: null,
+      setRequestPlacementSubmissionCallback: (fn) =>
+        (placement.submit.requestPlacementSubmissionCallback = fn),
+      enable: () => {
+        submitPlacementsButtonElement.disabled = false;
+        submitPlacementsButtonElement.addEventListener(
+          MOUSE_EVENTS.CLICK,
+          placement.submit.requestPlacementSubmissionCallback
+        );
+      },
+      disable: () => {
+        submitPlacementsButtonElement.disabled = true;
+        submitPlacementsButtonElement.removeEventListener(
+          MOUSE_EVENTS.CLICK,
+          placement.submit.requestPlacementSubmissionCallback
+        );
+      },
+      clear: () => {
+        placement.submit.disable();
+        submitPlacementsButtonElement.remove();
+      }
     }
   };
 
