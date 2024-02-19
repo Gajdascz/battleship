@@ -3,7 +3,7 @@ import './styles/normalize.css';
 import './styles/style.css';
 import { DEFAULT_FLEET } from './js/utility/constants/components/fleet';
 
-import { buildSettingsDialogUIObj } from './js/components/Dialogs/SettingsDialog/view/buildSettingsDialogUIObj';
+import { SettingsDialogController } from './js/components/Dialogs/SettingsDialog/SettingsDialogController';
 
 const gridConfig = {
   numberOfRows: 10,
@@ -30,10 +30,12 @@ const playerTwo = {
 const gameController = GameController();
 gameController.startGame({ p1Data: playerOne });
 
-const settingsDialog = buildSettingsDialogUIObj();
+const settingsDialogController = SettingsDialogController();
+
 const body = document.querySelector('body');
-settingsDialog.appendDialog(body);
-settingsDialog.showDialog();
+settingsDialogController.setContainer(body);
+settingsDialogController.display();
+
 // import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';
 // // import RenderController from './js/ui/render/RenderController';
 
@@ -41,12 +43,9 @@ settingsDialog.showDialog();
 
 // // import initiateGameController from './js/logic/game/initialization/initiateGameController';
 
-// // const settingsDialog = buildSettingsDialog();
-// // document.querySelector('body').append(settingsDialog);
-// // settingsDialog.showModal();
-// // document
-// //   .querySelector('.settings-button')
-// //   .addEventListener('click', (e) => settingsDialog.showModal());
+document
+  .querySelector('.settings-button')
+  .addEventListener('click', (e) => settingsDialogController.display());
 
 // const storage = SessionStorage();
 

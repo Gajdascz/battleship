@@ -1,3 +1,7 @@
+export const GENERAL_EVENTS = {
+  CHANGE: 'change'
+};
+
 export const MOUSE_EVENTS = {
   CLICK: 'click',
   DOUBLE_CLICK: 'dblclick',

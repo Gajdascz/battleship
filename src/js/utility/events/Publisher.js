@@ -3,16 +3,8 @@ import { createEventKeyGenerator } from '../utils/createEventKeyGenerator';
 const initializePredefined = (predefined, addFn) =>
   predefined.forEach(({ name, event }) => addFn(name, event));
 
-export const Publisher = (
-  scope,
-  {
-    predefinedRequests = [],
-    predefinedActions = [],
-    predefinedKeys = { REQUESTS: {}, ACTIONS: {} }
-  }
-) => {
+export const Publisher = (scope = '', { predefinedRequests = [], predefinedActions = [] }) => {
   const { getKey } = createEventKeyGenerator(scope);
-  const keys = predefinedKeys;
   const requests = {};
   const actions = {};
 
@@ -32,11 +24,10 @@ export const Publisher = (
       publish(requests[name], data);
     },
     execute: (name, data) => publish(actions[name], data),
-    publishGlobal: (event, data) => eventEmitter.publish(event, data),
+    publishGlobal: (event, data) => publish(event, data),
     reset: () => {
       Object.keys(requests).forEach((key) => delete requests[key]);
       Object.keys(actions).forEach((key) => delete actions[key]);
-    },
-    keys
+    }
   };
 };

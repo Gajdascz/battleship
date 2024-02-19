@@ -38,7 +38,7 @@ div.grid-cell.main-grid-hit-marker {
 
 .easy {
   background-color: var(--radar-green);
-  color: var(--text-white);
+  color: black;
 }
 .medium {
   background-color: var(--navy-background);
