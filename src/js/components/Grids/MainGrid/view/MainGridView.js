@@ -37,8 +37,6 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
       });
     },
     updateSelectedShip: ({ id, scopedID, length, orientation }) => {
-      console.log(id);
-      console.log(placement.isShipPlaced(id));
       if (placement.isShipPlaced(id)) placement.clearPlacedShip(id);
       previewManager.setCurrentShip({ length, orientation });
       previewManager.enable();

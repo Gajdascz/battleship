@@ -1,10 +1,9 @@
 import { COMMON_ELEMENTS } from '../../utility/constants/dom/elements';
 import { buildUIElement } from '../../utility/uiBuilderUtils/uiBuilders';
-export const BoardView = (componentViews, boardID) => {
-  const { mainGridView, trackingGridView, fleetView } = componentViews;
+export const BoardView = (scopedID, { mainGridView, trackingGridView, fleetView }) => {
   const BOARD_CONTAINER_CLASS = 'board';
   const boardContainer = buildUIElement(COMMON_ELEMENTS.DIV, {
-    attributes: { class: BOARD_CONTAINER_CLASS, id: boardID }
+    attributes: { class: BOARD_CONTAINER_CLASS, id: scopedID }
   });
 
   boardContainer.append(mainGridView.elements.wrapper);

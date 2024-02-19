@@ -20,7 +20,6 @@ export const FleetController = (scope) => {
 
   const handleShipSelectionRequest = ({ data }) => {
     const { scopedID, rotateButton } = data;
-    console.log(scopedID);
     shipControllers.forEach((controller) => {
       if (controller.getScopedID() === scopedID) controller.select();
       else if (controller.isSelected()) controller.deselect();

@@ -35,26 +35,4 @@ const convertIndexToLetter = (index) => String.fromCharCode(A_CHARACTER_CODE + i
  */
 const convertLetterToIndex = (letter) => letter.charCodeAt() - A_CHARACTER_CODE;
 
-// Generates a simple random ID
-const generateRandomID = () => `#${Math.floor((Date.now() / 10 ** 7) * Math.random() ** Math.PI)}`;
-
-const generateComponentID = ({ scope, name }) => `${scope}#${name}`;
-
-const GLOBAL_KEY = 'global';
-const createEventKeyGenerator = (scope) => ({
-  getKey: (event) => {
-    if (!scope) throw new Error(`Scope not set.`);
-    return `${scope}@${event}`;
-  },
-  getGlobalKey: (event) => `${GLOBAL_KEY}@${event}`
-});
-
-export {
-  cleanText,
-  createSlug,
-  convertIndexToLetter,
-  convertLetterToIndex,
-  generateRandomID,
-  generateComponentID,
-  createEventKeyGenerator
-};
+export { cleanText, createSlug, convertIndexToLetter, convertLetterToIndex };

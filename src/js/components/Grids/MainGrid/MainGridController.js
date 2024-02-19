@@ -1,7 +1,6 @@
 import { buildPublisher } from './utility/buildPublisher';
 import { MainGridModel } from './model/MainGridModel';
 import { MainGridView } from './view/MainGridView';
-import { PUBLISHER_KEYS } from './utility/constants';
 import { StateCoordinator } from '../../../utility/stateManagement/StateCoordinator';
 import { PLACEMENT_EVENTS } from '../../../utility/constants/events';
 export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAxis }) => {
@@ -19,14 +18,13 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
       });
     },
     handlePlacementRequest: ({ data }) => {
-      console.log(data);
       const { id, length } = data;
       const placedCoordinates = view.placement.processPlacementRequest({
         length,
         id
       });
       if (!placedCoordinates) return;
-      publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_PROCESSED, { placedCoordinates });
+      publisher.execute(publisher.keys.ACTIONS.PLACEMENT_PROCESSED, { placedCoordinates });
     },
     handleShipSelected: ({ data }) => {
       const { id, scopedID, length, orientation } = data;
@@ -36,13 +34,10 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
       const { orientation } = data;
       view.placement.updateOrientation(orientation);
     },
-    requestPlacementFinalization: () => {
-      console.log('called');
-      publisher.request(PUBLISHER_KEYS.REQUESTS.PLACEMENT_FINALIZATION, {});
-    },
+    requestPlacementFinalization: () =>
+      publisher.request(publisher.keys.REQUESTS.PLACEMENT_FINALIZATION, {}),
     finalizePlacements: (placements) => {
       placements.forEach((placement) => {
-        console.log(placement);
         const result = model.place({
           start: placement.start,
           end: placement.end

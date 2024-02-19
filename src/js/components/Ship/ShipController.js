@@ -3,7 +3,6 @@ import { ShipView } from './view/ShipView';
 import { KEY_EVENTS, PROGRESS_EVENTS, PLACEMENT_EVENTS } from '../../utility/constants/events';
 import { STATUSES } from '../../utility/constants/common';
 import { buildPublisher } from './utility/buildPublisher';
-import { PUBLISHER_KEYS } from './utility/constants';
 import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
 import { convertToInternalFormat } from '../../utility/utils/coordinatesUtils';
 
@@ -25,14 +24,14 @@ export const ShipController = (scope, { name, length }) => {
       model.toggleOrientation();
       const orientation = model.getOrientation();
       view.update.orientation(orientation);
-      publisher.execute(PUBLISHER_KEYS.ACTIONS.ORIENTATION_TOGGLED, {
+      publisher.execute(publisher.keys.ACTIONS.ORIENTATION_TOGGLED, {
         length: model.getLength(),
         orientation
       });
     },
     selection: {
       request: () => {
-        publisher.request(PUBLISHER_KEYS.REQUESTS.SELECTION, {
+        publisher.request(publisher.keys.REQUESTS.SELECTION, {
           scopedID: model.getScopedID(),
           rotateButton: view.elements.rotateButton
         });
@@ -41,7 +40,7 @@ export const ShipController = (scope, { name, length }) => {
         if (model.isPlaced()) placementController.placement.pickup();
         model.setIsSelected(true);
         view.update.selectedStatus(true);
-        publisher.execute(PUBLISHER_KEYS.ACTIONS.SELECTED, {
+        publisher.execute(publisher.keys.ACTIONS.SELECTED, {
           id: model.getID(),
           scopedID: model.getScopedID(),
           scope: model.getScope(),
@@ -54,20 +53,19 @@ export const ShipController = (scope, { name, length }) => {
         view.placement.disable();
         view.update.selectedStatus(false);
         model.setIsSelected(false);
-        publisher.execute(PUBLISHER_KEYS.ACTIONS.DESELECTED, {
+        publisher.execute(publisher.keys.ACTIONS.DESELECTED, {
           scopedID: model.getScopedID()
         });
       }
     },
     placement: {
       request: () =>
-        publisher.request(PUBLISHER_KEYS.REQUESTS.PLACEMENT, {
+        publisher.request(publisher.keys.REQUESTS.PLACEMENT, {
           id: model.getID(),
           scopedID: model.getScopedID(),
           length: model.getLength()
         }),
       place: ({ data }) => {
-        console.log(model.getID());
         const { placedCoordinates } = data;
         placementController.selection.deselect();
         const internal = placedCoordinates.map((coordinates) =>
@@ -76,7 +74,7 @@ export const ShipController = (scope, { name, length }) => {
         model.setPlacedCoordinates({ internal, display: placedCoordinates });
         model.setIsPlaced(true);
         view.update.placementStatus(true);
-        publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_SET, { scopedID: model.getScopedID() });
+        publisher.execute(publisher.keys.ACTIONS.PLACEMENT_SET, { scopedID: model.getScopedID() });
       },
       pickup: () => {
         model.clearPlacedCoordinates();
@@ -91,7 +89,7 @@ export const ShipController = (scope, { name, length }) => {
       const result = model.hit();
       if (result === STATUSES.SHIP_SUNK) {
         view.updateSunkStatus(true);
-        publisher.execute(PUBLISHER_KEYS.ACTIONS.HIT, { id: model.getScope() });
+        publisher.execute(publisher.keys.ACTIONS.HIT, { id: model.getScope() });
       }
     },
     handleAttack: ({ coordinates }) => {

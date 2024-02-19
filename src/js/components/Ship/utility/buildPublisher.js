@@ -1,6 +1,19 @@
 import { PLACEMENT_EVENTS, PROGRESS_EVENTS } from '../../../utility/constants/events';
 import { Publisher } from '../../../utility/events/Publisher';
-import { PUBLISHER_KEYS } from './constants';
+
+export const PUBLISHER_KEYS = {
+  REQUESTS: {
+    SELECTION: 'selection',
+    PLACEMENT: 'placement'
+  },
+  ACTIONS: {
+    SELECTED: 'shipSelected',
+    DESELECTED: 'shipDeselected',
+    ORIENTATION_TOGGLED: 'orientationToggled',
+    PLACEMENT_SET: 'shipPlacementSet',
+    HIT: 'shipHit'
+  }
+};
 
 export const buildPublisher = (scope) =>
   Publisher(scope, {
@@ -17,5 +30,6 @@ export const buildPublisher = (scope) =>
       },
       { name: PUBLISHER_KEYS.ACTIONS.PLACEMENT_SET, event: PLACEMENT_EVENTS.SHIP_PLACEMENT_SET },
       { name: PUBLISHER_KEYS.ACTIONS.HIT, event: PROGRESS_EVENTS.SHIP_HIT }
-    ]
+    ],
+    predefinedKeys: PUBLISHER_KEYS
   });

@@ -17,17 +17,3 @@ export const SHIP_ROTATE_BUTTON = {
   CLASS: 'rotate-ship-button',
   TEXT: 'Rotate Ship'
 };
-
-export const PUBLISHER_KEYS = {
-  REQUESTS: {
-    SELECTION: 'selection',
-    PLACEMENT: 'placement'
-  },
-  ACTIONS: {
-    SELECTED: 'shipSelected',
-    DESELECTED: 'shipDeselected',
-    ORIENTATION_TOGGLED: 'orientationToggled',
-    PLACEMENT_SET: 'shipPlacementSet',
-    HIT: 'shipHit'
-  }
-};

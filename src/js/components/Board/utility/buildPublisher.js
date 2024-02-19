@@ -1,6 +1,11 @@
 import { PLACEMENT_EVENTS } from '../../../utility/constants/events';
 import { Publisher } from '../../../utility/events/Publisher';
-import { PUBLISHER_KEYS } from './constants';
+
+export const PUBLISHER_KEYS = {
+  ACTIONS: {
+    PLACEMENTS_FINALIZED: 'placementsFinalized'
+  }
+};
 
 export const buildPublisher = (scope) =>
   Publisher(scope, {
@@ -10,5 +15,6 @@ export const buildPublisher = (scope) =>
         name: PUBLISHER_KEYS.ACTIONS.PLACEMENTS_FINALIZED,
         event: PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZED
       }
-    ]
+    ],
+    predefinedKeys: PUBLISHER_KEYS
   });

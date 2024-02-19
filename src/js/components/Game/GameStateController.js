@@ -1,10 +1,11 @@
-import stateManagerRegistry from '../../../../utility/stateManagement/stateManagerRegistry';
-import eventEmitter from '../../../../utility/events/eventEmitter';
-import { GAME_EVENTS, PLACEMENT_EVENTS } from '../../../../utility/constants/events';
-import { STATES } from '../../../../utility/constants/common';
+import stateManagerRegistry from '../../utility/stateManagement/stateManagerRegistry';
+import eventEmitter from '../../utility/events/eventEmitter';
+import { GAME_EVENTS, PLACEMENT_EVENTS } from '../../utility/constants/events';
+import { STATES } from '../../utility/constants/common';
 
-export const initializeGameState = () => {
-  eventEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
+export const GameStateController = () => {
+  const initialize = () =>
+    eventEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
 
   const publishStateTransition = (state) => eventEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
 
@@ -29,5 +30,8 @@ export const initializeGameState = () => {
     }
   };
 
-  return transition;
+  return {
+    transition,
+    initialize
+  };
 };

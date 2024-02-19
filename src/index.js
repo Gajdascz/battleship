@@ -3,6 +3,8 @@ import './styles/normalize.css';
 import './styles/style.css';
 import { DEFAULT_FLEET } from './js/utility/constants/components/fleet';
 
+import { buildSettingsDialogUIObj } from './js/components/Dialogs/SettingsDialog/view/buildSettingsDialogUIObj';
+
 const gridConfig = {
   numberOfRows: 10,
   numberOfCols: 10,
@@ -28,6 +30,10 @@ const playerTwo = {
 const gameController = GameController();
 gameController.startGame({ p1Data: playerOne });
 
+const settingsDialog = buildSettingsDialogUIObj();
+const body = document.querySelector('body');
+settingsDialog.appendDialog(body);
+settingsDialog.showDialog();
 // import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';
 // // import RenderController from './js/ui/render/RenderController';
 

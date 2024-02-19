@@ -18,7 +18,8 @@ export const INPUT_ATTRIBUTES = {
   DISABLED: 'disabled',
   PLACEHOLDER: 'placeholder',
   MIN: 'min',
-  MAX: 'max'
+  MAX: 'max',
+  TYPE: 'type'
 };
 
 /**

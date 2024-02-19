@@ -1,7 +1,7 @@
 import { STATES } from '../constants/common';
 import { StateManager } from './StateManager';
 import stateManagerRegistry from './stateManagerRegistry';
-import { createEventKeyGenerator } from '../utils/stringUtils';
+import { createEventKeyGenerator } from '../utils/createEventKeyGenerator';
 export const StateCoordinator = (scopedID, scope) => {
   const manager = StateManager(scopedID);
   const { getKey, getGlobalKey } = createEventKeyGenerator(scope);

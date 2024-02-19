@@ -1,27 +1,19 @@
-import { DEFAULT_FLEET } from '../../utility/constants/components/fleet';
 import { PlayerModel } from '../Player/PlayerModel';
-import { handle } from './utility/controllerHandlers';
-import stateManagerRegistry from '../../utility/stateManagement/stateManagerRegistry';
-import eventEmitter from '../../utility/events/eventEmitter';
-import { COMMON_EVENTS, GENERAL_EVENTS, PLACEMENT_EVENTS } from '../../utility/constants/events';
-import { STATES } from '../../utility/constants/common';
-import { initializeGameState } from './utility/initializers/gameStateInitializer';
-
 import { FleetController } from '../Fleet/FleetController';
-import { buildUIElement } from '../../utility/uiBuilderUtils/uiBuilders';
-import { MAIN_GRID } from '../../utility/constants/components/grids';
 import { ShipController } from '../Ship/ShipController';
 import { BoardController } from '../Board/BoardController';
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
 import { MainGridController } from '../Grids/MainGrid/MainGridController';
 import { TrackingGridController } from '../Grids/TrackingGrid/TrackingGridController';
-
+import { GameStateController } from './GameStateController';
 export const GameController = () => {
   const GAME_CONTAINER = document.querySelector('.game-container');
   const model = GameModel();
   const view = GameView();
   const transition = { fn: null };
+
+  const stateController = GameStateController();
 
   const initializePlayerComponents = ({ playerData, gridConfig, shipData }) => {
     const playerModel = PlayerModel(playerData);
@@ -59,9 +51,9 @@ export const GameController = () => {
   const startGame = ({ p1Data, p2 }) => {
     const p1 = initializePlayerComponents(p1Data);
     model.setP1({ playerModel: p1.playerModel, boardController: p1.controllers.board });
-    transition.fn = initializeGameState();
-    transition.fn();
-
+    stateController.initialize();
+    stateController.transition();
+    stateController.transition();
     startPlacementState();
   };
 
@@ -72,7 +64,6 @@ export const GameController = () => {
   };
 
   const startPlacementState = () => {
-    transition.fn();
     displayCurrentPlayer();
   };
 

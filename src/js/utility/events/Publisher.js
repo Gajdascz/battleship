@@ -1,12 +1,18 @@
 import eventEmitter from './eventEmitter';
-import { createEventKeyGenerator } from '../utils/stringUtils';
-
+import { createEventKeyGenerator } from '../utils/createEventKeyGenerator';
 const initializePredefined = (predefined, addFn) =>
   predefined.forEach(({ name, event }) => addFn(name, event));
 
-export const Publisher = (scope, { predefinedRequests = [], predefinedActions = [] }) => {
+export const Publisher = (
+  scope,
+  {
+    predefinedRequests = [],
+    predefinedActions = [],
+    predefinedKeys = { REQUESTS: {}, ACTIONS: {} }
+  }
+) => {
   const { getKey } = createEventKeyGenerator(scope);
-  const keys = { requests: {}, actions: {} };
+  const keys = predefinedKeys;
   const requests = {};
   const actions = {};
 
