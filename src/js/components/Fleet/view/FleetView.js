@@ -1,6 +1,6 @@
 import { MAIN_FLEET, TRACKING_FLEET } from '../../../utility/constants/components/fleet';
 import { buildFleetUIObj } from './buildFleetUIObj';
-
+import './fleet-style.css';
 export const FleetView = () => {
   const {
     mainFleetElement,

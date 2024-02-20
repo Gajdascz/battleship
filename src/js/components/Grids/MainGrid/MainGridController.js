@@ -1,4 +1,4 @@
-import { buildPublisher } from './utility/buildPublisher';
+import { buildPublisher, PUBLISHER_KEYS } from './utility/buildPublisher';
 import { MainGridModel } from './model/MainGridModel';
 import { MainGridView } from './view/MainGridView';
 import { StateCoordinator } from '../../../utility/stateManagement/StateCoordinator';
@@ -24,7 +24,7 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
         id
       });
       if (!placedCoordinates) return;
-      publisher.execute(publisher.keys.ACTIONS.PLACEMENT_PROCESSED, { placedCoordinates });
+      publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_PROCESSED, { placedCoordinates });
     },
     handleShipSelected: ({ data }) => {
       const { id, scopedID, length, orientation } = data;
@@ -35,7 +35,7 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
       view.placement.updateOrientation(orientation);
     },
     requestPlacementFinalization: () =>
-      publisher.request(publisher.keys.REQUESTS.PLACEMENT_FINALIZATION, {}),
+      publisher.request(PUBLISHER_KEYS.REQUESTS.PLACEMENT_FINALIZATION, {}),
     finalizePlacements: (placements) => {
       placements.forEach((placement) => {
         const result = model.place({

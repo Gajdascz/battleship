@@ -2,7 +2,7 @@ import {
   buildUIObj,
   buildElementFromUIObj,
   buildUIElement
-} from '../../utility/uiBuilderUtils/uiBuilders';
+} from '../../../utility/uiBuilderUtils/uiBuilders';
 
 const placementControlsHeader = (text) =>
   paragraphObj(text, { class: 'placement-controls-header' });

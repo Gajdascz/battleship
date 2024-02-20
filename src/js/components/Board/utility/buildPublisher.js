@@ -15,6 +15,5 @@ export const buildPublisher = (scope) =>
         name: PUBLISHER_KEYS.ACTIONS.PLACEMENTS_FINALIZED,
         event: PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZED
       }
-    ],
-    predefinedKeys: PUBLISHER_KEYS
+    ]
   });

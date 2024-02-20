@@ -1,0 +1,114 @@
+@import url('../../../../styles/style.css');
+
+/* Fleet List Dynamic Colors */
+/* Player's Fleet (main grid) */
+button.fleet-entry[data-placed='false'] {
+  color: var(--unplaced-ship);
+}
+button.fleet-entry[data-placed='false'].ship-selected,
+button.fleet-entry[data-placed='false']:hover {
+  color: var(--radar-green);
+  border-bottom: 2px solid var(--text-white);
+}
+button.fleet-entry[data-placed='true'] {
+  color: var(--radar-green);
+}
+button.fleet-entry[data-placed='true']:hover {
+  color: var(--hit);
+  border-bottom: 2px solid var(--text-white);
+}
+
+button:disabled.fleet-entry[data-sunk='false'][data-placed='true']:hover {
+  color: var(--radar-green);
+  border: none;
+}
+button:disabled.fleet-entry[data-sunk='true'][data-placed='true']:hover {
+  color: var(--own-ship-hit);
+  border: none;
+}
+
+button:disabled.fleet-entry[data-sunk='true'][data-placed='true'] {
+  color: var(--own-ship-hit);
+  text-decoration: line-through;
+}
+div.fleet-entry[data-sunk='false'] {
+  color: var(--radar-green);
+}
+div.fleet-entry[data-sunk='true'] {
+  color: var(--hit);
+  text-decoration: line-through;
+}
+
+.tracking-fleet,
+.main-fleet {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: baseline;
+  min-width: fit-content;
+  gap: 0.3em;
+}
+.tracking-fleet-header,
+.main-fleet-header {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-bottom: 2px solid var(--text-white);
+  width: 100%;
+}
+.main-fleet-ship-list {
+  width: 100%;
+}
+
+.fleet-entry {
+  background-color: var(--navy-background);
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  gap: 1em;
+  font-size: 1.25rem;
+  width: 100%;
+}
+
+.main-fleet-button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+.submit-ships-placement-button,
+.rotate-ship-button,
+.end-turn-button {
+  font-weight: bold;
+  font-size: 1.25rem;
+  border-radius: 10px;
+  padding: 0.2em;
+  width: 100%;
+}
+.rotate-ship-button,
+.end-turn-button {
+  background-color: var(--ocean-blue);
+  color: var(--text-white);
+  border: 3px solid var(--radar-green);
+}
+.submit-ships-placement-button {
+  background-color: var(--ocean-blue);
+  color: var(--text-white);
+  border: 3px solid var(--radar-green);
+}
+.submit-ships-placement-button:hover {
+  background-color: var(--radar-green);
+  border-color: var(--text-white);
+}
+.submit-ships-placement-button:disabled:hover,
+.submit-ships-placement-button:disabled {
+  background-color: gray;
+  color: #e2e1e1;
+  border: none;
+}
+
+.rotate-ship-button:hover,
+.end-turn-button:hover {
+  background-color: var(--radar-green);
+  border-color: var(--text-white);
+}

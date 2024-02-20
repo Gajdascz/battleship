@@ -11,24 +11,16 @@ export const GameModel = (gameScope) => {
   const state = { current: STATES.START };
   const mode = { current: null };
 
-  const isPlacementState = () =>
+  const areAllPlayerShipsPlaced = () =>
     !(
       playerStates.current.board.isAllShipsPlaced() &&
       playerStates.opponent.board.isAllShipsPlaced()
     );
 
-  const isOverState = () =>
+  const hasPlayerLost = () =>
     playerStates.current.board.isAllShipsSunk() || playerStates.opponent.board.isAllShipsSunk();
 
-  const isProgressState = () => !(isPlacementState() || isOverState());
-
-  const getCurrentState = () => {
-    if (state.current === STATES.START);
-    else if (isPlacementState()) state.current = STATES.PLACEMENT;
-    else if (isProgressState()) state.current = STATES.PROGRESS;
-    else if (isOverState()) state.current = STATES.OVER;
-    return state.current;
-  };
+  const isInProgress = () => !(areAllPlayerShipsPlaced() || hasPlayerLost());
 
   return {
     getID: () => id,
@@ -36,8 +28,10 @@ export const GameModel = (gameScope) => {
     getScope: () => scope,
     getCurrentPlayer: () => playerStates.current,
     getOpponentPlayer: () => playerStates.opponent,
-    getCurrentState,
     getGameMode: () => mode.current,
+    areAllPlayerShipsPlaced,
+    hasPlayerLost,
+    isInProgress,
     setP1: ({ playerModel, boardController }) => {
       players.p1.model = playerModel;
       players.p1.board = boardController;

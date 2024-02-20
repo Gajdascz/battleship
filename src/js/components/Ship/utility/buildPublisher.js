@@ -30,6 +30,5 @@ export const buildPublisher = (scope) =>
       },
       { name: PUBLISHER_KEYS.ACTIONS.PLACEMENT_SET, event: PLACEMENT_EVENTS.SHIP_PLACEMENT_SET },
       { name: PUBLISHER_KEYS.ACTIONS.HIT, event: PROGRESS_EVENTS.SHIP_HIT }
-    ],
-    predefinedKeys: PUBLISHER_KEYS
+    ]
   });

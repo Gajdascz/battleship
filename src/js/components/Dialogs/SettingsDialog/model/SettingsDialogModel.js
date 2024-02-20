@@ -8,10 +8,10 @@ export const SettingsDialogModel = () => {
       p2: p2.settings,
       board: board.settings
     }),
-    updateSettings: ({ p1, p2, board }) => {
-      p1.settings = p1;
-      p2.settings = p2;
-      board.setBoardSettings = board;
+    updateSettings: ({ p1Settings, p2Settings, boardSettings }) => {
+      p1.settings = p1Settings;
+      p2.settings = p2Settings;
+      board.settings = boardSettings;
     }
   };
 };

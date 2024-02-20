@@ -1,0 +1,45 @@
+@import url('../../../../styles/style.css');
+
+.board-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 1.25em;
+}
+
+.current-player-display {
+  text-align: center;
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5em;
+}
+.board-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-col-labels {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.board-col-label {
+  width: var(--grid-cell-width);
+  text-align: center;
+  font-weight: bolder;
+}
+.board-row-label {
+  text-align: center;
+  font-weight: bolder;
+  width: 1rem;
+  height: 1rem;
+  padding-right: 0.25em;
+}

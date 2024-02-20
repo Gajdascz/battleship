@@ -8,8 +8,8 @@ export const SettingsDialogController = () => {
   const view = SettingsDialogView();
   const onSubmit = (data) => {
     console.log(data);
-    const { p1, p2, board } = data;
-    model.updateSettings({ p1, p2, board });
+    const { p1Settings, p2Settings, boardSettings } = data;
+    model.updateSettings({ p1Settings, p2Settings, boardSettings });
     eventEmitter.publish(GAME_EVENTS.SETTINGS_SUBMITTED, data);
   };
   view.setOnSubmit(onSubmit);

@@ -1,5 +1,7 @@
-import { COMMON_ELEMENTS } from '../../utility/constants/dom/elements';
-import { buildUIElement } from '../../utility/uiBuilderUtils/uiBuilders';
+import { COMMON_ELEMENTS } from '../../../utility/constants/dom/elements';
+import { buildUIElement } from '../../../utility/uiBuilderUtils/uiBuilders';
+import './board-style.css';
+
 export const BoardView = (scopedID, { mainGridView, trackingGridView, fleetView }) => {
   const BOARD_CONTAINER_CLASS = 'board';
   const boardContainer = buildUIElement(COMMON_ELEMENTS.DIV, {
@@ -15,10 +17,12 @@ export const BoardView = (scopedID, { mainGridView, trackingGridView, fleetView 
 
   fleetView.elements.buttonContainer.append(submitPlacementsButtonWrapper);
   return {
-    attachBoard: (container) => container.append(boardContainer),
+    getBoardElement: () => boardContainer,
     setTrackingFleet: (opponentTrackingFleet) =>
       trackingGridView.elements.wrapper.append(opponentTrackingFleet),
-    hideTrackingGrid: () => trackingGridView.elements.wrapper.classList.add('hide'),
+    hideTrackingGrid: () => (trackingGridView.elements.wrapper.style.display = 'none'),
+    showTrackingGrid: () => trackingGridView.elements.removeAttribute('style'),
+
     displaySubmitPlacementsButton: () =>
       submitPlacementsButtonWrapper.append(mainGridView.elements.submitBtn),
     disableSubmitPlacementsButton: () => mainGridView.placement.submit.disable(),

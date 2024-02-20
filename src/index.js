@@ -1,41 +1,22 @@
 import { GameController } from './js/components/Game/GameController';
 import './styles/normalize.css';
 import './styles/style.css';
-import { DEFAULT_FLEET } from './js/utility/constants/components/fleet';
+import './styles/page-style.css';
 
 import { SettingsDialogController } from './js/components/Dialogs/SettingsDialog/SettingsDialogController';
+import { InstructionsDialogView } from './js/components/Dialogs/InstructionsDialog/InstructionsDialogView';
 
-const gridConfig = {
-  numberOfRows: 10,
-  numberOfCols: 10,
-  letterAxis: 'row'
-};
-const playerOne = {
-  playerData: {
-    name: 'p1',
-    id: 'playerOne'
-  },
-  gridConfig,
-  shipData: DEFAULT_FLEET
-};
-const playerTwo = {
-  playerData: {
-    name: 'p2',
-    id: 'playerTwo'
-  },
-  gridConfig,
-  shipData: DEFAULT_FLEET
-};
+import { GAME_EVENTS } from './js/utility/constants/events';
 
-const gameController = GameController();
-gameController.startGame({ p1Data: playerOne });
-
+GameController(GAME_EVENTS.SETTINGS_SUBMITTED);
 const settingsDialogController = SettingsDialogController();
 
 const body = document.querySelector('body');
 settingsDialogController.setContainer(body);
 settingsDialogController.display();
 
+const instructionsDialog = InstructionsDialogView();
+instructionsDialog.setContainer(body);
 // import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';
 // // import RenderController from './js/ui/render/RenderController';
 
@@ -47,6 +28,9 @@ document
   .querySelector('.settings-button')
   .addEventListener('click', (e) => settingsDialogController.display());
 
+document
+  .querySelector('.instructions-button')
+  .addEventListener('click', (e) => instructionsDialog.display());
 // const storage = SessionStorage();
 
 // // const renderController = { current: RenderController() };

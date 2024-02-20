@@ -3,7 +3,7 @@ import eventEmitter from '../../utility/events/eventEmitter';
 import { GAME_EVENTS, PLACEMENT_EVENTS } from '../../utility/constants/events';
 import { STATES } from '../../utility/constants/common';
 
-export const GameStateController = () => {
+export const GameStateController = (startGameCallback) => {
   const initialize = () =>
     eventEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
 
@@ -17,12 +17,13 @@ export const GameStateController = () => {
         break;
       case STATES.START:
         publishStateTransition(STATES.PLACEMENT);
-        eventEmitter.subscribe(PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZED);
+        eventEmitter.subscribe(PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZED, switchPlayersCallback);
         break;
       case STATES.PLACEMENT:
         publishStateTransition(STATES.PROGRESS);
         break;
       case STATES.PROGRESS:
+        eventEmitter.unsubscribe(PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZED, switchPlayersCallback);
         publishStateTransition(STATES.OVER);
         break;
       case STATES.OVER:
@@ -30,6 +31,7 @@ export const GameStateController = () => {
     }
   };
 
+  eventEmitter.subscribe(GAME_EVENTS.SETTINGS_SUBMITTED, startGameCallback);
   return {
     transition,
     initialize

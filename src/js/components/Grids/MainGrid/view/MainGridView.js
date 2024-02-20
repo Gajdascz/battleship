@@ -2,7 +2,7 @@ import { MAIN_GRID } from '../../../../utility/constants/components/grids';
 import { MOUSE_EVENTS } from '../../../../utility/constants/events';
 import { PreviewManager } from '../utility/PreviewManager';
 import { buildMainGridUIObj } from './buildMainGridUIObj';
-
+import '../../common/grid-style.css';
 export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const { wrappedMainGridElement, submitPlacementsButtonElement } = buildMainGridUIObj({
     numberOfRows,

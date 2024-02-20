@@ -1,6 +1,7 @@
 import { ListenerManager } from '../../../../utility/uiBuilderUtils/ListenerManager';
 import { GENERAL, PLAYER_SETTINGS, SELECTIONS, INPUT_FIELDS, BUTTONS } from '../utility/constants';
 import { GENERAL_EVENTS, KEY_EVENTS, MOUSE_EVENTS } from '../../../../utility/constants/events';
+import { PLAYERS } from '../../../../utility/constants/common';
 
 const getElements = (element) => {
   const p1TypeSelect = element.querySelector(
@@ -135,17 +136,19 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
    * @returns {Object} Contains all setting configuration information
    */
   const getInputValues = () => ({
-    p1: {
+    p1Settings: {
       type: p1TypeSelect.value,
-      username: p1UsernameInput.value
+      username: p1UsernameInput.value,
+      id: PLAYERS.IDS.P1
     },
-    p2: {
+    p2Settings: {
       type: p2TypeSelect.value,
-      ...getP2Info()
+      ...getP2Info(),
+      id: PLAYERS.IDS.P2
     },
-    board: {
-      rows: rowsInput.value,
-      cols: colsInput.value,
+    boardSettings: {
+      numberOfRows: rowsInput.value,
+      numberOfCols: colsInput.value,
       letterAxis: letterAxisInput.value
     }
   });
@@ -153,7 +156,7 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
   /**
    * Disables all listeners, closes the dialog, and removes the element.
    */
-  const closeOnCancel = () => {
+  const closeDialog = () => {
     listenerManager.disableAllListeners();
     element.close();
     element.remove();
@@ -199,9 +202,11 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     element: submitButton,
     event: MOUSE_EVENTS.CLICK,
     callback: () => {
-      if (!onSubmit.callback) return;
-      const data = getInputValues();
-      onSubmit.callback(data);
+      if (onSubmit.callback) {
+        const data = getInputValues();
+        onSubmit.callback(data);
+      }
+      closeDialog();
     },
     key: EVENT_CONTROLLER_KEYS.SUBMIT
   });
@@ -209,7 +214,7 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
   listenerManager.addController({
     element: cancelButton,
     event: MOUSE_EVENTS.CLICK,
-    callback: closeOnCancel,
+    callback: closeDialog,
     key: EVENT_CONTROLLER_KEYS.CANCEL
   });
   setColorCallback();

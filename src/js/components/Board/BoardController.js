@@ -1,9 +1,9 @@
-import { BoardView } from './BoardView';
-import { BoardModel } from './BoardModel';
+import { BoardView } from './view/BoardView';
+import { BoardModel } from './model/BoardModel';
 import { PLACEMENT_EVENTS } from '../../utility/constants/events';
 import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
 import { mapShipQuadrants } from './utility/mapShipQuadrants';
-import { buildPublisher } from './utility/buildPublisher';
+import { buildPublisher, PUBLISHER_KEYS } from './utility/buildPublisher';
 
 export const BoardController = ({
   playerID,
@@ -49,13 +49,14 @@ export const BoardController = ({
     controllers.mainGrid.finalizePlacements(placeAt);
     const { width, height } = controllers.mainGrid.getDimensions();
     quadrantMap.current = mapShipQuadrants(placements, width, height);
-    publisher.execute(publisher.keys.ACTIONS.PLACEMENTS_FINALIZED, { playerID });
+    publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENTS_FINALIZED, { playerID });
   };
 
   return {
-    attachTo: (container) => view.attachBoard(container),
+    getBoardElement: () => view.getBoardElement(),
     setTrackingFleet: (opponentTrackingFleet) => view.setTrackingFleet(opponentTrackingFleet),
     isAllShipsPlaced: () => model.isAllShipsPlaced(),
+    hideTrackingGrid: () => view.hideTrackingGrid(),
     initializeStateManagement: () => {
       stateCoordinator.placement.addExecute(view.hideTrackingGrid);
       stateCoordinator.placement.addSubscribe(
@@ -70,6 +71,7 @@ export const BoardController = ({
         PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZATION_REQUESTED,
         handlePlacementFinalization
       );
+      stateCoordinator.progress.addExecute(view.showTrackingGrid);
       stateCoordinator.initializeManager();
     }
   };

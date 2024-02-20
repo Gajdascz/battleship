@@ -1,6 +1,7 @@
 import { STATUSES } from '../../../../utility/constants/common';
 import { TRACKING_GRID } from '../../../../utility/constants/components/grids';
 import { buildTrackingGridUIObj } from './buildTrackingGridUIObj';
+import '../../common/grid-style.css';
 
 export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const { wrappedTrackingGridElement } = buildTrackingGridUIObj({
@@ -25,8 +26,6 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
     const cell = getCell(coordinates);
     setCellStatus(cell, STATUSES.MISS);
   };
-
-  const renderGrid = (container) => container.append(wrappedTrackingGridElement);
 
   return {
     elements: {

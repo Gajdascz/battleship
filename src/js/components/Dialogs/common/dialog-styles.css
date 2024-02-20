@@ -1,99 +1,36 @@
-@font-face {
-  font-family: 'bebas-neue';
-  src: url('../assets/fonts/bebasneue-regular-webfont.woff2') format('woff2'),
-    url('../assets/fonts/bebasneue-regular-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-:root {
-  --ocean-blue: #0077be;
-  --battleship-gray: #607d8b;
-  --radar-green: #4caf50;
-  --text-white: #ffffff;
-  --navy-background: #001f3f;
-  --miss: #d3d3d3;
-  --hit: #ff3333;
-  --own-ship-hit: #b32400;
-  --unplaced-ship: #daa520;
+@import url('../../../../styles/style.css');
 
-  --grid-cell-width: 2.5em;
-  --grid-cell-height: 2.5em;
-
-  --color-text-primary: var(--text-white);
-  --color-text-secondary: var(--radar-green);
-  --color-border-primary: var(--text-white);
-  --color-border-secondary: var(var(--radar-green));
-  --color-backdrop: rgba(0, 9, 17, 0.9);
-  --font-size-xxl: 3rem;
-  --font-size-xl: 2rem;
-  --font-size-l: 1.5rem;
-  --font-size-m: 1.25rem;
-  --font-weight-bold: 700;
-  --border-standard: 2px solid;
-  --border-radius-standard: 10px;
-
-  --gap-small: 0.25em;
-  --gap-standard: 0.5em;
-  --gap-large: 1em;
-
-  --underline-white: 2x solid var(--text-white);
-  --underline-radar-green: 2px solid var(var(--radar-green));
-  --underline-navy: 2px solid var(var(--navy-background));
-
-  --font-header: 'bebas-neue';
-}
-input[type='text'] {
-  cursor: text;
-}
-
-.hide {
-  display: none;
-}
-.ship {
-  color: var(--battleship-gray);
-}
-
-.medium {
-  background-color: var(--unplaced-ship);
-  color: black;
-}
-.hard {
-  background-color: var(--hit);
-  color: black;
-}
-.easy {
-  background-color: var(--radar-green);
-  color: black;
-}
-
-.utility-bar .title,
-.game-over-dialog-header,
-.settings-dialog-title,
-.settings-dialog-title,
-.current-player-display,
-.placement-instructions-header,
-.placement-controls-header {
-  font-family: 'bebas-neue';
-}
-
-.base-header {
-  font-family: 'bebas-neue';
-  font-weight: 700;
-  font-size: 2rem;
-}
-.base-button {
-  height: 2.25em;
-  border: 2px solid var(--text-white);
-  background-color: var(--navy-background);
+.dialog[open] {
+  background-color: var(--ocean-blue);
   color: var(--text-white);
-  font-weight: bold;
-  padding: 0.5em;
-  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-standard);
+  border-radius: var(--border-radius-standard);
 }
-.base-button:hover {
-  border-color: var(--navy-background);
-  background-color: var(--radar-green);
-  color: black;
+.dialog[open]::backdrop {
+  background-color: var(--color-backdrop);
+}
+
+.dialog-title {
+  font-size: var(--font-size-xl);
+  font-family: var(--font-header);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.dialog-header {
+  font-size: var(--font-size-l);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 0.5rem;
+}
+.dialog-header-white {
+  color: var(--text-white);
+  border-bottom: var(--underline-white);
+}
+.dialog-header-radar-green {
+  color: var(--radar-green);
+  border-bottom: var(--underline-radar-green);
 }
 
 /* Placement State Instructions */
@@ -134,20 +71,6 @@ input[type='text'] {
 }
 /*#endregion*/
 
-/* Settings Dialog */
-/*#region*/
-.settings-dialog[open] {
-  background-color: var(--ocean-blue);
-  color: var(--text-white);
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  border-radius: 10px;
-  width: 50vw;
-}
-.settings-dialog[open]::backdrop {
-  background-color: rgba(0, 9, 17, 0.9);
-}
 .settings-dialog-title {
   font-size: 2rem;
   font-weight: bold;
@@ -282,34 +205,4 @@ input[type='text'] {
   background-color: var(--radar-green);
   border-color: var(--navy-background);
   color: var(--text-white);
-}
-
-/*#endregion*/
-
-.ai-display-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 10px;
-}
-.ai-display-header > p {
-  color: #ff3333;
-  border-bottom: 2px solid var(--hit);
-  font-size: 1.15rem;
-}
-
-@media (max-width: 1200px) {
-  :root {
-    --grid-cell-width: 2em;
-    --grid-cell-height: 2em;
-  }
-  .board {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  footer {
-    display: none;
-  }
 }
