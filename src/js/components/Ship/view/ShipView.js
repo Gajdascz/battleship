@@ -2,6 +2,16 @@ import { SHIP_CLASSES } from '../../../utility/constants/components/ship';
 import { BOOL } from '../../../utility/constants/dom/attributes';
 import { KEY_EVENTS, MOUSE_EVENTS } from '../../../utility/constants/events';
 import { buildShipUIObj } from './buildShipUIObj';
+import { ListenerManager } from '../../../utility/uiBuilderUtils/ListenerManager';
+
+const EVENT_CONTROLLER_KEYS = {
+  MAIN_SHIP_SELECT: 'mainShipSelect',
+  MAIN_SHIP_PLACE: 'mainShipPlace',
+  MOUSE_TOGGLE_ORIENTATION: 'mouseToggleOrientation',
+  KEY_TOGGLE_ORIENTATION: 'keyToggleOrientation',
+  BUTTON_TOGGLE_ORIENTATION: 'buttonToggleOrientation'
+};
+
 export const ShipView = ({ name, length }) => {
   const { mainShipElement, trackingShipElement, rotateButtonElement } = buildShipUIObj({
     name,
@@ -17,6 +27,9 @@ export const ShipView = ({ name, length }) => {
     trackingShip: trackingShipElement,
     rotateButton: rotateButtonElement
   };
+
+  const listenerManager = ListenerManager();
+
   const update = {
     orientation: (newOrientation) => (mainShipElement.dataset.orientation = newOrientation),
     selectedStatus: (isSelected) =>
@@ -27,78 +40,72 @@ export const ShipView = ({ name, length }) => {
       trackingShipElement.dataset.sunk = isSunk ? BOOL.T : BOOL.F;
     }
   };
-  const selection = {
-    selectCallback: null,
-    isEnabled: false,
-    setSelectCallback: (callback) => (selection.selectCallback = callback),
-    enable: () => {
-      if (!isValidCallback(selection.selectCallback) || selection.isEnabled) return;
-      mainShipElement.disabled = false;
-      mainShipElement.addEventListener(MOUSE_EVENTS.CLICK, selection.selectCallback);
-      selection.isEnabled = true;
-    },
-    disable: () => {
-      if (!isValidCallback(selection.selectCallback) || !selection.isEnabled) return;
-      mainShipElement.disabled = true;
-      mainShipElement.removeEventListener(MOUSE_EVENTS.CLICK, selection.selectCallback);
-      selection.isEnabled = false;
-    },
-    reset: () => {
-      selection.disable();
-      selection.selectCallback = null;
-      selection.isEnabled = false;
-    }
+
+  const initializeSelection = (selectCallback) =>
+    listenerManager.addController({
+      element: mainShipElement,
+      event: MOUSE_EVENTS.CLICK,
+      callback: selectCallback,
+      key: EVENT_CONTROLLER_KEYS.MAIN_SHIP_SELECT,
+      enable: true
+    });
+
+  const initializePlacement = ({
+    placementContainer,
+    placeCallback,
+    toggleOrientationCallback
+  }) => {
+    listenerManager.addController({
+      element: placementContainer,
+      event: MOUSE_EVENTS.CLICK,
+      callback: placeCallback,
+      key: EVENT_CONTROLLER_KEYS.MAIN_SHIP_PLACE,
+      enable: true
+    });
+    listenerManager.addController({
+      element: placementContainer,
+      event: MOUSE_EVENTS.DOWN,
+      callback: toggleOrientationCallback,
+      key: EVENT_CONTROLLER_KEYS.MOUSE_TOGGLE_ORIENTATION,
+      enable: true
+    });
+    listenerManager.addController({
+      element: placementContainer,
+      event: KEY_EVENTS.DOWN,
+      callback: toggleOrientationCallback,
+      key: EVENT_CONTROLLER_KEYS.KEY_TOGGLE_ORIENTATION,
+      enable: true
+    });
+    listenerManager.addController({
+      element: rotateButtonElement,
+      event: MOUSE_EVENTS.CLICK,
+      callback: toggleOrientationCallback,
+      key: EVENT_CONTROLLER_KEYS.BUTTON_TOGGLE_ORIENTATION,
+      enable: true
+    });
   };
+
+  const selection = {
+    initialize: (selectCallback) => initializeSelection(selectCallback),
+    enable: () => listenerManager.enableListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_SELECT),
+    disable: () => listenerManager.disableListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_SELECT),
+    remove: () => listenerManager.removeListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_SELECT)
+  };
+
   const placement = {
-    placeCallback: null,
-    toggleOrientationCallback: null,
-    isEnabled: false,
-    placementContainer: null,
-    isValidCallback: () =>
-      isValidCallback(placement.placeCallback) &&
-      isValidCallback(placement.toggleOrientationCallback),
-    setPlaceCallback: (callback) => (placement.placeCallback = callback),
-    setToggleOrientationCallback: (callback) => (placement.toggleOrientationCallback = callback),
-    setPlacementContainer: (container) => (placement.placementContainer = container),
+    initialize: ({ placementContainer, placeCallback, toggleOrientationCallback }) =>
+      initializePlacement({ placementContainer, placeCallback, toggleOrientationCallback }),
     enable: () => {
-      if (!placement.isValidCallback() || placement.isEnabled) return;
-      if (!placement.placementContainer) throw new Error('No placement container set.');
-      placement.placementContainer.addEventListener(
-        KEY_EVENTS.DOWN,
-        placement.toggleOrientationCallback
-      );
-      placement.placementContainer.addEventListener(
-        MOUSE_EVENTS.DOWN,
-        placement.toggleOrientationCallback
-      );
-      rotateButtonElement.addEventListener(MOUSE_EVENTS.CLICK, placement.toggleOrientationCallback);
-      placement.placementContainer.addEventListener(MOUSE_EVENTS.CLICK, placement.placeCallback);
-      placement.isEnabled = true;
+      listenerManager.enableListener(EVENT_CONTROLLER_KEYS.BUTTON_TOGGLE_ORIENTATION);
+      listenerManager.enableListener(EVENT_CONTROLLER_KEYS.MOUSE_TOGGLE_ORIENTATION);
+      listenerManager.enableListener(EVENT_CONTROLLER_KEYS.KEY_TOGGLE_ORIENTATION);
+      listenerManager.enableListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_PLACE);
     },
     disable: () => {
-      if (!placement.isValidCallback() || !placement.isEnabled) return;
-      if (!placement.placementContainer) throw new Error('No placement container set.');
-      placement.placementContainer.removeEventListener(
-        KEY_EVENTS.DOWN,
-        placement.toggleOrientationCallback
-      );
-      placement.placementContainer.removeEventListener(
-        MOUSE_EVENTS.DOWN,
-        placement.toggleOrientationCallback
-      );
-      rotateButtonElement.removeEventListener(
-        MOUSE_EVENTS.CLICK,
-        placement.toggleOrientationCallback
-      );
-      placement.placementContainer.removeEventListener(MOUSE_EVENTS.CLICK, placement.placeCallback);
-      placement.isEnabled = false;
-    },
-    reset: () => {
-      placement.disable();
-      placement.placeCallback = null;
-      placement.toggleOrientationCallback = null;
-      placement.isEnabled = false;
-      placement.placementContainer = null;
+      listenerManager.disableListener(EVENT_CONTROLLER_KEYS.BUTTON_TOGGLE_ORIENTATION);
+      listenerManager.disableListener(EVENT_CONTROLLER_KEYS.MOUSE_TOGGLE_ORIENTATION);
+      listenerManager.disableListener(EVENT_CONTROLLER_KEYS.KEY_TOGGLE_ORIENTATION);
+      listenerManager.disableListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_PLACE);
     }
   };
 
@@ -106,6 +113,7 @@ export const ShipView = ({ name, length }) => {
     elements,
     update,
     selection,
-    placement
+    placement,
+    clearListeners: () => listenerManager.reset()
   };
 };

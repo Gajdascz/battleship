@@ -24,13 +24,13 @@ export const GameController = (startGameTrigger) => {
     const playerModel = PlayerModel({ playerName: username, playerType: type, playerID: id });
     const scope = playerModel.getID();
     const fleetController = FleetController(scope);
-    const mainGridController = MainGridController(scope, boardSettings);
-    const trackingGridController = TrackingGridController(scope, boardSettings);
     shipData.forEach((ship) => {
       const shipController = ShipController(scope, ship);
       fleetController.assignShipToFleet(shipController);
+      shipController.initializeStateManagement();
     });
-    fleetController.setShipPlacementContainer(mainGridController.getView().elements.grid);
+    const mainGridController = MainGridController(scope, boardSettings);
+    const trackingGridController = TrackingGridController(scope, boardSettings);
 
     const boardController = BoardController({
       playerID: playerModel.getID(),

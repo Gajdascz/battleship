@@ -1,6 +1,6 @@
 import { ListenerManager } from '../../../../utility/uiBuilderUtils/ListenerManager';
 import { GENERAL, PLAYER_SETTINGS, SELECTIONS, INPUT_FIELDS, BUTTONS } from '../utility/constants';
-import { GENERAL_EVENTS, KEY_EVENTS, MOUSE_EVENTS } from '../../../../utility/constants/events';
+import { GENERAL_EVENTS, MOUSE_EVENTS } from '../../../../utility/constants/events';
 import { PLAYERS } from '../../../../utility/constants/common';
 
 const getElements = (element) => {
@@ -112,15 +112,6 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
   const enforceColMax = () => {
     if (colsInput.value > 26) colsInput.value = 26;
   };
-  /**
-   * Ensures settings cannot be closed without first providing details necessary to start game.
-   * @param {Event} e Event to check key code.
-   */
-  const preventEscape = (e) => {
-    if (e.key === KEY_EVENTS.CODES.ESC) {
-      e.preventDefault();
-    }
-  };
 
   /**
    * Retrieves relevant P2 data based on selected type.
@@ -182,13 +173,6 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     event: GENERAL_EVENTS.CHANGE,
     callback: enforceColMax,
     key: EVENT_CONTROLLER_KEYS.COL_RESTRICTION
-  });
-  // preventEscape
-  listenerManager.addController({
-    element,
-    event: KEY_EVENTS.DOWN,
-    callback: preventEscape,
-    key: EVENT_CONTROLLER_KEYS.PREVENT_ESCAPE
   });
   // updateP2TypeOnChange
   listenerManager.addController({

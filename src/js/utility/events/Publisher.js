@@ -11,6 +11,7 @@ export const Publisher = (scope = '', { predefinedRequests = [], predefinedActio
   const addRequest = (name, event) => (requests[name] = getKey(event));
   const addAction = (name, event) => (actions[name] = getKey(event));
   const publish = (key, data) => {
+    console.log(key, data);
     eventEmitter.publish(key, data);
   };
 

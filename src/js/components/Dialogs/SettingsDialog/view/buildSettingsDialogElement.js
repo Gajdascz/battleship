@@ -7,13 +7,16 @@ import {
   BUTTONS
 } from '../utility/constants';
 import { COMMON_ELEMENTS, STRUCTURAL_ELEMENTS } from '../../../../utility/constants/dom/elements';
-import { buildElementFromUIObj, buildUIObj } from '../../../../utility/uiBuilderUtils/uiBuilders';
+import {
+  buildElementFromUIObj,
+  buildUIObj,
+  wrap,
+  buildParagraphObj,
+  buildButtonObj
+} from '../../../../utility/uiBuilderUtils/uiBuilders';
 import { BASE_CLASSES } from '../../../../utility/constants/dom/baseStyles';
-const wrap = (wrapperClass, uiObjs = []) =>
-  buildUIObj(COMMON_ELEMENTS.DIV, { attributes: { class: wrapperClass }, children: uiObjs });
 const buildLabelObj = (text, attributes) => buildUIObj(GENERAL.LABEL_ELEMENT, { text, attributes });
-const buildParagraphObj = (text, classAttr) =>
-  buildUIObj(COMMON_ELEMENTS.PARAGRAPH, { text, attributes: { class: classAttr } });
+
 const buildOptionObj = ({ id, value, text, isSelected = false }) =>
   buildUIObj(INPUT_FIELDS.SELECT.OPTION_ELEMENT, {
     id: id ?? value,
@@ -152,15 +155,9 @@ const buildPlayerInfoInputObj = () =>
 
 const buildSettingsButtonsObj = () =>
   wrap(BUTTONS.CONTAINER_CLASS, [
-    buildUIObj(COMMON_ELEMENTS.BUTTON, {
-      text: BUTTONS.SUBMIT.TEXT,
-      attributes: { class: `${BUTTONS.SUBMIT.CLASS} ${BASE_CLASSES.BUTTON}` }
-    }),
+    buildButtonObj(BUTTONS.SUBMIT.TEXT, `${BUTTONS.SUBMIT.CLASS} ${BASE_CLASSES.BUTTON}`),
     buildParagraphObj(BUTTONS.SUBMIT.DISCLAIMER.TEXT, BUTTONS.SUBMIT.DISCLAIMER.CLASS),
-    buildUIObj(COMMON_ELEMENTS.BUTTON, {
-      text: BUTTONS.CANCEL.TEXT,
-      attributes: { class: `${BUTTONS.CANCEL.CLASS} ${BASE_CLASSES.BUTTON}` }
-    })
+    buildButtonObj(BUTTONS.CANCEL.TEXT, `${BUTTONS.CANCEL.CLASS} ${BASE_CLASSES.BUTTON}`)
   ]);
 const buildSettingsTitleObj = () =>
   buildParagraphObj(GENERAL.TEXTS.DIALOG_TITLE, GENERAL.CLASSES.DIALOG_TITLE);

@@ -7,16 +7,23 @@ import { SettingsDialogController } from './js/components/Dialogs/SettingsDialog
 import { InstructionsDialogView } from './js/components/Dialogs/InstructionsDialog/InstructionsDialogView';
 
 import { GAME_EVENTS } from './js/utility/constants/events';
+import { AlternatePlayerDialogView } from './js/components/Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
+import { GameOverDialogView } from './js/components/Dialogs/GameOverDialog/GameOverDialogView';
 
 GameController(GAME_EVENTS.SETTINGS_SUBMITTED);
+const test = () => console.log('Game Over');
 const settingsDialogController = SettingsDialogController();
-
+const instructionsDialog = InstructionsDialogView();
+const alternatePlayerDialog = AlternatePlayerDialogView();
+const gameOverDialog = GameOverDialogView(test);
 const body = document.querySelector('body');
 settingsDialogController.setContainer(body);
-settingsDialogController.display();
-
-const instructionsDialog = InstructionsDialogView();
 instructionsDialog.setContainer(body);
+alternatePlayerDialog.setContainer(body);
+gameOverDialog.setContainer(body);
+// gameOverDialog.display('ME!');
+// settingsDialogController.display();
+// instructionsDialog.display();
 // import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';
 // // import RenderController from './js/ui/render/RenderController';
 

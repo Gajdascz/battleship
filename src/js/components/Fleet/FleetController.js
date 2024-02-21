@@ -27,20 +27,13 @@ export const FleetController = (scope) => {
     view.updateRotateShipButton(scopedID, rotateButton);
   };
 
-  const initializeShipStates = () => {
-    shipControllers.forEach((controller) => {
-      controller.initializeStateManagement();
-    });
-  };
   return {
     getView: () => view,
     getModel: () => model,
     getTrackingFleet: () => view.elements.trackingFleet,
     assignShipToFleet,
-    setShipPlacementContainer: (container) => view.setShipPlacementContainer(container),
     forEach: (callback) => shipControllers.forEach((ship) => callback(ship)),
     initializeStateManagement: () => {
-      stateCoordinator.placement.addExecute(initializeShipStates);
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_SELECTION_REQUESTED,
         handleShipSelectionRequest

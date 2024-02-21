@@ -6,7 +6,8 @@ export const PUBLISHER_KEYS = {
     PLACEMENT_FINALIZATION: 'placementFinalization'
   },
   ACTIONS: {
-    PLACEMENT_PROCESSED: 'placementProcessed'
+    PLACEMENT_PROCESSED: 'placementProcessed',
+    PLACEMENT_CONTAINER_CREATED: 'placementContainerCreated'
   }
 };
 
@@ -22,6 +23,10 @@ export const buildPublisher = (scope) =>
       {
         name: PUBLISHER_KEYS.ACTIONS.PLACEMENT_PROCESSED,
         event: PLACEMENT_EVENTS.GRID_PLACEMENT_PROCESSED
+      },
+      {
+        name: PUBLISHER_KEYS.ACTIONS.PLACEMENT_CONTAINER_CREATED,
+        event: PLACEMENT_EVENTS.SHIP_PLACEMENT_CONTAINER_CREATED
       }
     ]
   });

@@ -1,5 +1,6 @@
 import { buildSettingsDialogElement } from './buildSettingsDialogElement';
 import { initializeListenerManager } from './initializeListenerManager';
+import './settings-styles.css';
 
 export const SettingsDialogView = () => {
   const dialogElement = buildSettingsDialogElement();

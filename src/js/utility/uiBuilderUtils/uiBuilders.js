@@ -1,5 +1,5 @@
 import { buildElementTree } from './buildElementTree';
-
+import { COMMON_ELEMENTS } from '../constants/dom/elements';
 /**
  * Simplifies creation of UI object descriptions for buildElementTree.
  *
@@ -38,4 +38,24 @@ const buildUIElement = (
   { text = '', attributes = {}, children = [], namespace = null } = {}
 ) => buildElementTree(buildUIObj(type, { text, attributes, children, namespace }));
 
-export { buildUIObj, buildUIElement, buildElementFromUIObj };
+const wrap = (wrapperClass, uiObjs = []) =>
+  buildUIObj(COMMON_ELEMENTS.DIV, { attributes: { class: wrapperClass }, children: uiObjs });
+
+const buildParagraphObj = (text, classAttr) =>
+  buildUIObj(COMMON_ELEMENTS.PARAGRAPH, { text, attributes: { class: classAttr } });
+
+const buildButtonObj = (text, classAttr) =>
+  buildUIObj(COMMON_ELEMENTS.BUTTON, { text, attributes: { class: classAttr } });
+
+const buildSpanObj = (text, spanClass) =>
+  buildUIObj(COMMON_ELEMENTS.SPAN, { text, attributes: { class: spanClass } });
+
+export {
+  buildUIObj,
+  buildUIElement,
+  buildElementFromUIObj,
+  wrap,
+  buildButtonObj,
+  buildParagraphObj,
+  buildSpanObj
+};

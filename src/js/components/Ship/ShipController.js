@@ -92,21 +92,23 @@ export const ShipController = (scope, { name, length }) => {
         publisher.execute(PUBLISHER_KEYS.ACTIONS.HIT, { id: model.getScope() });
       }
     },
-    handleAttack: ({ coordinates }) => {
+    handleAttack: ({ data }) => {
       combatController.hit();
     }
   };
 
-  const enablePlacementSettings = () => {
-    view.selection.setSelectCallback(placementController.selection.request);
-    view.selection.enable();
-    view.placement.setPlaceCallback(placementController.placement.request);
-    view.placement.setToggleOrientationCallback(placementController.toggleOrientation);
+  const enableSelection = () => view.selection.initialize(placementController.selection.request);
+  const enablePlacement = ({ data }) => {
+    const { container } = data;
+    view.placement.initialize({
+      placementContainer: container,
+      placeCallback: placementController.placement.request,
+      toggleOrientationCallback: placementController.toggleOrientation
+    });
   };
 
   const enableCombatSettings = () => {
-    view.selection.disable();
-    view.placement.disable();
+    view.clearListeners();
   };
 
   return {
@@ -120,7 +122,11 @@ export const ShipController = (scope, { name, length }) => {
     deselect: placementController.selection.deselect,
     initializeStateManagement: () => {
       // placement
-      stateCoordinator.placement.addExecute(enablePlacementSettings);
+      stateCoordinator.placement.addExecute(enableSelection);
+      stateCoordinator.placement.addSubscribe(
+        PLACEMENT_EVENTS.SHIP_PLACEMENT_CONTAINER_CREATED,
+        enablePlacement
+      );
       stateCoordinator.placement.addDynamic({
         event: PLACEMENT_EVENTS.GRID_PLACEMENT_PROCESSED,
         callback: placementController.placement.place,

@@ -7,202 +7,78 @@
   flex-direction: column;
   gap: var(--gap-standard);
   border-radius: var(--border-radius-standard);
+  width: 50vw;
+  min-width: fit-content;
 }
 .dialog[open]::backdrop {
-  background-color: var(--color-backdrop);
+  background-color: rgba(0, 9, 17, 0.9);
+}
+
+.dialog-title,
+.dialog-header-primary,
+.dialog-header-secondary {
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-header);
 }
 
 .dialog-title {
+  font-size: var(--font-size-xxl);
+  text-align: center;
+}
+.dialog-header-primary {
   font-size: var(--font-size-xl);
-  font-family: var(--font-header);
-  font-weight: var(--font-weight-bold);
   text-align: center;
 }
 
-.dialog-header {
+.dialog-header-secondary {
   font-size: var(--font-size-l);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: 0.5rem;
-}
-.dialog-header-white {
-  color: var(--text-white);
-  border-bottom: var(--underline-white);
-}
-.dialog-header-radar-green {
-  color: var(--radar-green);
-  border-bottom: var(--underline-radar-green);
-}
-
-/* Placement State Instructions */
-/*#region*/
-.placement-state-instructions-container {
-  display: flex;
-  flex-direction: column;
-  font-size: 1.2rem;
-  padding-left: 2em;
-  padding-right: 2em;
-  gap: 0.5em;
-}
-.placement-instructions-header {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-  color: var(--radar-green);
-  border-bottom: 2px solid var(--radar-green);
-}
-
-.placement-controls-header {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--radar-green);
-  border-bottom: 2px solid var(--radar-green);
-  max-width: fit-content;
   margin-bottom: 0.25em;
 }
 
-.placement-controls-list-item {
-  color: var(--radar-green);
-}
-.placement-controls-instruction {
+.white-underline {
   color: var(--text-white);
+  border-bottom: var(--underline-white);
 }
-.placement-controls-button {
-  font-style: italic;
-}
-/*#endregion*/
-
-.settings-dialog-title {
-  font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 0.1rem;
-  text-align: center;
-}
-
-.board-settings-title,
-.player-one-settings-title,
-.player-two-settings-title {
-  text-align: center;
-  font-size: 1.25rem;
-  font-weight: bold;
-  border-bottom: 2px solid var(--text-white);
-  margin-bottom: 0.5rem;
-}
-.player-information-input-container {
-  display: flex;
-  gap: 0.5em;
-}
-.player-information-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-  width: 100%;
-}
-.player-information-container > input,
-.player-information-container > select {
-  width: 100%;
-  height: 100%;
-  padding: 0.25em;
-  font-weight: bold;
-}
-
-.board-settings-container {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-.board-settings-inputs-container {
-  display: flex;
-  gap: 0.25em;
-  justify-content: center;
-}
-.rows-input-wrapper,
-.cols-input-wrapper,
-.letter-axis-input-wrapper {
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-  font-weight: bold;
-}
-.rows-input-wrapper > input,
-.cols-input-wrapper > input {
-  min-width: 55px;
-}
-.letter-axis-input-wrapper > select {
-  min-width: 125px;
-  height: 100%;
-  text-align: center;
-}
-
-.dialog-buttons-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-}
-
-.settings-submit-disclaimer {
-  font-weight: bold;
-  font-size: 1.15rem;
-  font-style: italic;
-}
-/*#endregion*/
-
-/* Alternating Players Dialog */
-/*#region*/
-.game-over-dialog[open],
-.alternate-player-dialog[open] {
-  background-color: var(--ocean-blue);
-  color: var(--text-white);
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  border-radius: 10px;
-  width: 50vw;
-}
-.alternate-player-dialog[open]::backdrop {
-  background-color: black;
-}
-.game-over-dialog-header,
-.settings-dialog-title {
-  font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 0.1rem;
-}
-
-.game-over-dialog-header,
-.alternate-player-dialog > .next-player-name {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-}
-.game-winner-name {
+.navy-underline {
   color: var(--navy-background);
   border-bottom: 3px solid var(--navy-background);
 }
-.game-over-button-container {
-  width: 100%;
+.instructions-header-wrapper {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 0.25em;
-}
-.game-over-button-container > button {
-  width: 50%;
-}
-.game-over-button-container > .play-again-button,
-.game-over-button-container > .close-this-dialog-button,
-.alternate-player-dialog > .proceed-to-next-player-button {
-  font-size: 1.25rem;
-  font-weight: bold;
-  padding: 0.5em;
-  border-radius: 10px;
-  border: 2px solid var(--radar-green);
-  color: var(--navy-background);
 }
 
-.game-over-button-container > .play-again-button:hover,
-.game-over-button-container > .close-this-dialog-button:hover,
-.alternate-player-dialog > .proceed-to-next-player-button:hover {
-  background-color: var(--radar-green);
-  border-color: var(--navy-background);
-  color: var(--text-white);
+.instructions-button-container {
+  display: flex;
+  gap: var(--gap-small);
+}
+
+.instructions-button-container > button {
+  flex: 1;
+}
+
+.instructions-content-container {
+  display: flex;
+  flex-direction: column;
+  padding-left: 2em;
+  padding-right: 2em;
+  gap: var(--gap-standard);
+}
+
+.instruction-list-item {
+  color: var(--navy-background);
+  font-weight: var(--font-weight-bold);
+}
+
+.alternate-player-dialog[open]::backdrop {
+  background-color: black;
+}
+
+.game-over-button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap-small);
+}
+.game-over-button-container > button {
+  flex: 1;
 }

@@ -4,8 +4,8 @@ export const GENERAL = {
   LABEL_ELEMENT: 'label',
   CLASSES: {
     HIDE: 'hide',
-    DIALOG_TITLE: 'settings-dialog-title',
-    DIALOG: 'settings-dialog'
+    DIALOG_TITLE: 'dialog-title',
+    DIALOG: `settings-dialog dialog`
   },
   TEXTS: {
     DIALOG_TITLE: 'Settings'

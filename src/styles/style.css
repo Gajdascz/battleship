@@ -22,8 +22,7 @@
   --color-text-primary: var(--text-white);
   --color-text-secondary: var(--radar-green);
   --color-border-primary: var(--text-white);
-  --color-border-secondary: var(var(--radar-green));
-  --color-backdrop: rgba(0, 9, 17, 0.9);
+  --color-border-secondary: var(--radar-green);
   --font-size-xxl: 3rem;
   --font-size-xl: 2rem;
   --font-size-l: 1.5rem;
@@ -36,14 +35,20 @@
   --gap-standard: 0.5em;
   --gap-large: 1em;
 
-  --underline-white: 2x solid var(--text-white);
-  --underline-radar-green: 2px solid var(var(--radar-green));
-  --underline-navy: 2px solid var(var(--navy-background));
+  --underline-white: 3x solid var(--text-white);
+  --underline-navy: 3px solid var(--navy-background);
 
   --font-header: 'bebas-neue';
 }
 input[type='text'] {
   cursor: text;
+}
+
+.color-white {
+  color: var(--text-white);
+}
+.color-navy {
+  color: var(--navy-background);
 }
 
 .hide {
@@ -68,8 +73,6 @@ input[type='text'] {
 
 .utility-bar .title,
 .game-over-dialog-header,
-.settings-dialog-title,
-.settings-dialog-title,
 .current-player-display,
 .placement-instructions-header,
 .placement-controls-header {
@@ -90,70 +93,16 @@ input[type='text'] {
   padding: 0.5em;
   border-radius: 10px;
 }
+
+.base-button.active,
 .base-button:hover {
-  border-color: var(--navy-background);
+  border-color: black;
   background-color: var(--radar-green);
   color: black;
 }
 
-/* Placement State Instructions */
-/*#region*/
-.placement-state-instructions-container {
-  display: flex;
-  flex-direction: column;
-  font-size: 1.2rem;
-  padding-left: 2em;
-  padding-right: 2em;
-  gap: 0.5em;
-}
-.placement-instructions-header {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-  color: var(--radar-green);
-  border-bottom: 2px solid var(--radar-green);
-}
-
-.placement-controls-header {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--radar-green);
-  border-bottom: 2px solid var(--radar-green);
-  max-width: fit-content;
-  margin-bottom: 0.25em;
-}
-
-.placement-controls-list-item {
-  color: var(--radar-green);
-}
-.placement-controls-instruction {
-  color: var(--text-white);
-}
-.placement-controls-button {
-  font-style: italic;
-}
-/*#endregion*/
-
 /* Settings Dialog */
 /*#region*/
-.settings-dialog[open] {
-  background-color: var(--ocean-blue);
-  color: var(--text-white);
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  border-radius: 10px;
-  width: 50vw;
-}
-.settings-dialog[open]::backdrop {
-  background-color: rgba(0, 9, 17, 0.9);
-}
-.settings-dialog-title {
-  font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 0.1rem;
-  text-align: center;
-}
 
 .board-settings-title,
 .player-one-settings-title,
@@ -225,7 +174,7 @@ input[type='text'] {
 
 /* Alternating Players Dialog */
 /*#region*/
-.game-over-dialog[open],
+/* .game-over-dialog[open],
 .alternate-player-dialog[open] {
   background-color: var(--ocean-blue);
   color: var(--text-white);
@@ -282,7 +231,7 @@ input[type='text'] {
   background-color: var(--radar-green);
   border-color: var(--navy-background);
   color: var(--text-white);
-}
+} */
 
 /*#endregion*/
 
