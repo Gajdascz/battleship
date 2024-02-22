@@ -47,7 +47,6 @@ export const MainGridModel = (
   };
 
   const place = ({ start, end, orientation = null }) => {
-    console.log(start, end);
     let verifiedOrientation = orientation;
     if (orientation === null) verifiedOrientation = getRelativeOrientation(start, end, false);
     if (isPlacementValid(start, end, verifiedOrientation)) {

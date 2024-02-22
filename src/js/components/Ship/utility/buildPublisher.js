@@ -11,7 +11,8 @@ export const PUBLISHER_KEYS = {
     DESELECTED: 'shipDeselected',
     ORIENTATION_TOGGLED: 'orientationToggled',
     PLACEMENT_SET: 'shipPlacementSet',
-    HIT: 'shipHit'
+    HIT: 'shipHit',
+    READY_FOR_PLACEMENT: 'shipReadyForPlacement'
   }
 };
 
@@ -29,6 +30,10 @@ export const buildPublisher = (scope) =>
         event: PLACEMENT_EVENTS.SHIP_ORIENTATION_TOGGLED
       },
       { name: PUBLISHER_KEYS.ACTIONS.PLACEMENT_SET, event: PLACEMENT_EVENTS.SHIP_PLACEMENT_SET },
-      { name: PUBLISHER_KEYS.ACTIONS.HIT, event: PROGRESS_EVENTS.SHIP_HIT }
+      { name: PUBLISHER_KEYS.ACTIONS.HIT, event: PROGRESS_EVENTS.SHIP_HIT },
+      {
+        name: PUBLISHER_KEYS.ACTIONS.READY_FOR_PLACEMENT,
+        event: PLACEMENT_EVENTS.SHIP_READY_FOR_PLACEMENT
+      }
     ]
   });

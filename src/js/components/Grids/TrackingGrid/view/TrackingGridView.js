@@ -1,5 +1,5 @@
 import { STATUSES } from '../../../../utility/constants/common';
-import { TRACKING_GRID } from '../../../../utility/constants/components/grids';
+import { TRACKING_GRID, COMMON_GRID } from '../../../../utility/constants/components/grids';
 import { buildTrackingGridUIObj } from './buildTrackingGridUIObj';
 import '../../common/grid-style.css';
 
@@ -9,9 +9,10 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
     numberOfCols,
     letterAxis
   });
-  const trackingGridElement = wrappedTrackingGridElement.querySelector(
-    `.${TRACKING_GRID.CLASSES.TYPE}`
-  );
+  const trackingGridElement = wrappedTrackingGridElement.querySelector(`.${TRACKING_GRID.TYPE}`);
+  const cells = trackingGridElement.querySelectorAll(`.${COMMON_GRID.CLASSES.CELL}`);
+  const enableCells = () => [...cells].forEach((cell) => (cell.disabled = true));
+  const disableCells = () => [...cells].forEach((cell) => (cell.disabled = false));
 
   const getCell = (coordinates) =>
     wrappedTrackingGridElement.querySelector(TRACKING_GRID.CELL_SELECTOR(coordinates));
@@ -31,6 +32,8 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
     elements: {
       wrapper: wrappedTrackingGridElement,
       grid: trackingGridElement
-    }
+    },
+    enableCells,
+    disableCells
   };
 };

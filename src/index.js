@@ -22,7 +22,7 @@ instructionsDialog.setContainer(body);
 alternatePlayerDialog.setContainer(body);
 gameOverDialog.setContainer(body);
 // gameOverDialog.display('ME!');
-// settingsDialogController.display();
+settingsDialogController.display();
 // instructionsDialog.display();
 // import buildSettingsDialog from './js/builders/SettingsDialog/buildSettingsDialog';
 // // import RenderController from './js/ui/render/RenderController';

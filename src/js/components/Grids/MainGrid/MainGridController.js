@@ -53,9 +53,13 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
       placementController.requestPlacementFinalization
     );
     placementController.initPreviewManager();
-    publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_CONTAINER_CREATED, {
-      container: view.elements.grid
-    });
+    publisher.execute(
+      PUBLISHER_KEYS.ACTIONS.PLACEMENT_CONTAINER_CREATED,
+      {
+        container: view.elements.grid
+      },
+      true
+    );
   };
 
   return {

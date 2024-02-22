@@ -81,6 +81,10 @@ export const ShipController = (scope, { name, length }) => {
         model.setIsPlaced(false);
         view.update.placementStatus(false);
       }
+    },
+    checkAndEmitReadyForPlacement: () => {
+      if (view.selection.isInitialized && view.placement.isInitialized)
+        publisher.execute(PUBLISHER_KEYS.ACTIONS.READY_FOR_PLACEMENT);
     }
   };
 
@@ -97,14 +101,15 @@ export const ShipController = (scope, { name, length }) => {
     }
   };
 
-  const enableSelection = () => view.selection.initialize(placementController.selection.request);
   const enablePlacement = ({ data }) => {
+    view.selection.initialize(placementController.selection.request);
     const { container } = data;
     view.placement.initialize({
       placementContainer: container,
       placeCallback: placementController.placement.request,
       toggleOrientationCallback: placementController.toggleOrientation
     });
+    placementController.checkAndEmitReadyForPlacement();
   };
 
   const enableCombatSettings = () => {
@@ -122,7 +127,6 @@ export const ShipController = (scope, { name, length }) => {
     deselect: placementController.selection.deselect,
     initializeStateManagement: () => {
       // placement
-      stateCoordinator.placement.addExecute(enableSelection);
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_PLACEMENT_CONTAINER_CREATED,
         enablePlacement

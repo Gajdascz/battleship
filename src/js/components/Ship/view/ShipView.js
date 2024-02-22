@@ -86,15 +86,24 @@ export const ShipView = ({ name, length }) => {
   };
 
   const selection = {
-    initialize: (selectCallback) => initializeSelection(selectCallback),
+    initialize: (selectCallback) => {
+      initializeSelection(selectCallback);
+      selection.isInitialized = true;
+    },
     enable: () => listenerManager.enableListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_SELECT),
     disable: () => listenerManager.disableListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_SELECT),
-    remove: () => listenerManager.removeListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_SELECT)
+    remove: () => {
+      listenerManager.removeListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_SELECT);
+      selection.isInitialized = false;
+    },
+    isInitialized: false
   };
 
   const placement = {
-    initialize: ({ placementContainer, placeCallback, toggleOrientationCallback }) =>
-      initializePlacement({ placementContainer, placeCallback, toggleOrientationCallback }),
+    initialize: ({ placementContainer, placeCallback, toggleOrientationCallback }) => {
+      initializePlacement({ placementContainer, placeCallback, toggleOrientationCallback });
+      placement.isInitialized = true;
+    },
     enable: () => {
       listenerManager.enableListener(EVENT_CONTROLLER_KEYS.BUTTON_TOGGLE_ORIENTATION);
       listenerManager.enableListener(EVENT_CONTROLLER_KEYS.MOUSE_TOGGLE_ORIENTATION);
@@ -106,7 +115,15 @@ export const ShipView = ({ name, length }) => {
       listenerManager.disableListener(EVENT_CONTROLLER_KEYS.MOUSE_TOGGLE_ORIENTATION);
       listenerManager.disableListener(EVENT_CONTROLLER_KEYS.KEY_TOGGLE_ORIENTATION);
       listenerManager.disableListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_PLACE);
-    }
+    },
+    remove: () => {
+      listenerManager.removeListener(EVENT_CONTROLLER_KEYS.BUTTON_TOGGLE_ORIENTATION);
+      listenerManager.removeListener(EVENT_CONTROLLER_KEYS.MOUSE_TOGGLE_ORIENTATION);
+      listenerManager.removeListener(EVENT_CONTROLLER_KEYS.KEY_TOGGLE_ORIENTATION);
+      listenerManager.removeListener(EVENT_CONTROLLER_KEYS.MAIN_SHIP_PLACE);
+      placement.isInitialized = false;
+    },
+    isInitialized: false
   };
 
   return {

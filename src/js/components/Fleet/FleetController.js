@@ -2,12 +2,15 @@ import { FleetModel } from './model/FleetModel';
 import { FleetView } from './view/FleetView';
 import { PLACEMENT_EVENTS } from '../../utility/constants/events';
 import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
+import { PUBLISHER_KEYS, buildPublisher } from './utility/buildPublisher';
 
 export const FleetController = (scope) => {
   const model = FleetModel(scope);
   const view = FleetView();
   const stateCoordinator = StateCoordinator(model.getScopedID(), model.getScope());
+  const publisher = buildPublisher(scope);
   const shipControllers = new Map();
+  const shipDataTracker = { readyForPlacement: 0 };
 
   const assignShipToFleet = (shipController) => {
     const shipModel = shipController.getModel();
@@ -27,6 +30,15 @@ export const FleetController = (scope) => {
     view.updateRotateShipButton(scopedID, rotateButton);
   };
 
+  const initializeShipsStateManagement = () =>
+    shipControllers.forEach((ship) => ship.initializeStateManagement());
+
+  const handleShipReadyForPlacement = () => {
+    shipDataTracker.readyForPlacement += 1;
+    if (shipDataTracker.readyForPlacement === shipControllers.size)
+      publisher.execute(PUBLISHER_KEYS.ACTIONS.ALL_SHIPS_READY_FOR_PLACEMENT);
+  };
+
   return {
     getView: () => view,
     getModel: () => model,
@@ -34,6 +46,11 @@ export const FleetController = (scope) => {
     assignShipToFleet,
     forEach: (callback) => shipControllers.forEach((ship) => callback(ship)),
     initializeStateManagement: () => {
+      stateCoordinator.placement.addSubscribe(
+        PLACEMENT_EVENTS.SHIP_READY_FOR_PLACEMENT,
+        handleShipReadyForPlacement
+      );
+      stateCoordinator.placement.addExecute(initializeShipsStateManagement);
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_SELECTION_REQUESTED,
         handleShipSelectionRequest
