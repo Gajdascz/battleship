@@ -17,11 +17,6 @@ export const ShipView = ({ name, length }) => {
     name,
     length
   });
-  const isValidCallback = (callback) => {
-    if (callback && typeof callback === 'function') return true;
-    console.warn('Callback not set or is invalid.');
-    return false;
-  };
   const elements = {
     mainShip: mainShipElement,
     trackingShip: trackingShipElement,

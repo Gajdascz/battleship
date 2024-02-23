@@ -1,4 +1,4 @@
-import { AvailableMovesManager } from './AvailableMovesManager';
+import { AvailableMovesManager } from '../../model/AvailableMovesManager';
 import { placeShips } from './placeShips';
 
 /**

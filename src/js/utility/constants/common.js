@@ -48,3 +48,8 @@ export const LETTER_AXES = {
   COL: 'col',
   ROW: 'row'
 };
+
+export const GAME_MODES = {
+  HvH: 'HvH', // human vs human
+  HvA: 'HvA' // human vs ai
+};

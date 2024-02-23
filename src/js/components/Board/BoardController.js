@@ -32,11 +32,17 @@ export const BoardController = ({
   const quadrantMap = { current: null };
   const publisher = buildPublisher(model.getScope());
 
-  view.displaySubmitPlacementsButton();
   const checkPlacementStatus = () => {
-    if (model.isAllShipsPlaced()) view.enableSubmitPlacementsButton();
+    if (model.isAllShipsPlaced()) view.buttons.submitPlacements.enable();
   };
 
+  const initializePlacementState = () => {
+    view.buttons.submitPlacements.init();
+  };
+  const handleShipSelected = ({ data }) => {
+    view.buttons.submitPlacements.disable();
+    view.buttons.rotateShip.update(data.scopedID);
+  };
   const handlePlacementFinalization = () => {
     const placements = model.getFleetPlacements();
     const placeAt = [];
@@ -56,13 +62,10 @@ export const BoardController = ({
     getBoardElement: () => view.getBoardElement(),
     setTrackingFleet: (opponentTrackingFleet) => view.setTrackingFleet(opponentTrackingFleet),
     isAllShipsPlaced: () => model.isAllShipsPlaced(),
-    hideTrackingGrid: () => view.hideTrackingGrid(),
+    getView: () => view,
     initializeStateManagement: () => {
-      stateCoordinator.placement.addExecute(view.hideTrackingGrid);
-      stateCoordinator.placement.addSubscribe(
-        PLACEMENT_EVENTS.SHIP_SELECTED,
-        view.disableSubmitPlacementsButton
-      );
+      stateCoordinator.placement.addExecute(initializePlacementState);
+      stateCoordinator.placement.addSubscribe(PLACEMENT_EVENTS.SHIP_SELECTED, handleShipSelected);
       stateCoordinator.placement.addSubscribe(
         PLACEMENT_EVENTS.SHIP_PLACEMENT_SET,
         checkPlacementStatus
@@ -71,7 +74,7 @@ export const BoardController = ({
         PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZATION_REQUESTED,
         handlePlacementFinalization
       );
-      stateCoordinator.progress.addExecute(view.showTrackingGrid);
+      // stateCoordinator.progress.addExecute(view.trackingGrid.display());
       stateCoordinator.initializeManager();
     }
   };

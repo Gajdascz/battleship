@@ -11,7 +11,7 @@ export const GameModel = (gameScope) => {
   const state = { current: STATES.START };
   const mode = { current: null };
 
-  const areAllPlayerShipsPlaced = () =>
+  const isAllPlayerShipsPlaced = () =>
     !(
       playerStates.current.board.isAllShipsPlaced() &&
       playerStates.opponent.board.isAllShipsPlaced()
@@ -20,7 +20,7 @@ export const GameModel = (gameScope) => {
   const hasPlayerLost = () =>
     playerStates.current.board.isAllShipsSunk() || playerStates.opponent.board.isAllShipsSunk();
 
-  const isInProgress = () => !(areAllPlayerShipsPlaced() || hasPlayerLost());
+  const isInProgress = () => !(isAllPlayerShipsPlaced() || hasPlayerLost());
 
   return {
     getID: () => id,
@@ -28,8 +28,11 @@ export const GameModel = (gameScope) => {
     getScope: () => scope,
     getCurrentPlayer: () => playerStates.current,
     getOpponentPlayer: () => playerStates.opponent,
+    getCurrentPlayerID: () => playerStates.current.model.getID(),
+    getCurrentPlayerName: () => playerStates.current.model.getName(),
+    getWaitingPlayerName: () => playerStates.opponent.model.getName(),
     getGameMode: () => mode.current,
-    areAllPlayerShipsPlaced,
+    isAllPlayerShipsPlaced,
     hasPlayerLost,
     isInProgress,
     setP1: ({ playerModel, boardController }) => {
@@ -45,6 +48,7 @@ export const GameModel = (gameScope) => {
       const currentPlayer = playerStates.current;
       playerStates.current = playerStates.opponent;
       playerStates.opponent = currentPlayer;
+      return playerStates.current;
     }
   };
 };

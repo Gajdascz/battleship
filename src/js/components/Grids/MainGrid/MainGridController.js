@@ -49,7 +49,7 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
   };
 
   const enablePlacementSettings = () => {
-    view.placement.submit.setRequestPlacementSubmissionCallback(
+    view.placement.submit.initializeSubmitPlacementsButton(
       placementController.requestPlacementFinalization
     );
     placementController.initPreviewManager();

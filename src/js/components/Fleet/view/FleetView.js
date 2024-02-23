@@ -2,12 +2,7 @@ import { MAIN_FLEET, TRACKING_FLEET } from '../../../utility/constants/component
 import { buildFleetUIObj } from './buildFleetUIObj';
 import './fleet-style.css';
 export const FleetView = () => {
-  const {
-    mainFleetElement,
-    trackingFleetElement,
-    buttonContainerElement,
-    rotateShipWrapperElement
-  } = buildFleetUIObj();
+  const { mainFleetElement, trackingFleetElement } = buildFleetUIObj();
   const shipViews = new Map();
 
   const mainFleetShipList = mainFleetElement.querySelector(`.${MAIN_FLEET.CLASSES.SHIP_LIST}`);
@@ -15,12 +10,9 @@ export const FleetView = () => {
     `.${TRACKING_FLEET.CLASSES.SHIP_LIST}`
   );
 
-  const updateRotateShipButton = (id, button) => {
-    rotateShipWrapperElement.textContent = '';
-    rotateShipWrapperElement.append(button);
-  };
-
   return {
+    attachMainFleetTo: (container) => container.append(mainFleetElement),
+    attachTrackingGridTo: (container) => container.append(trackingFleetElement),
     addShipView: (shipID, shipView) => shipViews.set(shipID, shipView),
     populateFleetShipLists: () =>
       shipViews.forEach((shipView) => {
@@ -30,11 +22,8 @@ export const FleetView = () => {
     setShipPlacementContainer: (container) => {
       shipViews.forEach((ship) => ship.placement.setPlacementContainer(container));
     },
-    updateRotateShipButton,
-    elements: {
-      mainFleet: mainFleetElement,
-      trackingFleet: trackingFleetElement,
-      buttonContainer: buttonContainerElement
-    }
+    getRotateShipButton: (shipID) => shipViews.get(shipID)?.elements.rotateButton,
+    getMainFleet: () => mainFleetElement,
+    getTrackingFleet: () => trackingFleetElement
   };
 };

@@ -1,4 +1,4 @@
-import { ORIENTATIONS, RESULTS } from '../../../utility/constants';
+import { ORIENTATIONS, STATUSES } from '../../../../utility/constants/common';
 
 /**
  * Generates a random orientation for ship placement ensuring unpredictability.
@@ -11,12 +11,12 @@ const getRandomOrientation = () => {
 
 /**
  * Checks if the proposed ship placement is valid within the game grid.
- * @param {number[][]} mainGrid - The game grid represented as a 2D array.
+ * @param {number[][]} grid - The game grid represented as a 2D array.
  * @param {array[number[]]} coordinates - An array of coordinates for the ship's placement.
  * @returns {boolean} True if all specified coordinates are null (unoccupied), otherwise false.
  */
-const isPlacementValid = (mainGrid, coordinates) =>
-  coordinates.every((c) => mainGrid[c[0]][c[1]] === RESULTS.UNEXPLORED);
+const isPlacementValid = (grid, coordinates) =>
+  coordinates.every((c) => grid[c[0]][c[1]] === STATUSES.UNEXPLORED);
 
 /**
  * Calculates the starting index for ship placement based on the ending index and ship length.
@@ -78,13 +78,13 @@ const getPlacementFirstAndLastCells = (start, end, orientation, placementStart) 
 
 /**
  * Places ships on the grid based on the fleet configuration, using a random placement strategy.
- * @param {array[array[]]>} mainGrid - The game grid represented as a 2D array.
+ * @param {array[array[]]>} grid - The game grid represented as a 2D array.
  * @param {object[]} fleet - An array of ship objects with properties including length.
  * @param {Function} getRandomMove - Generates random starting cells for ship placement.
  * @param {Function} placeFn - A callback function to execute the placement of a ship.
  * @throws {Error} Throws an error if the placement cannot be completed.
  */
-export const placeShips = (mainGrid, fleet, getRandomMove, placeFn) => {
+export const placeShips = (grid, fleet, getRandomMove, placeFn) => {
   fleet.forEach((ship) => {
     let placed = false;
     let attempts = 0;
@@ -95,19 +95,20 @@ export const placeShips = (mainGrid, fleet, getRandomMove, placeFn) => {
         placementStart: startingCell,
         orientation,
         shipLength: ship.length,
-        maxVertical: mainGrid.length - 1,
-        maxHorizontal: mainGrid[0].length - 1
+        maxVertical: grid.length - 1,
+        maxHorizontal: grid[0].length - 1
       });
       const start = getPlacementStart(end, ship.length);
       const cells = getAllPlacementCells(start, end, orientation, startingCell);
-      if (isPlacementValid(mainGrid, cells)) {
+      if (isPlacementValid(grid, cells)) {
         const { firstPlacementCell, lastPlacementCell } = getPlacementFirstAndLastCells(
           start,
           end,
           orientation,
           startingCell
         );
-        if (placeFn({ ship, start: firstPlacementCell, end: lastPlacementCell })) placed = true;
+        if (place({ ship, start: firstPlacementCell, end: lastPlacementCell, orientation }))
+          placed = true;
       }
       attempts++;
       if (attempts > 250) throw new Error('AI could not find ship placement positions.');

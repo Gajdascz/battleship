@@ -14,7 +14,7 @@ export const FleetModel = (fleetScope) => {
     getScope: () => scope,
     getScopedID: () => scopedID,
     isAllShipsPlaced: () => [...mainFleet.values()].every((ship) => ship.isPlaced()),
-    isAllShipSunk: () => [...mainFleet.values()].every((ship) => ship.isSunk()),
+    isAllShipsSunk: () => [...mainFleet.values()].every((ship) => ship.isSunk()),
     addMainShip: (shipID, shipModel) => mainFleet.set(shipID, shipModel),
     addTrackingShip: (ship) => trackingFleet.set(ship.id, ship),
     getFleet: () => [...mainFleet.values()],

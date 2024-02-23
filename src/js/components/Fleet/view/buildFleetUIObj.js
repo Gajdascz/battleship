@@ -1,8 +1,4 @@
-import {
-  buildUIObj,
-  buildElementFromUIObj,
-  buildUIElement
-} from '../../../utility/uiBuilderUtils/uiBuilders';
+import { buildUIObj, buildElementFromUIObj } from '../../../utility/uiBuilderUtils/uiBuilders';
 import { COMMON_ELEMENTS } from '../../../utility/constants/dom/elements';
 import { MAIN_FLEET, TRACKING_FLEET } from '../../../utility/constants/components/fleet';
 /**
@@ -70,16 +66,6 @@ const buildFleetHeaderObj = () => ({
 });
 
 /**
- * Creates the button container for the main grid's fleet list.
- *
- * @returns {Object} Contains details for the button container
- */
-const buildButtonContainerObj = () =>
-  buildUIObj(COMMON_ELEMENTS.DIV, {
-    attributes: { class: MAIN_FLEET.CLASSES.BUTTONS_CONTAINER }
-  });
-
-/**
  * Creates the grid's fleet list structure and components.
  *
  * @param {string} gridType Grid to build a fleet list for.
@@ -89,24 +75,13 @@ export const buildFleetUIObj = () => {
   const { mainFleetContainer, trackingFleetContainer } = buildFleetContainerObj();
   const { mainFleetHeader, trackingFleetHeader } = buildFleetHeaderObj();
   const { mainShipList, trackingShipList } = buildShipListObj();
-  const buttonContainerObj = buildButtonContainerObj();
-  mainFleetContainer.children = [mainFleetHeader, mainShipList, buttonContainerObj];
+  mainFleetContainer.children = [mainFleetHeader, mainShipList];
   trackingFleetContainer.children = [trackingFleetHeader, trackingShipList];
   const mainFleetElement = buildElementFromUIObj(mainFleetContainer);
   const trackingFleetElement = buildElementFromUIObj(trackingFleetContainer);
-  const buttonContainerElement = mainFleetElement.querySelector(
-    `.${MAIN_FLEET.CLASSES.BUTTONS_CONTAINER}`
-  );
-  buildUIElement(COMMON_ELEMENTS.DIV, { attributes: { class: 'rotate-button-wrapper' } });
-  const rotateShipWrapperElement = buildUIElement(COMMON_ELEMENTS.DIV, {
-    attributes: { class: 'rotate-button-wrapper' }
-  });
 
-  buttonContainerElement.append(rotateShipWrapperElement);
   return {
     mainFleetElement,
-    trackingFleetElement,
-    buttonContainerElement,
-    rotateShipWrapperElement
+    trackingFleetElement
   };
 };

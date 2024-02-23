@@ -8,9 +8,10 @@ export const AlternatePlayerDialogView = () => {
   const closeDialog = () => {
     proceedButtonElement.removeEventListener(MOUSE_EVENTS.CLICK, dialogElement.showModal);
     dialogElement.close();
+    dialogElement.remove();
   };
 
-  const container = { current: null };
+  const container = { current: document.querySelector('body') };
   const setContainer = (newContainer) => {
     if (!(newContainer && newContainer instanceof HTMLElement))
       throw new Error(`Invalid Container: ${newContainer}`);

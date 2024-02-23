@@ -3,6 +3,7 @@ import { MOUSE_EVENTS } from '../../../../utility/constants/events';
 import { PreviewManager } from '../utility/PreviewManager';
 import { buildMainGridUIObj } from './buildMainGridUIObj';
 import '../../common/grid-style.css';
+import { ListenerManager } from '../../../../utility/uiBuilderUtils/ListenerManager';
 export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const { wrappedMainGridElement, submitPlacementsButtonElement } = buildMainGridUIObj({
     numberOfRows,
@@ -11,6 +12,11 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   });
   const mainGridElement = wrappedMainGridElement.querySelector(`.${MAIN_GRID.TYPE}`);
   const previewManager = PreviewManager();
+
+  const LISTENER_MANAGER_KEYS = {
+    SUBMIT_PLACEMENTS: 'submitPlacements'
+  };
+  const listenerManager = ListenerManager();
 
   const placement = {
     isShipPlaced: (shipID) =>
@@ -52,27 +58,17 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
       const placedCoordinates = placementCells.map((cell) => cell.dataset.coordinates);
       return placedCoordinates;
     },
+
     submit: {
-      requestPlacementSubmissionCallback: null,
-      setRequestPlacementSubmissionCallback: (fn) =>
-        (placement.submit.requestPlacementSubmissionCallback = fn),
-      enable: () => {
-        submitPlacementsButtonElement.disabled = false;
-        submitPlacementsButtonElement.addEventListener(
-          MOUSE_EVENTS.CLICK,
-          placement.submit.requestPlacementSubmissionCallback
-        );
-      },
-      disable: () => {
-        submitPlacementsButtonElement.disabled = true;
-        submitPlacementsButtonElement.removeEventListener(
-          MOUSE_EVENTS.CLICK,
-          placement.submit.requestPlacementSubmissionCallback
-        );
-      },
-      clear: () => {
-        placement.submit.disable();
-        submitPlacementsButtonElement.remove();
+      initializeSubmitPlacementsButton: (callback) => {
+        console.log(callback);
+        listenerManager.addController({
+          key: LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS,
+          element: submitPlacementsButtonElement,
+          event: MOUSE_EVENTS.CLICK,
+          callback,
+          enable: false
+        });
       }
     }
   };
@@ -84,6 +80,14 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
     getCell(coordinates[0], coordinates[1]).classList.add(MAIN_GRID.CLASSES.HIT_MARKER);
 
   return {
+    attachTo: (container) => container.append(wrappedMainGridElement),
+    attachToWrapper: (element) => wrappedMainGridElement.append(element),
+    submitPlacementsButton: {
+      getElement: () => submitPlacementsButtonElement,
+      enable: () => listenerManager.enableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS),
+      disable: () => listenerManager.disableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS),
+      delete: () => listenerManager.removeListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS)
+    },
     placement,
     displayShipHit,
     initializePreviewManager: ({ maxVertical, maxHorizontal, letterAxis }) => {

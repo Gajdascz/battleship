@@ -38,7 +38,7 @@ export const KEY_EVENTS = {
   }
 };
 export const EMITTER = {
-  FULFILLED_HANDLE: (event) => `${event}FULFILLED`
+  FULFILLED_HANDLE: (event) => `${event}#FULFILLED`
 };
 
 export const GAME_EVENTS = {
@@ -47,6 +47,10 @@ export const GAME_EVENTS = {
   SETTINGS_SUBMITTED: 'settingsSubmitted',
   TURN_ENDED: 'turnEnded',
   PLAYER_SWITCHED: 'playerSwitched'
+};
+
+export const START_EVENTS = {
+  ALL_PLAYERS_INITIALIZED: 'allPlayersInitialized'
 };
 
 export const PLACEMENT_EVENTS = {

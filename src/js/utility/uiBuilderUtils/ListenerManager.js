@@ -31,6 +31,7 @@ const createEventController = ({ element, event, callback, key }) => {
     enable: () => {
       if (isActive) return;
       element.addEventListener(event, callback);
+      if (element.tagName === 'BUTTON') element.disabled = false;
       isActive = true;
       return controller;
     },
@@ -41,6 +42,7 @@ const createEventController = ({ element, event, callback, key }) => {
     disable: () => {
       if (!isActive) return;
       element.removeEventListener(event, callback);
+      if (element.tagName === 'BUTTON') element.disabled = true;
       isActive = false;
       return controller;
     },

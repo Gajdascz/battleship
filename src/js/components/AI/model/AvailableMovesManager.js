@@ -1,11 +1,11 @@
-import { RESULTS } from '../../../utility/constants';
+import { STATUSES } from '../../../utility/constants/common';
 import {
   popRandom,
   popFrom,
   areCoordinatesEqual,
   getRandom,
   getFrom
-} from '../utilities/helperFunctions';
+} from '../ai/utilities/helperFunctions';
 
 /**
  * @module AvailableMovesManager
@@ -31,7 +31,7 @@ export const AvailableMovesManager = () => {
     availableMoves.length = 0;
     grid.forEach((row, rowIndex) => {
       row.forEach((col, colIndex) => {
-        if (col === RESULTS.UNEXPLORED) availableMoves.push([rowIndex, colIndex]);
+        if (col === STATUSES.UNEXPLORED) availableMoves.push([rowIndex, colIndex]);
       });
     });
   };

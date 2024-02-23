@@ -22,12 +22,11 @@ export const FleetController = (scope) => {
   };
 
   const handleShipSelectionRequest = ({ data }) => {
-    const { scopedID, rotateButton } = data;
+    const { scopedID } = data;
     shipControllers.forEach((controller) => {
       if (controller.getScopedID() === scopedID) controller.select();
       else if (controller.isSelected()) controller.deselect();
     });
-    view.updateRotateShipButton(scopedID, rotateButton);
   };
 
   const initializeShipsStateManagement = () =>
@@ -36,7 +35,7 @@ export const FleetController = (scope) => {
   const handleShipReadyForPlacement = () => {
     shipDataTracker.readyForPlacement += 1;
     if (shipDataTracker.readyForPlacement === shipControllers.size)
-      publisher.execute(PUBLISHER_KEYS.ACTIONS.ALL_SHIPS_READY_FOR_PLACEMENT);
+      publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_CONTAINER_FULFILLED);
   };
 
   return {

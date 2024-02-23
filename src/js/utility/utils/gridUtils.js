@@ -53,11 +53,6 @@ const isAtEdge = (grid, coordinates) =>
  * @param {array[][]} grid The grid to evaluate.
  * @param {number[]} coordinates Location of cell within the grid.
  * @returns {null | integer | undefined} The known value at the provided cell.
- * Possible Values:
- *  -'null': Unexplored
- *  -'0': Miss
- *  -'1': Hit
- *  - undefined: Invalid
  */
 const getValueAt = (grid, coordinates) => {
   if (isWithinGrid(grid, coordinates)) return grid[coordinates[0]][coordinates[1]];

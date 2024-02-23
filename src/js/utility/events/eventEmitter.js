@@ -89,7 +89,7 @@ const eventEmitter = {
         fulfillmentManager.addPending(event, data);
         const handleFulfillment = () => {
           fulfillmentManager.fulfill(event);
-          eventEmitter.unsubscribe(event, handleFulfillment);
+          eventEmitter.unsubscribe(EMITTER.FULFILLED_HANDLE(event), handleFulfillment);
         };
         eventEmitter.subscribe(EMITTER.FULFILLED_HANDLE(event), handleFulfillment);
       }

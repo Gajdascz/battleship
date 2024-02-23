@@ -31,10 +31,7 @@ export const ShipController = (scope, { name, length }) => {
     },
     selection: {
       request: () => {
-        publisher.request(PUBLISHER_KEYS.REQUESTS.SELECTION, {
-          scopedID: model.getScopedID(),
-          rotateButton: view.elements.rotateButton
-        });
+        publisher.request(PUBLISHER_KEYS.REQUESTS.SELECTION, { scopedID: model.getScopedID() });
       },
       select: () => {
         if (model.isPlaced()) placementController.placement.pickup();
