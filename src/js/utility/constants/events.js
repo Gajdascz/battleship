@@ -48,7 +48,6 @@ export const GAME_EVENTS = {
   TURN_ENDED: 'turnEnded',
   PLAYER_SWITCHED: 'playerSwitched'
 };
-
 export const START_EVENTS = {
   ALL_PLAYERS_INITIALIZED: 'allPlayersInitialized'
 };

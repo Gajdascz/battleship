@@ -1,0 +1,49 @@
+@import url('../../../../styles/style.css');
+
+button.ship-element[data-placed='false'] {
+  color: var(--color-yellow-orange);
+}
+button.ship-element[data-placed='false'].ship-selected,
+button.ship-element[data-placed='false']:hover {
+  color: var(--color-vibrant-green);
+  border-bottom: var(--border-white);
+}
+button.ship-element[data-placed='true'] {
+  color: var(--color-vibrant-green);
+}
+button.ship-element[data-placed='true']:hover {
+  color: var(--color-bright-red);
+  border-bottom: 2px solid var(--text-white);
+}
+
+button:disabled.ship-element[data-sunk='false'][data-placed='true']:hover {
+  color: var(--color-vibrant-green);
+  border: none;
+}
+button:disabled.ship-element[data-sunk='true'][data-placed='true']:hover {
+  color: var(--color-deep-orange-red);
+  border: none;
+}
+
+button:disabled.ship-element[data-sunk='true'][data-placed='true'] {
+  color: var(--color-deep-orange-red);
+  text-decoration: line-through;
+}
+div.ship-element[data-sunk='false'] {
+  color: var(--color-vibrant-green);
+}
+div.ship-element[data-sunk='true'] {
+  color: var(--color-bright-red);
+  text-decoration: line-through;
+}
+
+.ship-element {
+  background-color: var(--color-deep-navy-blue);
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  gap: 1em;
+  font-size: 1.25rem;
+  width: 100%;
+}

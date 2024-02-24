@@ -1,7 +1,7 @@
 import { GENERAL_ATTRIBUTES } from '../../../utility/constants/dom/attributes';
 
 export const SHIP_CLASSES = {
-  ENTRY: 'fleet-entry',
+  ENTRY: 'ship-element',
   NAME: 'ship-name',
   SELECTED: 'ship-selected'
 };

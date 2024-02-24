@@ -11,7 +11,8 @@ export const StateCoordinator = (scopedID, scope) => {
       fns: {
         execute: [],
         subscribe: [],
-        dynamic: []
+        dynamic: [],
+        global: []
       }
     },
     [STATES.PLACEMENT]: {
@@ -19,7 +20,8 @@ export const StateCoordinator = (scopedID, scope) => {
       fns: {
         execute: [],
         subscribe: [],
-        dynamic: []
+        dynamic: [],
+        global: []
       }
     },
     [STATES.PROGRESS]: {
@@ -27,7 +29,8 @@ export const StateCoordinator = (scopedID, scope) => {
       fns: {
         execute: [],
         subscribe: [],
-        dynamic: []
+        dynamic: [],
+        global: []
       }
     },
     [STATES.OVER]: {
@@ -35,7 +38,8 @@ export const StateCoordinator = (scopedID, scope) => {
       fns: {
         execute: [],
         subscribe: [],
-        dynamic: []
+        dynamic: [],
+        global: []
       }
     }
   };
@@ -52,6 +56,10 @@ export const StateCoordinator = (scopedID, scope) => {
   const addSubscriptionToState = (state, { event, callback }) => {
     validate(state, callback);
     stateBundles[state].fns.subscribe.push({ event: getKey(event), callback });
+  };
+  const addGlobalSubscriptionToState = (state, { event, callback }) => {
+    validate(state, callback);
+    stateBundles[state].fns.global.push({ event, callback });
   };
 
   const addDynamicSubscriptionToState = (
@@ -79,7 +87,9 @@ export const StateCoordinator = (scopedID, scope) => {
           subscribeTrigger,
           unsubscribeTrigger,
           id
-        })
+        }),
+      addGlobal: (event, callback) =>
+        addGlobalSubscriptionToState(STATES.START, { event, callback })
     },
     placement: {
       addExecute: (fn) => addExecuteFnToState(STATES.PLACEMENT, fn),
@@ -92,7 +102,9 @@ export const StateCoordinator = (scopedID, scope) => {
           subscribeTrigger,
           unsubscribeTrigger,
           id
-        })
+        }),
+      addGlobal: (event, callback) =>
+        addGlobalSubscriptionToState(STATES.PLACEMENT, { event, callback })
     },
     progress: {
       addExecute: (fn) => addExecuteFnToState(STATES.PROGRESS, fn),
@@ -105,7 +117,9 @@ export const StateCoordinator = (scopedID, scope) => {
           subscribeTrigger,
           unsubscribeTrigger,
           id
-        })
+        }),
+      addGlobal: (event, callback) =>
+        addGlobalSubscriptionToState(STATES.PROGRESS, { event, callback })
     },
     over: {
       addExecute: (fn) => addExecuteFnToState(STATES.OVER, fn),
@@ -117,7 +131,8 @@ export const StateCoordinator = (scopedID, scope) => {
           subscribeTrigger,
           unsubscribeTrigger,
           id
-        })
+        }),
+      addGlobal: (event, callback) => addGlobalSubscriptionToState(STATES.OVER, { event, callback })
     },
     initializeManager: () => {
       Object.values(stateBundles).forEach((bundle) => manager.storeState(bundle));

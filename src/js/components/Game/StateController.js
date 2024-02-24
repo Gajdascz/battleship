@@ -5,7 +5,10 @@ import { STATES } from '../../utility/constants/common';
 
 export const StateController = () => {
   let isEnabled = false;
-  const publishStateTransition = (state) => eventEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
+  const publishStateTransition = (state) => {
+    console.log(state);
+    eventEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
+  };
   const getCurrentState = () => stateManagerRegistry.getCurrentState();
   const stateSubscriptions = {
     [STATES.START]: [],
@@ -70,13 +73,13 @@ export const StateController = () => {
     transition,
     enable,
     disable,
-    addSubscriptionToStart: () => (event, callback) =>
+    addSubscriptionToStart: (event, callback) =>
       addStateSubscription(STATES.START, { event, callback }),
-    addSubscriptionToPlacement: () => (event, callback) =>
+    addSubscriptionToPlacement: (event, callback) =>
       addStateSubscription(STATES.PLACEMENT, { event, callback }),
-    addSubscriptionToProgress: () => (event, callback) =>
+    addSubscriptionToProgress: (event, callback) =>
       addStateSubscription(STATES.PROGRESS, { event, callback }),
-    addSubscriptionToOver: () => (event, callback) =>
+    addSubscriptionToOver: (event, callback) =>
       addStateSubscription(STATES.OVER, { event, callback }),
     reset: () => {
       stateSubscriptions.reset();

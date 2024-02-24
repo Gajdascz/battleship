@@ -1,8 +1,8 @@
-import { MAIN_GRID } from '../../../../utility/constants/components/grids';
+import { MAIN_GRID } from '../utility/mainGridConstants';
 import { MOUSE_EVENTS } from '../../../../utility/constants/events';
 import { PreviewManager } from '../utility/PreviewManager';
 import { buildMainGridUIObj } from './buildMainGridUIObj';
-import '../../common/grid-style.css';
+import './main-grid-styles.css';
 import { ListenerManager } from '../../../../utility/uiBuilderUtils/ListenerManager';
 export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const { wrappedMainGridElement, submitPlacementsButtonElement } = buildMainGridUIObj({
@@ -61,7 +61,6 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
 
     submit: {
       initializeSubmitPlacementsButton: (callback) => {
-        console.log(callback);
         listenerManager.addController({
           key: LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS,
           element: submitPlacementsButtonElement,
@@ -86,7 +85,10 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
       getElement: () => submitPlacementsButtonElement,
       enable: () => listenerManager.enableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS),
       disable: () => listenerManager.disableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS),
-      delete: () => listenerManager.removeListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS)
+      delete: () => {
+        listenerManager.removeListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS);
+        submitPlacementsButtonElement.remove();
+      }
     },
     placement,
     displayShipHit,

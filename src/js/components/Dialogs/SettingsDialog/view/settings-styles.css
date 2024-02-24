@@ -1,5 +1,14 @@
 @import url('../../common/dialog-styles.css');
 
+.board-settings-title,
+.player-one-settings-title,
+.player-two-settings-title {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-bottom: 2px solid var(--text-white);
+  margin-bottom: 0.5rem;
+}
 .player-information-input-container {
   display: flex;
   gap: 0.5em;

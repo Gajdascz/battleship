@@ -4,7 +4,8 @@
  */
 const validateControllerParameters = (parameters) => {
   const { element, event, callback, key } = parameters;
-  if (!(element && element instanceof HTMLElement)) throw new Error(`Invalid Element: ${element}`);
+  if (!(element === document || (element && element instanceof HTMLElement)))
+    throw new Error(`Invalid Element: ${element}`);
   if (!(event && typeof event === 'string')) throw new Error(`Invalid Event String: ${event}`);
   if (!(callback && typeof callback === 'function'))
     throw new Error(`Invalid Callback Function: ${callback}`);

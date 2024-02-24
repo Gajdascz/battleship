@@ -1,4 +1,4 @@
-import eventEmitter from '../events/eventEmitter';
+import eventEmitter from './eventEmitter';
 import { createEventKeyGenerator } from '../utils/createEventKeyGenerator';
 
 export const ScopedEventSwitcher = (scopes = []) => {

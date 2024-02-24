@@ -1,9 +1,11 @@
 import { BoardView } from './view/BoardView';
 import { BoardModel } from './model/BoardModel';
-import { PLACEMENT_EVENTS } from '../../utility/constants/events';
 import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
 import { mapShipQuadrants } from './utility/mapShipQuadrants';
 import { buildPublisher, PUBLISHER_KEYS } from './utility/buildPublisher';
+
+import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
+import { SHIP_EVENTS } from '../Ship/utility/shipEvents';
 
 export const BoardController = ({
   playerID,
@@ -36,26 +38,30 @@ export const BoardController = ({
     if (model.isAllShipsPlaced()) view.buttons.submitPlacements.enable();
   };
 
-  const initializePlacementState = () => {
-    view.buttons.submitPlacements.init();
-  };
-  const handleShipSelected = ({ data }) => {
-    view.buttons.submitPlacements.disable();
-    view.buttons.rotateShip.update(data.scopedID);
-  };
-  const handlePlacementFinalization = () => {
-    const placements = model.getFleetPlacements();
-    const placeAt = [];
-    placements.forEach((placement) => {
-      placeAt.push({
-        start: placement.internal[0],
-        end: placement.internal[placement.internal.length - 1]
+  const placementController = {
+    initialize: () => {
+      view.buttons.submitPlacements.init();
+      view.trackingGrid.disable();
+      view.trackingGrid.hide();
+    },
+    shipSelected: ({ data }) => {
+      view.buttons.submitPlacements.disable();
+      view.buttons.rotateShip.update(data.scopedID);
+    },
+    placementFinalized: () => {
+      const placements = model.getFleetPlacements();
+      const placeAt = [];
+      placements.forEach((placement) => {
+        placeAt.push({
+          start: placement.internal[0],
+          end: placement.internal[placement.internal.length - 1]
+        });
       });
-    });
-    controllers.mainGrid.finalizePlacements(placeAt);
-    const { width, height } = controllers.mainGrid.getDimensions();
-    quadrantMap.current = mapShipQuadrants(placements, width, height);
-    publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENTS_FINALIZED, { playerID });
+      controllers.mainGrid.finalizePlacements(placeAt);
+      const { width, height } = controllers.mainGrid.getDimensions();
+      quadrantMap.current = mapShipQuadrants(placements, width, height);
+      publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENTS_FINALIZED, { playerID });
+    }
   };
 
   return {
@@ -64,17 +70,16 @@ export const BoardController = ({
     isAllShipsPlaced: () => model.isAllShipsPlaced(),
     getView: () => view,
     initializeStateManagement: () => {
-      stateCoordinator.placement.addExecute(initializePlacementState);
-      stateCoordinator.placement.addSubscribe(PLACEMENT_EVENTS.SHIP_SELECTED, handleShipSelected);
+      stateCoordinator.placement.addExecute(placementController.initialize);
       stateCoordinator.placement.addSubscribe(
-        PLACEMENT_EVENTS.SHIP_PLACEMENT_SET,
-        checkPlacementStatus
+        SHIP_EVENTS.SELECTION.SELECTED,
+        placementController.shipSelected
       );
+      stateCoordinator.placement.addSubscribe(SHIP_EVENTS.PLACEMENT.SET, checkPlacementStatus);
       stateCoordinator.placement.addSubscribe(
-        PLACEMENT_EVENTS.GRID_PLACEMENTS_FINALIZATION_REQUESTED,
-        handlePlacementFinalization
+        MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED,
+        placementController.placementFinalized
       );
-      // stateCoordinator.progress.addExecute(view.trackingGrid.display());
       stateCoordinator.initializeManager();
     }
   };

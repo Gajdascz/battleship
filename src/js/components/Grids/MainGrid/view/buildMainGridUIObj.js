@@ -1,5 +1,6 @@
 import { COMMON_ELEMENTS } from '../../../../utility/constants/dom/elements';
-import { MAIN_GRID, COMMON_GRID } from '../../../../utility/constants/components/grids';
+import { COMMON_GRID } from '../../common/gridConstants';
+import { MAIN_GRID } from '../utility/mainGridConstants';
 import { buildUIObj, buildElementFromUIObj } from '../../../../utility/uiBuilderUtils/uiBuilders';
 import {
   buildGridCellObj,
@@ -23,7 +24,7 @@ import {
 
 export const buildMainGridUIObj = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const headerObj = buildGridHeaderObj({
-    headerClass: MAIN_GRID.CLASSES.HEADER,
+    headerClass: `${MAIN_GRID.CLASSES.HEADER} grid-header`,
     headerText: MAIN_GRID.PROPERTIES.HEADER_TEXT
   });
   const labelTypes = getLabelTypes(letterAxis);
@@ -57,7 +58,7 @@ export const buildMainGridUIObj = ({ numberOfRows, numberOfCols, letterAxis }) =
 
   const mainGridUIObj = buildUIObj(COMMON_ELEMENTS.DIV, {
     attributes: {
-      class: MAIN_GRID.CLASSES.WRAPPER
+      class: `${MAIN_GRID.CLASSES.WRAPPER} grid-wrapper`
     },
     children: [
       buildUIObj(COMMON_ELEMENTS.DIV, {

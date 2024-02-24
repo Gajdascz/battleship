@@ -8,11 +8,13 @@ const GAME_MODES = {
 };
 
 const strategyHvH = (model, view) => {
+  let isFirstCall = true;
   const alternatePlayerDialog = AlternatePlayerDialogView();
   const endTurnButton = buildUIElement(COMMON_ELEMENTS.BUTTON, {
     text: 'End Turn',
     attributes: { class: 'end-turn-button' }
   });
+
   const onAttackProcessed = () => {
     // Disable tracking grid buttons (stop attacks)
     // Enable End Turn Button
@@ -29,19 +31,25 @@ const strategyHvH = (model, view) => {
     renderCurrent();
   };
   const renderCurrent = () => {
-    view.updateBoard(model.getCurrentPlayerID());
-    view.updateCurrentPlayerDisplay(model.getCurrentPlayerName());
+    view.updateDisplay(model.getCurrentPlayerID(), model.getCurrentPlayerName());
   };
-  return { switchPlayers, renderCurrent };
+  const placementState = () => {
+    if (!isFirstCall) switchPlayers();
+    renderCurrent();
+    isFirstCall = false;
+  };
+  return { placementState };
 };
 
 const strategyHvA = (model, view) => {
   const switchPlayers = () => {};
   const renderCurrent = () => {
-    view.updateBoard(model.getCurrentPlayerID());
-    view.updateCurrentPlayerDisplay(model.getCurrentPlayerName());
+    view.updateDisplay(model.getCurrentPlayerID(), model.getCurrentPlayerName());
   };
-  return { switchPlayers, renderCurrent };
+  const placementState = () => renderCurrent();
+
+  const progressState = () => {};
+  return { placementState };
 };
 
 export const getRenderStrategy = (gameModel, gameView) => {

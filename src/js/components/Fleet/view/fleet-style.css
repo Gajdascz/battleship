@@ -1,44 +1,5 @@
 @import url('../../../../styles/style.css');
 
-/* Fleet List Dynamic Colors */
-/* Player's Fleet (main grid) */
-button.fleet-entry[data-placed='false'] {
-  color: var(--unplaced-ship);
-}
-button.fleet-entry[data-placed='false'].ship-selected,
-button.fleet-entry[data-placed='false']:hover {
-  color: var(--radar-green);
-  border-bottom: 2px solid var(--text-white);
-}
-button.fleet-entry[data-placed='true'] {
-  color: var(--radar-green);
-}
-button.fleet-entry[data-placed='true']:hover {
-  color: var(--hit);
-  border-bottom: 2px solid var(--text-white);
-}
-
-button:disabled.fleet-entry[data-sunk='false'][data-placed='true']:hover {
-  color: var(--radar-green);
-  border: none;
-}
-button:disabled.fleet-entry[data-sunk='true'][data-placed='true']:hover {
-  color: var(--own-ship-hit);
-  border: none;
-}
-
-button:disabled.fleet-entry[data-sunk='true'][data-placed='true'] {
-  color: var(--own-ship-hit);
-  text-decoration: line-through;
-}
-div.fleet-entry[data-sunk='false'] {
-  color: var(--radar-green);
-}
-div.fleet-entry[data-sunk='true'] {
-  color: var(--hit);
-  text-decoration: line-through;
-}
-
 .tracking-fleet,
 .main-fleet {
   display: flex;
@@ -57,17 +18,6 @@ div.fleet-entry[data-sunk='true'] {
   width: 100%;
 }
 .main-fleet-ship-list {
-  width: 100%;
-}
-
-.fleet-entry {
-  background-color: var(--navy-background);
-  border: none;
-  display: flex;
-  justify-content: space-between;
-  padding: 0;
-  gap: 1em;
-  font-size: 1.25rem;
   width: 100%;
 }
 

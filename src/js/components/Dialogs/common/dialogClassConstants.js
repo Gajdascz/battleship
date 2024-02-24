@@ -4,5 +4,5 @@ export const BASE_DIALOG_CLASSES = {
   HEADER_PRIMARY: 'dialog-header-primary',
   HEADER_SECONDARY: 'dialog-header-secondary',
   WHITE_UNDERLINE: 'white-underline',
-  NAVY_UNDERLINE: 'navy-underline'
+  GREEN_UNDERLINE: 'green-underline'
 };

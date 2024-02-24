@@ -74,13 +74,13 @@ export const BoardView = (scopedID, { mainGridView, trackingGridView, fleetView 
     attachTo: (container) => container.append(boardContainer),
     remove: () => boardContainer.remove(),
     trackingGrid: {
-      setFleet: (opponentTrackingFleet) =>
-        trackingGridView.elements.wrapper.append(opponentTrackingFleet),
+      setFleet: (opponentTrackingFleet) => trackingGridView.attachToWrapper(opponentTrackingFleet),
       hide: () => trackingGridView.hide(),
       display: () => trackingGridView.display(),
       enable: () => trackingGridView.enable(),
       disable: () => trackingGridView.disable(),
-      attachToUtilityContainer: (element) => gridUtilityContainers.tracking.append(element)
+      attachToUtilityContainer: (element) => gridUtilityContainers.tracking.append(element),
+      attachToWrapper: (element) => trackingGridView.attachToWrapper(element)
     },
     buttons: buttonsControllers
   };

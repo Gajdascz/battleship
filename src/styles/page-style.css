@@ -1,5 +1,7 @@
+@import url('./style.css');
 /* Utility Bar */
 /*#region*/
+
 .utility-bar {
   background-color: var(--ocean-blue);
   display: flex;
@@ -8,7 +10,9 @@
   padding: 0.25em;
 }
 .utility-bar .title {
-  font-size: 3rem;
+  font-family: var(--font-header);
+  font-weight: var(--font-weight-bold);
+  font-size: 3.5em;
   letter-spacing: 0.1rem;
 }
 

@@ -4,10 +4,14 @@ import { GAME_EVENTS } from '../../utility/constants/events';
 import { STATES } from '../../utility/constants/common';
 
 export const GameStateController = () => {
-  const initialize = () =>
+  const enable = () =>
     eventEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
 
+  const disable = () =>
+    eventEmitter.unsubscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
+
   const publishStateTransition = (state) => eventEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
+  const publishPlayerSwitched = () => eventEmitter.publish(GAME_EVENTS.PLAYER_SWITCHED);
 
   const transition = () => {
     const state = stateManagerRegistry.getCurrentState();
@@ -31,6 +35,8 @@ export const GameStateController = () => {
 
   return {
     transition,
-    initialize
+    enable,
+    disable,
+    publishPlayerSwitched
   };
 };

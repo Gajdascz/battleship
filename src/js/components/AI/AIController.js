@@ -8,7 +8,8 @@ import { AIFleetModel } from './components/Fleet/AIFleetModel';
 import { AIShipModel } from './components/Ship/AIShipModel';
 import { AI_NAMES, STATUSES } from './common/constants';
 
-import { PlacementManager } from '../PlacementManager';
+import { PlacementManager } from './PlacementManager';
+import { AIView } from './AIView';
 
 export const AIController = ({ difficulty, boardSettings, shipData }) => {
   const mainGridModel = AIMainGridModel(boardSettings.numberOfRows, boardSettings.numberOfCols);
@@ -29,6 +30,7 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     mainGridModel,
     trackingGridModel
   });
+  const view = AIView(boardSettings, model.properties.getName());
   const placementManager = PlacementManager(model.mainGrid.get());
 
   /**
@@ -44,7 +46,11 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
   };
 
   return {
-    isAI: () => model.properties.isAI(),
-    placeShips
+    get isAI() {
+      return model.properties.isAI();
+    },
+    getID: () => model.getID(),
+    placeShips,
+    getView: () => view
   };
 };

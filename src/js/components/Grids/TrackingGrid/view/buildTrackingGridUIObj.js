@@ -1,5 +1,4 @@
 import { COMMON_ELEMENTS } from '../../../../utility/constants/dom/elements';
-import { TRACKING_GRID, COMMON_GRID } from '../../../../utility/constants/components/grids';
 import { buildUIObj, buildElementFromUIObj } from '../../../../utility/uiBuilderUtils/uiBuilders';
 import {
   buildGridCellObj,
@@ -10,6 +9,8 @@ import {
   wrapColLabels
 } from '../../../../utility/uiBuilderUtils/gridBuilderUtils';
 
+import { TRACKING_GRID } from '../utility/trackingGridConstants';
+import { COMMON_GRID } from '../../common/gridConstants';
 /**
  * Creates the specified grid's structured object.
  * Used to create the interface element.
@@ -23,7 +24,7 @@ import {
 
 export const buildTrackingGridUIObj = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const headerObj = buildGridHeaderObj({
-    headerClass: TRACKING_GRID.CLASSES.HEADER,
+    headerClass: `${TRACKING_GRID.CLASSES.HEADER} ${COMMON_GRID.CLASSES.HEADER}`,
     headerText: TRACKING_GRID.PROPERTIES.HEADER_TEXT
   });
   const labelTypes = getLabelTypes(letterAxis);
@@ -38,11 +39,11 @@ export const buildTrackingGridUIObj = ({ numberOfRows, numberOfCols, letterAxis 
     axisLabelClass: COMMON_GRID.CLASSES.LABELS.ROW
   });
 
-  const buildMainGridCell = (coordinateAttribute) =>
+  const buildTrackingGridCell = (coordinateAttribute) =>
     buildGridCellObj({
       elementType: TRACKING_GRID.PROPERTIES.CELL_ELEMENT,
       attributes: {
-        [TRACKING_GRID.PROPERTIES.ATTRIBUTES.CELL_COORDINATES_DATA]: `${coordinateAttribute}`
+        value: `${coordinateAttribute}`
       }
     });
 
@@ -50,14 +51,14 @@ export const buildTrackingGridUIObj = ({ numberOfRows, numberOfCols, letterAxis 
     buildGridRowObj({
       rowLabelObj,
       cellObjs: colLabelObjs.map((colLabelObj) =>
-        buildMainGridCell(`${rowLabelObj.text}${colLabelObj.text}`)
+        buildTrackingGridCell(`${rowLabelObj.text}${colLabelObj.text}`)
       )
     })
   );
 
   const trackingGridUIObj = buildUIObj(COMMON_ELEMENTS.DIV, {
     attributes: {
-      class: TRACKING_GRID.CLASSES.WRAPPER
+      class: `${TRACKING_GRID.CLASSES.WRAPPER} ${COMMON_GRID.CLASSES.WRAPPER}`
     },
     children: [
       buildUIObj(COMMON_ELEMENTS.DIV, {

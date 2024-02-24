@@ -1,5 +1,6 @@
 import { COMMON_ELEMENTS } from '../constants/dom/elements';
-import { COMMON_GRID } from '../constants/components/grids';
+import { COMMON_GRID } from '../../components/Grids/common/gridConstants';
+import { LETTER_AXES } from '../constants/common';
 import { buildUIObj } from './uiBuilders';
 import { convertIndexToLetter } from '../utils/stringUtils';
 
@@ -16,7 +17,7 @@ const buildGridHeaderObj = ({ headerClass, headerText }) =>
   });
 
 const getLabelTypes = (letterAxis) =>
-  letterAxis === COMMON_GRID.LETTER_AXES.COL
+  letterAxis === LETTER_AXES.COL
     ? { row: COMMON_GRID.LABEL_TYPES.NUMERIC, col: COMMON_GRID.LABEL_TYPES.LETTER }
     : { row: COMMON_GRID.LABEL_TYPES.LETTER, col: COMMON_GRID.LABEL_TYPES.NUMERIC };
 

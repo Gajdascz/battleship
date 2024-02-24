@@ -12,7 +12,7 @@ import { BASE_DIALOG_CLASSES } from '../common/dialogClassConstants';
 
 const buildHeaderObj = () => {
   const header = buildParagraphObj('', `${BASE_DIALOG_CLASSES.HEADER_PRIMARY}`);
-  const playerNameObj = buildSpanObj('', `next-player-name ${BASE_DIALOG_CLASSES.NAVY_UNDERLINE}`);
+  const playerNameObj = buildSpanObj('', `next-player-name ${BASE_DIALOG_CLASSES.GREEN_UNDERLINE}`);
   header.children = [playerNameObj];
   return header;
 };

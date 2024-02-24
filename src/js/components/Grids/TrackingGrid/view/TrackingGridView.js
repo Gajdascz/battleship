@@ -1,7 +1,8 @@
 import { STATUSES } from '../../../../utility/constants/common';
-import { TRACKING_GRID, COMMON_GRID } from '../../../../utility/constants/components/grids';
+import { TRACKING_GRID } from '../utility/trackingGridConstants';
+import { COMMON_GRID } from '../../common/gridConstants';
 import { buildTrackingGridUIObj } from './buildTrackingGridUIObj';
-import '../../common/grid-style.css';
+import './tracking-grid-styles.css';
 
 export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const { wrappedTrackingGridElement } = buildTrackingGridUIObj({
@@ -37,6 +38,8 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
     hide,
     display,
     enable,
-    disable
+    disable,
+    displayHit,
+    displayMiss
   };
 };

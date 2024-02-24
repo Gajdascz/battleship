@@ -1,7 +1,7 @@
 @import url('../../../../styles/style.css');
 
 .dialog[open] {
-  background-color: var(--ocean-blue);
+  background-color: var(--color-deep-navy-blue);
   color: var(--text-white);
   display: flex;
   flex-direction: column;
@@ -37,11 +37,11 @@
 
 .white-underline {
   color: var(--text-white);
-  border-bottom: var(--underline-white);
+  border-bottom: var(--border-white);
 }
-.navy-underline {
-  color: var(--navy-background);
-  border-bottom: 3px solid var(--navy-background);
+.green-underline {
+  color: var(--color-vibrant-green);
+  border-bottom: var(--border-green);
 }
 .instructions-header-wrapper {
   display: flex;
@@ -66,7 +66,7 @@
 }
 
 .instruction-list-item {
-  color: var(--navy-background);
+  color: var(--color-vibrant-green);
   font-weight: var(--font-weight-bold);
 }
 

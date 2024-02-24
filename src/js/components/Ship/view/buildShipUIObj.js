@@ -1,8 +1,9 @@
-import { SHIP_CLASSES, SHIP_DATA_ATTRIBUTES, SHIP_ROTATE_BUTTON } from '../utility/constants';
+import { SHIP_CLASSES, SHIP_DATA_ATTRIBUTES, SHIP_ROTATE_BUTTON } from '../utility/shipConstants';
 import { ORIENTATIONS } from '../../../utility/constants/common';
 import { BOOL } from '../../../utility/constants/dom/attributes';
 import { COMMON_ELEMENTS } from '../../../utility/constants/dom/elements';
 import { buildUIObj, buildElementFromUIObj } from '../../../utility/uiBuilderUtils/uiBuilders';
+import { BASE_CLASSES } from '../../../utility/constants/dom/baseStyles';
 const buildBaseShipUIObj = (name, id, type) =>
   buildUIObj(type, {
     attributes: {
@@ -28,7 +29,7 @@ const extendBaseForInteractivity = (baseObj, length) => {
 const buildRotateButtonUIObj = () =>
   buildUIObj(COMMON_ELEMENTS.BUTTON, {
     text: SHIP_ROTATE_BUTTON.TEXT,
-    attributes: { class: SHIP_ROTATE_BUTTON.CLASS }
+    attributes: { class: `${SHIP_ROTATE_BUTTON.CLASS} ${BASE_CLASSES.BUTTON}` }
   });
 
 export const buildShipUIObj = ({ name, length }) => {

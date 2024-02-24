@@ -1,56 +1,25 @@
 @import url('../../../../styles/style.css');
 
-.tracking-grid-wrapper,
-.main-grid-wrapper {
+.grid-wrapper {
   display: flex;
   height: fit-content;
   gap: 1em;
 }
-
-/* Interactive grid cell placement colors */
-
-.grid-cell.valid-placement {
-  background-color: var(--battleship-gray);
-  border-color: var(--unplaced-ship);
-}
-.grid-cell.placed-ship {
-  background-color: var(--battleship-gray);
-  border-color: var(--radar-green);
-}
-.grid-cell.invalid-placement {
-  background-color: var(--hit);
-}
-.tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
-  background-color: var(--radar-green);
-}
-.tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:disabled:hover {
-  background-color: var(--ocean-blue);
-}
-
-.tracking-grid > .board-row > .grid-cell[data-cell-status='miss'] {
-  background-color: var(--miss);
-}
-.tracking-grid > .board-row > .grid-cell[data-cell-status='hit'] {
-  background-color: var(--hit);
-}
-.main-grid-header,
-.tracking-grid-header {
+.grid-header {
   display: flex;
   justify-content: center;
   padding-bottom: 0.5em;
 }
 
-.main-grid-header > p,
-.tracking-grid-header > p {
+.grid-header > p {
   font-weight: bold;
   font-size: 1.25rem;
-  border-bottom: 2px solid var(--text-white);
+  border-bottom: var(--border-white);
 }
-
 .grid-cell {
   width: var(--grid-cell-height);
   height: var(--grid-cell-width);
-  background-color: var(--ocean-blue);
+  background-color: var(--color-vibrant-blue);
   border: 1px solid var(--text-white);
   display: flex;
   justify-content: center;
@@ -58,13 +27,4 @@
   color: black;
   font-size: 1em;
   font-weight: bolder;
-}
-button:disabled.grid-cell[data-cell-status='hit'] {
-  background-color: var(--hit);
-}
-button:disabled.grid-cell[data-cell-status='miss'] {
-  background-color: var(--miss);
-}
-div.grid-cell.main-grid-hit-marker {
-  background-color: var(--own-ship-hit);
 }

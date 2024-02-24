@@ -1,5 +1,5 @@
 import { ORIENTATIONS } from '../../../../utility/constants/common';
-import { COMMON_GRID } from '../../../../utility/constants/components/grids';
+import { COMMON_GRID } from '../../common/gridConstants';
 import { MOUSE_EVENTS } from '../../../../utility/constants/events';
 import {
   convertToDisplayFormat,

@@ -8,11 +8,11 @@ import { BASE_DIALOG_CLASSES } from '../../common/dialogClassConstants';
 const COMMON = {
   primary: {
     containerClass: 'instructions-content-container',
-    headerClass: `${BASE_DIALOG_CLASSES.HEADER_PRIMARY} ${BASE_DIALOG_CLASSES.NAVY_UNDERLINE}`
+    headerClass: `${BASE_DIALOG_CLASSES.HEADER_PRIMARY} ${BASE_DIALOG_CLASSES.GREEN_UNDERLINE}`
   },
   sections: {
     containerClass: 'instructions-section-container',
-    headerClass: `${BASE_DIALOG_CLASSES.HEADER_SECONDARY} ${BASE_DIALOG_CLASSES.NAVY_UNDERLINE}`,
+    headerClass: `${BASE_DIALOG_CLASSES.HEADER_SECONDARY} ${BASE_DIALOG_CLASSES.GREEN_UNDERLINE}`,
     instructionListItemClass: 'instruction-list-item',
     instructionTextClass: 'color-white'
   }

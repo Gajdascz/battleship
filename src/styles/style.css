@@ -16,13 +16,23 @@
   --own-ship-hit: #b32400;
   --unplaced-ship: #daa520;
 
+  --color-yellow-orange: #daa520;
+  --color-vibrant-green: #4caf50;
+  --color-deep-navy-blue: #001f3f;
+  --color-bright-red: #ff3333;
+  --color-deep-orange-red: #b32400;
+  --color-vibrant-blue: #0077be;
+  --color-steel-blue: #607d8b;
+  --color-light-gray: #d3d3d3;
+
   --grid-cell-width: 2.5em;
   --grid-cell-height: 2.5em;
 
-  --color-text-primary: var(--text-white);
-  --color-text-secondary: var(--radar-green);
-  --color-border-primary: var(--text-white);
-  --color-border-secondary: var(--radar-green);
+  --color-text-primary: white;
+  --color-text-secondary: black;
+
+  --color-border-primary: white;
+  --color-border-secondary: black;
   --font-size-xxl: 3rem;
   --font-size-xl: 2rem;
   --font-size-l: 1.5rem;
@@ -35,8 +45,9 @@
   --gap-standard: 0.5em;
   --gap-large: 1em;
 
-  --underline-white: 3x solid var(--text-white);
-  --underline-navy: 3px solid var(--navy-background);
+  --border-white: 3px solid white;
+  --border-navy: 3px solid var(--color-deep-navy-blue);
+  --border-green: 3px solid var(--color-vibrant-green);
 
   --font-header: 'bebas-neue';
 }
@@ -71,14 +82,6 @@ input[type='text'] {
   color: black;
 }
 
-.utility-bar .title,
-.game-over-dialog-header,
-.current-player-display,
-.placement-instructions-header,
-.placement-controls-header {
-  font-family: 'bebas-neue';
-}
-
 .base-header {
   font-family: 'bebas-neue';
   font-weight: 700;
@@ -86,9 +89,9 @@ input[type='text'] {
 }
 .base-button {
   height: 2.25em;
-  border: 2px solid var(--text-white);
-  background-color: var(--navy-background);
-  color: var(--text-white);
+  border: var(--border-white);
+  background-color: var(--color-vibrant-blue);
+  color: var(--color-text-primary);
   font-weight: bold;
   padding: 0.5em;
   border-radius: 10px;
@@ -98,142 +101,8 @@ input[type='text'] {
 .base-button:hover {
   border-color: black;
   background-color: var(--radar-green);
-  color: black;
+  color: var(--color-deep-navy-blue);
 }
-
-/* Settings Dialog */
-/*#region*/
-
-.board-settings-title,
-.player-one-settings-title,
-.player-two-settings-title {
-  text-align: center;
-  font-size: 1.25rem;
-  font-weight: bold;
-  border-bottom: 2px solid var(--text-white);
-  margin-bottom: 0.5rem;
-}
-.player-information-input-container {
-  display: flex;
-  gap: 0.5em;
-}
-.player-information-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-  width: 100%;
-}
-.player-information-container > input,
-.player-information-container > select {
-  width: 100%;
-  height: 100%;
-  padding: 0.25em;
-  font-weight: bold;
-}
-
-.board-settings-container {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-.board-settings-inputs-container {
-  display: flex;
-  gap: 0.25em;
-  justify-content: center;
-}
-.rows-input-wrapper,
-.cols-input-wrapper,
-.letter-axis-input-wrapper {
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-  font-weight: bold;
-}
-.rows-input-wrapper > input,
-.cols-input-wrapper > input {
-  min-width: 55px;
-}
-.letter-axis-input-wrapper > select {
-  min-width: 125px;
-  height: 100%;
-  text-align: center;
-}
-
-.dialog-buttons-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-}
-
-.settings-submit-disclaimer {
-  font-weight: bold;
-  font-size: 1.15rem;
-  font-style: italic;
-}
-/*#endregion*/
-
-/* Alternating Players Dialog */
-/*#region*/
-/* .game-over-dialog[open],
-.alternate-player-dialog[open] {
-  background-color: var(--ocean-blue);
-  color: var(--text-white);
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  border-radius: 10px;
-  width: 50vw;
-}
-.alternate-player-dialog[open]::backdrop {
-  background-color: black;
-}
-.game-over-dialog-header,
-.settings-dialog-title {
-  font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 0.1rem;
-}
-
-.game-over-dialog-header,
-.alternate-player-dialog > .next-player-name {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-}
-.game-winner-name {
-  color: var(--navy-background);
-  border-bottom: 3px solid var(--navy-background);
-}
-.game-over-button-container {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.25em;
-}
-.game-over-button-container > button {
-  width: 50%;
-}
-.game-over-button-container > .play-again-button,
-.game-over-button-container > .close-this-dialog-button,
-.alternate-player-dialog > .proceed-to-next-player-button {
-  font-size: 1.25rem;
-  font-weight: bold;
-  padding: 0.5em;
-  border-radius: 10px;
-  border: 2px solid var(--radar-green);
-  color: var(--navy-background);
-}
-
-.game-over-button-container > .play-again-button:hover,
-.game-over-button-container > .close-this-dialog-button:hover,
-.alternate-player-dialog > .proceed-to-next-player-button:hover {
-  background-color: var(--radar-green);
-  border-color: var(--navy-background);
-  color: var(--text-white);
-} */
-
-/*#endregion*/
 
 .ai-display-header {
   display: flex;

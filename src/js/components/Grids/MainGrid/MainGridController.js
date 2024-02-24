@@ -2,7 +2,9 @@ import { buildPublisher, PUBLISHER_KEYS } from './utility/buildPublisher';
 import { MainGridModel } from './model/MainGridModel';
 import { MainGridView } from './view/MainGridView';
 import { StateCoordinator } from '../../../utility/stateManagement/StateCoordinator';
-import { PLACEMENT_EVENTS } from '../../../utility/constants/events';
+import { SHIP_EVENTS } from '../../Ship/utility/shipEvents';
+import { MAIN_GRID_EVENTS } from './utility/mainGridEvents';
+
 export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAxis }) => {
   const model = MainGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
   const view = MainGridView({ numberOfRows, numberOfCols, letterAxis });
@@ -44,6 +46,7 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
         });
         if (!result) throw new Error(`Error finalizing placement: ${placement}`);
       });
+      view.submitPlacementsButton.delete();
       return true;
     }
   };
@@ -70,15 +73,15 @@ export const MainGridController = (scope, { numberOfRows, numberOfCols, letterAx
     initializeStateManagement: () => {
       stateCoordinator.placement.addExecute(enablePlacementSettings);
       stateCoordinator.placement.addSubscribe(
-        PLACEMENT_EVENTS.SHIP_SELECTED,
+        SHIP_EVENTS.SELECTION.SELECTED,
         placementController.handleShipSelected
       );
       stateCoordinator.placement.addSubscribe(
-        PLACEMENT_EVENTS.SHIP_ORIENTATION_TOGGLED,
+        SHIP_EVENTS.SELECTION.ORIENTATION_TOGGLED,
         placementController.handleOrientationToggle
       );
       stateCoordinator.placement.addSubscribe(
-        PLACEMENT_EVENTS.SHIP_PLACEMENT_REQUESTED,
+        SHIP_EVENTS.PLACEMENT.REQUESTED,
         placementController.handlePlacementRequest
       );
       stateCoordinator.initializeManager();

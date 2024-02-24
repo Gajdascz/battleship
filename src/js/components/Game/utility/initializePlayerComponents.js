@@ -12,7 +12,6 @@ const initializeAIController = ({ difficulty, boardSettings, shipData }) =>
   AIController({ difficulty, shipData, boardSettings });
 
 export const initializePlayerComponents = ({ playerSettings, boardSettings }) => {
-  console.log(boardSettings);
   const shipData = DEFAULT_FLEET;
   const { username, type, difficulty, id } = playerSettings;
   if (type === PLAYERS.TYPES.AI)

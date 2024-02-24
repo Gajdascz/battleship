@@ -7,7 +7,6 @@ export const PlayerModel = ({ playerName = '', playerType, playerID }) => {
 
   // Prevents users from entering an empty name.
   function validateName(name) {
-    console.log(name);
     if (typeof name !== 'string' || !name.trim()) return PLAYERS.DEFAULT_NAME;
     else return name.trim();
   }
