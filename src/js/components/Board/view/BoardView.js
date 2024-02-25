@@ -2,15 +2,21 @@ import { COMMON_ELEMENTS } from '../../../utility/constants/dom/elements';
 import { buildUIElement } from '../../../utility/uiBuilderUtils/uiBuilders';
 import './board-style.css';
 
-export const BoardView = (scopedID, { mainGridView, trackingGridView, fleetView }) => {
+export const BoardView = (scopedID, playerName, { mainGridView, trackingGridView, fleetView }) => {
   const BOARD_CONTAINER_CLASS = 'board';
   const BOARD_BUTTONS_CONTAINER_CLASS = 'board-buttons-container';
+  const PLAYER_NAME_DISPLAY = 'player-name-display';
   const boardContainer = buildUIElement(COMMON_ELEMENTS.DIV, {
     attributes: { class: BOARD_CONTAINER_CLASS, id: scopedID }
+  });
+  const playerNameDisplay = buildUIElement(COMMON_ELEMENTS.DIV, {
+    text: playerName,
+    attributes: { class: PLAYER_NAME_DISPLAY }
   });
   const buttonsContainer = buildUIElement(COMMON_ELEMENTS.DIV, {
     attributes: { class: BOARD_BUTTONS_CONTAINER_CLASS }
   });
+  boardContainer.append(playerNameDisplay);
 
   const buildGridUtilityContainer = (className) =>
     buildUIElement(COMMON_ELEMENTS.DIV, { attributes: { class: className } });
@@ -59,15 +65,20 @@ export const BoardView = (scopedID, { mainGridView, trackingGridView, fleetView 
       }
     },
     submitPlacements: {
-      staticButton: mainGridView.submitPlacementsButton.getElement(),
+      staticButton: mainGridView.placement.submitButton.getElement(),
       init: () =>
         buttonsManager.updateButton(
           `submit-placements`,
           buttonsControllers.submitPlacements.staticButton
         ),
-      enable: () => mainGridView.submitPlacementsButton.enable(),
-      disable: () => mainGridView.submitPlacementsButton.disable()
+      enable: () => mainGridView.placement.submitButton.enable(),
+      disable: () => mainGridView.placement.submitButton.disable()
     }
+  };
+  const AIView = {
+    view: null,
+    setView: (newView) => (AIView.view = newView),
+    display: () => trackingGridView.attachToWrapper(AIView.getGridElement())
   };
 
   return {
@@ -76,12 +87,13 @@ export const BoardView = (scopedID, { mainGridView, trackingGridView, fleetView 
     trackingGrid: {
       setFleet: (opponentTrackingFleet) => trackingGridView.attachToWrapper(opponentTrackingFleet),
       hide: () => trackingGridView.hide(),
-      display: () => trackingGridView.display(),
+      show: () => trackingGridView.show(),
       enable: () => trackingGridView.enable(),
       disable: () => trackingGridView.disable(),
       attachToUtilityContainer: (element) => gridUtilityContainers.tracking.append(element),
       attachToWrapper: (element) => trackingGridView.attachToWrapper(element)
     },
+    AIView,
     buttons: buttonsControllers
   };
 };

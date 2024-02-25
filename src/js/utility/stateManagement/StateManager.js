@@ -40,6 +40,24 @@ export const StateManager = (managerID) => {
     setCurrentState(targetState);
   };
 
+  const handleDynamicSubscription = ({ enableOn, disableOn, executeOn, callback, scopedID }) => {
+    console.log(enableOn);
+    const dynamicSubscribe = ({ data }) => {
+      if (scopedID !== undefined && id !== data.scopedID) return;
+      activeDynamic.set(executeOn, callback);
+      eventEmitter.subscribe(executeOn, callback);
+    };
+    const dynamicUnsubscribe = ({ data }) => {
+      if (scopedID !== undefined && scopedID !== data.scopedID) return;
+      activeDynamic.delete(executeOn, callback);
+      eventEmitter.unsubscribe(executeOn, callback);
+    };
+    eventEmitter.subscribe(enableOn, dynamicSubscribe);
+    eventEmitter.subscribe(disableOn, dynamicUnsubscribe);
+    unsubscribeQueue.enqueue({ name: enableOn, callback: dynamicSubscribe });
+    unsubscribeQueue.enqueue({ name: disableOn, callback: dynamicUnsubscribe });
+  };
+
   /**
    * Sets the current state to the target state, executing associated functions and managing event subscriptions.
    *
@@ -56,22 +74,7 @@ export const StateManager = (managerID) => {
       eventEmitter.subscribe(event, callback);
       unsubscribeQueue.enqueue({ name: event, callback });
     });
-    dynamic.forEach(({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) => {
-      const dynamicSubscribe = ({ data }) => {
-        if (id !== undefined && id !== data.id && id !== data.scopedID) return;
-        activeDynamic.set(event, callback);
-        eventEmitter.subscribe(event, callback);
-      };
-      const dynamicUnsubscribe = ({ data }) => {
-        if (id !== undefined && id !== data.id && id !== data.scopedID) return;
-        activeDynamic.delete(event, callback);
-        eventEmitter.unsubscribe(event, callback);
-      };
-      eventEmitter.subscribe(subscribeTrigger, dynamicSubscribe);
-      eventEmitter.subscribe(unsubscribeTrigger, dynamicUnsubscribe);
-      unsubscribeQueue.enqueue({ name: subscribeTrigger, callback: dynamicSubscribe });
-      unsubscribeQueue.enqueue({ name: unsubscribeTrigger, callback: dynamicUnsubscribe });
-    });
+    dynamic.forEach((dynamicSubscription) => handleDynamicSubscription(dynamicSubscription));
   };
 
   return {

@@ -1,6 +1,6 @@
 import { Publisher } from '../../../../utility/events/Publisher';
 import { MAIN_GRID_EVENTS } from './mainGridEvents';
-import { SHIP_EVENTS } from '../../../Ship/utility/shipEvents';
+import { SHIP_EVENTS } from '../../../Ship/events/shipEvents';
 
 export const PUBLISHER_KEYS = {
   REQUESTS: {

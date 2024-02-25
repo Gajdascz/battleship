@@ -64,15 +64,15 @@ export const StateCoordinator = (scopedID, scope) => {
 
   const addDynamicSubscriptionToState = (
     state,
-    { event, callback, subscribeTrigger, unsubscribeTrigger, id }
+    { executeOn, callback, enableOn, disableOn, scopedID }
   ) => {
     validate(state, callback);
     stateBundles[state].fns.dynamic.push({
-      event: getKey(event),
+      executeOn: getKey(executeOn),
       callback,
-      subscribeTrigger: getKey(subscribeTrigger),
-      unsubscribeTrigger: getKey(unsubscribeTrigger),
-      id
+      enableOn: getKey(enableOn),
+      disableOn: getKey(disableOn),
+      scopedID
     });
   };
 
@@ -80,14 +80,8 @@ export const StateCoordinator = (scopedID, scope) => {
     start: {
       addExecute: (fn) => addExecuteFnToState(STATES.START, fn),
       addSubscribe: (event, callback) => addSubscriptionToState(STATES.START, { event, callback }),
-      addDynamic: ({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) =>
-        addDynamicSubscriptionToState(STATES.START, {
-          event,
-          callback,
-          subscribeTrigger,
-          unsubscribeTrigger,
-          id
-        }),
+      addDynamic: (dynamicSubscription) =>
+        addDynamicSubscriptionToState(STATES.START, dynamicSubscription),
       addGlobal: (event, callback) =>
         addGlobalSubscriptionToState(STATES.START, { event, callback })
     },
@@ -95,14 +89,8 @@ export const StateCoordinator = (scopedID, scope) => {
       addExecute: (fn) => addExecuteFnToState(STATES.PLACEMENT, fn),
       addSubscribe: (event, callback) =>
         addSubscriptionToState(STATES.PLACEMENT, { event, callback }),
-      addDynamic: ({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) =>
-        addDynamicSubscriptionToState(STATES.PLACEMENT, {
-          event,
-          callback,
-          subscribeTrigger,
-          unsubscribeTrigger,
-          id
-        }),
+      addDynamic: (dynamicSubscription) =>
+        addDynamicSubscriptionToState(STATES.PLACEMENT, dynamicSubscription),
       addGlobal: (event, callback) =>
         addGlobalSubscriptionToState(STATES.PLACEMENT, { event, callback })
     },
@@ -110,28 +98,16 @@ export const StateCoordinator = (scopedID, scope) => {
       addExecute: (fn) => addExecuteFnToState(STATES.PROGRESS, fn),
       addSubscribe: (event, callback) =>
         addSubscriptionToState(STATES.PROGRESS, { event, callback }),
-      addDynamic: ({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) =>
-        addDynamicSubscriptionToState(STATES.PROGRESS, {
-          event,
-          callback,
-          subscribeTrigger,
-          unsubscribeTrigger,
-          id
-        }),
+      addDynamic: (dynamicSubscription) =>
+        addDynamicSubscriptionToState(STATES.PROGRESS, dynamicSubscription),
       addGlobal: (event, callback) =>
         addGlobalSubscriptionToState(STATES.PROGRESS, { event, callback })
     },
     over: {
       addExecute: (fn) => addExecuteFnToState(STATES.OVER, fn),
       addSubscribe: (event, callback) => addSubscriptionToState(STATES.OVER, { event, callback }),
-      addDynamic: ({ event, callback, subscribeTrigger, unsubscribeTrigger, id }) =>
-        addDynamicSubscriptionToState(STATES.OVER, {
-          event,
-          callback,
-          subscribeTrigger,
-          unsubscribeTrigger,
-          id
-        }),
+      addDynamic: (dynamicSubscription) =>
+        addDynamicSubscriptionToState(STATES.OVER, dynamicSubscription),
       addGlobal: (event, callback) => addGlobalSubscriptionToState(STATES.OVER, { event, callback })
     },
     initializeManager: () => {

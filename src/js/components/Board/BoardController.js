@@ -5,10 +5,11 @@ import { mapShipQuadrants } from './utility/mapShipQuadrants';
 import { buildPublisher, PUBLISHER_KEYS } from './utility/buildPublisher';
 
 import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
-import { SHIP_EVENTS } from '../Ship/utility/shipEvents';
+import { SHIP_EVENTS } from '../Ship/events/shipEvents';
 
 export const BoardController = ({
   playerID,
+  playerName,
   fleetController,
   mainGridController,
   trackingGridController
@@ -25,7 +26,7 @@ export const BoardController = ({
   });
   const stateCoordinator = StateCoordinator(model.getScopedID(), model.getScope());
 
-  const view = BoardView(model.getScopedID(), {
+  const view = BoardView(model.getScopedID(), playerName, {
     mainGridView: controllers.mainGrid.getView(),
     trackingGridView: controllers.trackingGrid.getView(),
     fleetView: controllers.fleet.getView()

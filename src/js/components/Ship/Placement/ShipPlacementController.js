@@ -1,43 +1,48 @@
-import { PUBLISHER_KEYS } from '../utility/buildPublisher';
+import { PUBLISHER_KEYS } from '../events/buildPublisher';
 import { convertToInternalFormat } from '../../../utility/utils/coordinatesUtils';
-export const ShipPlacementController = ({ model, view, publisher, selectionController }) => {
-  const deselectFn = selectionController.deselect;
-  const isReady = () => view.selection.isInitialized && view.placement.isInitialized;
+import { ShipPlacementView } from './ShipPlacementView';
+import { SHIP_EVENTS } from '../events/shipEvents';
 
-  const emitReadyForPlacement = () => {
-    if (isReady()) publisher.execute(PUBLISHER_KEYS.ACTIONS.READY_FOR_PLACEMENT);
-  };
-  const request = () =>
+export const ShipPlacementController = ({ model, view, publisher, componentEventEmitter }) => {
+  const placementView = ShipPlacementView(view.elements.mainShip);
+
+  const request = () => {
+    console.log(model.getScopedID());
     publisher.request(PUBLISHER_KEYS.REQUESTS.PLACEMENT, {
       id: model.getID(),
       scopedID: model.getScopedID(),
       length: model.getLength()
     });
+  };
   const place = ({ data }) => {
     const { placedCoordinates } = data;
-    if (deselectFn) deselectFn();
     const internal = placedCoordinates.map((coordinates) => convertToInternalFormat(coordinates));
     model.setPlacedCoordinates({ internal, display: placedCoordinates });
     model.setIsPlaced(true);
-    view.update.placementStatus(true);
+    placementView.update.placementStatus(true);
     publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENT_SET, { scopedID: model.getScopedID() });
+    componentEventEmitter.publish(SHIP_EVENTS.PLACEMENT.SET);
   };
   const pickup = () => {
     model.clearPlacedCoordinates();
     model.setIsPlaced(false);
-    view.update.placementStatus(false);
+    placementView.update.placementStatus(false);
   };
 
   return {
-    enable: ({ data }) => {
-      selectionController.setPickupFn(pickup);
+    initialize: ({ data }) => {
       const { container } = data;
-      view.placement.initialize({
+      placementView.initialize({
         placementContainer: container,
-        placeCallback: request
+        requestPlacementCallback: request
       });
-      emitReadyForPlacement();
     },
-    place
+    request: {
+      enable: () => placementView.enableRequest(),
+      disable: () => placementView.disableRequest()
+    },
+    place,
+    pickup,
+    end: () => placementView.end()
   };
 };

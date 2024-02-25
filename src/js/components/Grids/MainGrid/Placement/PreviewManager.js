@@ -6,16 +6,22 @@ import {
   convertToInternalFormat
 } from '../../../../utility/utils/coordinatesUtils';
 
-export const PreviewManager = () => {
-  const _currentTarget = { coordinates: null };
-  const _grid = {
-    element: null,
-    maxVertical: null,
-    maxHorizontal: null,
-    letterAxis: null,
-    getCell: null
+export const PreviewManager = ({
+  gridElement = null,
+  maxVertical = null,
+  maxHorizontal = null,
+  letterAxis = null,
+  getCell = null
+} = {}) => {
+  const currentTarget = { coordinates: null };
+  const grid = {
+    element: gridElement,
+    maxVertical,
+    maxHorizontal,
+    letterAxis,
+    getCell
   };
-  const _currentShip = { orientation: null, length: null };
+  const currentShip = { orientation: null, length: null };
 
   /**
    * Calculates and returns a list of cells for placement preview based on the starting cell and ship orientation.
@@ -41,17 +47,17 @@ export const PreviewManager = () => {
       };
     };
 
-    const isVertical = _currentShip.orientation === ORIENTATIONS.VERTICAL;
+    const isVertical = currentShip.orientation === ORIENTATIONS.VERTICAL;
     const verticalStrategy = (index, coordinates) =>
-      convertToDisplayFormat(index, coordinates[1], _grid.letterAxis);
+      convertToDisplayFormat(index, coordinates[1], grid.letterAxis);
     const horizontalStrategy = (index, coordinates) =>
-      convertToDisplayFormat(coordinates[0], index, _grid.letterAxis);
+      convertToDisplayFormat(coordinates[0], index, grid.letterAxis);
     const cells = [];
     const coordinates = convertToInternalFormat(startingCoordinates);
     const startMax = isVertical
-      ? { max: _grid.maxVertical, startCoordinate: coordinates[0] }
-      : { max: _grid.maxHorizontal, startCoordinate: coordinates[1] };
-    const { start, end } = getStartEnd(startMax.startCoordinate, _currentShip.length, startMax.max);
+      ? { max: grid.maxVertical, startCoordinate: coordinates[0] }
+      : { max: grid.maxHorizontal, startCoordinate: coordinates[1] };
+    const { start, end } = getStartEnd(startMax.startCoordinate, currentShip.length, startMax.max);
     const strategy = isVertical ? verticalStrategy : horizontalStrategy;
     for (let i = start; i <= end; i++) {
       cells.push(strategy(i, coordinates));
@@ -60,16 +66,16 @@ export const PreviewManager = () => {
   };
   const displayPlacementPreview = (cells) => {
     const isAtopAnotherShip = (cell) => cell.classList.contains('placed-ship');
-    clearPlacementPreview(_grid.element);
+    clearPlacementPreview(grid.element);
     cells.forEach((coordinates) => {
-      const cell = _grid.getCell(coordinates);
+      const cell = grid.getCell(coordinates);
       if (isAtopAnotherShip(cell)) cell.classList.add('invalid-placement');
       else cell.classList.add('valid-placement');
     });
   };
 
   const clearPlacementPreview = () => {
-    _grid.element.querySelectorAll('.valid-placement, .invalid-placement').forEach((cell) => {
+    grid.element.querySelectorAll('.valid-placement, .invalid-placement').forEach((cell) => {
       cell.classList.remove('valid-placement', 'invalid-placement');
     });
   };
@@ -80,55 +86,54 @@ export const PreviewManager = () => {
   };
 
   const handleMouseOver = (e) => {
-    if (!_currentShip.orientation) return;
+    if (!currentShip.orientation) return;
     const target = e.target;
     if (!target.classList.contains(COMMON_GRID.CLASSES.CELL)) {
-      _currentTarget.coordinates = null;
+      currentTarget.coordinates = null;
       clearPlacementPreview();
     }
     const targetCell = e.target.closest(COMMON_GRID.CELL_SELECTOR);
     if (!targetCell) return;
-    _currentTarget.coordinates = targetCell.dataset.coordinates;
-    if (!_currentTarget.coordinates) return;
-    processPreview(_currentTarget.coordinates);
+    currentTarget.coordinates = targetCell.dataset.coordinates;
+    if (!currentTarget.coordinates) return;
+    processPreview(currentTarget.coordinates);
   };
 
   return {
     enable: () => {
-      _grid.element.addEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
+      grid.element.addEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
     },
     disable: () => {
       clearPlacementPreview();
-      _grid.element.removeEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
+      grid.element.removeEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
     },
     updateOrientation: (newOrientation) => {
       clearPlacementPreview();
-      _currentShip.orientation = newOrientation;
-      if (!_currentTarget.coordinates) return;
-      processPreview(_currentTarget.coordinates);
+      currentShip.orientation = newOrientation;
+      if (!currentTarget.coordinates) return;
+      processPreview(currentTarget.coordinates);
     },
     setCurrentShip: ({ length, orientation }) => {
       clearPlacementPreview();
-      _currentShip.length = length;
-      _currentShip.orientation = orientation;
+      currentShip.length = length;
+      currentShip.orientation = orientation;
     },
-    attachToGrid: ({ element, maxVertical, maxHorizontal, letterAxis, getCell }) => {
-      _grid.element = element;
-      _grid.maxVertical = maxVertical;
-      _grid.maxHorizontal = maxHorizontal;
-      _grid.letterAxis = letterAxis;
-      _grid.getCell = getCell;
-      _grid.element.addEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
+    initializeGrid: ({ element, maxVertical, maxHorizontal, letterAxis, getCell }) => {
+      grid.element = element;
+      grid.maxVertical = maxVertical;
+      grid.maxHorizontal = maxHorizontal;
+      grid.letterAxis = letterAxis;
+      grid.getCell = getCell;
     },
-    resetManager: () => {
-      _grid.element?.removeEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
-      _grid.element = null;
-      _grid.maxVertical = null;
-      _grid.maxHorizontal = null;
-      _grid.letterAxis = null;
-      _grid.getCell = null;
-      _currentShip.length = null;
-      _currentShip.orientation = null;
+    reset: () => {
+      grid.element?.removeEventListener(MOUSE_EVENTS.OVER, handleMouseOver);
+      grid.element = null;
+      grid.maxVertical = null;
+      grid.maxHorizontal = null;
+      grid.letterAxis = null;
+      grid.getCell = null;
+      currentShip.length = null;
+      currentShip.orientation = null;
     }
   };
 };

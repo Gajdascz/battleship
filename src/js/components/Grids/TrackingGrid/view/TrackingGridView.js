@@ -16,7 +16,7 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
   const disable = () => [...cells].forEach((cell) => (cell.disabled = false));
   const attachToWrapper = (element) => wrappedTrackingGridElement.append(element);
   const hide = () => (wrappedTrackingGridElement.style.display = 'none');
-  const display = () => wrappedTrackingGridElement.removeAttribute('style');
+  const show = () => wrappedTrackingGridElement.removeAttribute('style');
   const getCell = (coordinates) =>
     wrappedTrackingGridElement.querySelector(TRACKING_GRID.CELL_SELECTOR(coordinates));
   const setCellStatus = (cell, status) =>
@@ -36,7 +36,7 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
     attachToWrapper,
     getGridElement: () => trackingGridElement,
     hide,
-    display,
+    show,
     enable,
     disable,
     displayHit,

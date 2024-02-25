@@ -1,8 +1,14 @@
 import { KEY_EVENTS } from '../../../utility/constants/events';
-import { PUBLISHER_KEYS } from '../utility/buildPublisher';
+import { PUBLISHER_KEYS } from '../events/buildPublisher';
+import { SHIP_EVENTS } from '../events/shipEvents';
+import { ShipSelectionView } from './ShipSelectionView';
 
-export const ShipSelectionController = ({ model, view, publisher }) => {
-  let pickupFn = null;
+export const ShipSelectionController = ({ model, view, publisher, componentEventEmitter }) => {
+  const selectionView = ShipSelectionView({
+    mainShipElement: view.elements.getMainShip(),
+    rotateButtonElement: view.elements.getRotateButton()
+  });
+
   const toggleOrientation = (e) => {
     const isRotateRequest = (e) =>
       e.code === KEY_EVENTS.CODES.SPACE ||
@@ -13,7 +19,7 @@ export const ShipSelectionController = ({ model, view, publisher }) => {
     e.preventDefault();
     model.toggleOrientation();
     const orientation = model.getOrientation();
-    view.update.orientation(orientation);
+    selectionView.update.orientation(orientation);
     publisher.execute(PUBLISHER_KEYS.ACTIONS.ORIENTATION_TOGGLED, {
       length: model.getLength(),
       orientation
@@ -23,10 +29,9 @@ export const ShipSelectionController = ({ model, view, publisher }) => {
     publisher.request(PUBLISHER_KEYS.REQUESTS.SELECTION, { scopedID: model.getScopedID() });
 
   const select = () => {
-    if (model.isPlaced() && pickupFn) pickupFn();
-    view.selection.orientationToggle.enable();
+    selectionView.update.selectedStatus(true);
+    selectionView.orientationToggle.enable();
     model.setIsSelected(true);
-    view.update.selectedStatus(true);
     publisher.execute(PUBLISHER_KEYS.ACTIONS.SELECTED, {
       id: model.getID(),
       scopedID: model.getScopedID(),
@@ -34,27 +39,27 @@ export const ShipSelectionController = ({ model, view, publisher }) => {
       length: model.getLength(),
       orientation: model.getOrientation()
     });
-    view.placement.place.enable();
+    componentEventEmitter.publish(SHIP_EVENTS.SELECTION.SELECTED);
   };
   const deselect = () => {
-    view.selection.orientationToggle.disable();
-    view.placement.place.disable();
-    view.update.selectedStatus(false);
+    selectionView.orientationToggle.disable();
+    selectionView.update.selectedStatus(false);
     model.setIsSelected(false);
     publisher.execute(PUBLISHER_KEYS.ACTIONS.DESELECTED, {
       scopedID: model.getScopedID()
     });
+    componentEventEmitter.publish(SHIP_EVENTS.SELECTION.DESELECTED);
   };
 
   return {
-    enable: () => {
-      view.selection.initialize({
-        selectCallback: request,
+    initialize: () => {
+      selectionView.initialize({
+        requestSelectionCallback: request,
         toggleOrientationCallback: toggleOrientation
       });
     },
     select,
     deselect,
-    setPickupFn: (fn) => (pickupFn = fn)
+    end: () => selectionView.end()
   };
 };

@@ -1,22 +1,23 @@
 import { MOUSE_EVENTS, KEY_EVENTS } from '../../../utility/constants/events';
 import { ListenerManager } from '../../../utility/uiBuilderUtils/ListenerManager';
+import { SHIP_CLASSES } from '../../../utility/constants/components/ship';
+
 const LISTENER_MANAGER_KEYS = {
   MAIN_SHIP_SELECT: 'mainShipSelect',
   MOUSE_TOGGLE_ORIENTATION: 'mouseToggleOrientation',
   KEY_TOGGLE_ORIENTATION: 'keyToggleOrientation',
   BUTTON_TOGGLE_ORIENTATION: 'buttonToggleOrientation'
 };
-export const ShipSelectionView = ({ elements }) => {
-  const { mainShipElement, rotateButtonElement } = elements;
+export const ShipSelectionView = ({ mainShipElement, rotateButtonElement }) => {
   const listenerManager = ListenerManager();
   let isInitialized = false;
 
-  const initializeSelection = ({ selectCallback, toggleOrientationCallback }) => {
+  const initializeSelection = ({ requestSelectionCallback, toggleOrientationCallback }) => {
     if (isInitialized) return;
     listenerManager.addController({
       element: mainShipElement,
       event: MOUSE_EVENTS.CLICK,
-      callback: selectCallback,
+      callback: requestSelectionCallback,
       key: LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT,
       enable: true
     });
@@ -71,8 +72,8 @@ export const ShipSelectionView = ({ elements }) => {
   };
 
   return {
-    initialize: ({ selectCallback, toggleOrientationCallback }) =>
-      initializeSelection({ selectCallback, toggleOrientationCallback }),
+    initialize: ({ requestSelectionCallback, toggleOrientationCallback }) =>
+      initializeSelection({ requestSelectionCallback, toggleOrientationCallback }),
     select: {
       enable: () => enableSelect(),
       disable: () => disableSelect()
@@ -80,6 +81,11 @@ export const ShipSelectionView = ({ elements }) => {
     orientationToggle: {
       enable: () => enableOrientationToggle(),
       disable: () => disableOrientationToggle()
+    },
+    update: {
+      orientation: (newOrientation) => (mainShipElement.dataset.orientation = newOrientation),
+      selectedStatus: (isSelected) =>
+        mainShipElement.classList.toggle(SHIP_CLASSES.SELECTED, isSelected)
     },
     end: () => endSelection()
   };

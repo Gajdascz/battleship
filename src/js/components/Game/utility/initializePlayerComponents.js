@@ -28,6 +28,7 @@ export const initializePlayerComponents = ({ playerSettings, boardSettings }) =>
   const trackingGridController = TrackingGridController(scope, boardSettings);
   const boardController = BoardController({
     playerID: playerModel.getID(),
+    playerName: playerModel.getName(),
     fleetController,
     mainGridController,
     trackingGridController

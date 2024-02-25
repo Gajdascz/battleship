@@ -1,46 +1,53 @@
 import { ShipModel } from './model/ShipModel';
 import { ShipView } from './view/ShipView';
-import { SHIP_EVENTS } from './utility/shipEvents';
-import { PROGRESS_EVENTS } from '../../utility/constants/events';
-import { STATUSES } from '../../utility/constants/common';
-import { buildPublisher, PUBLISHER_KEYS } from './utility/buildPublisher';
+import { SHIP_EVENTS } from './events/shipEvents';
+import { buildPublisher } from './events/buildPublisher';
 import { StateCoordinator } from '../../utility/stateManagement/StateCoordinator';
 import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
 import { ShipSelectionController } from './Selection/ShipSelectionController';
 import { ShipPlacementController } from './Placement/ShipPlacementController';
+import { ComponentEventEmitter } from '../../utility/events/ComponentEventEmitter';
 
 export const ShipController = (scope, { name, length }) => {
   const model = ShipModel(scope, { shipName: name, shipLength: length });
   const view = ShipView({ name, length });
+  const componentEventEmitter = ComponentEventEmitter();
   const publisher = buildPublisher(scope);
   const stateCoordinator = StateCoordinator(model.getScopedID(), model.getScope());
-  const selectionController = ShipSelectionController({ model, view, publisher });
+  const selectionController = ShipSelectionController({
+    model,
+    view,
+    publisher,
+    componentEventEmitter
+  });
   const placementController = ShipPlacementController({
     model,
     view,
     publisher,
-    selectionController
+    componentEventEmitter
   });
 
-  const endPlacement = () => {
-    view.selection.end();
-    view.placement.end();
+  const initializeSelectionAndPlacement = ({ data }) => {
+    selectionController.initialize();
+    placementController.initialize({ data });
+
+    const onSelect = () => {
+      if (model.isPlaced()) placementController.pickup();
+      placementController.request.enable();
+    };
+    componentEventEmitter.subscribe(SHIP_EVENTS.SELECTION.SELECTED, onSelect);
+    componentEventEmitter.subscribe(SHIP_EVENTS.PLACEMENT.SET, selectionController.deselect);
+    componentEventEmitter.subscribe(
+      SHIP_EVENTS.SELECTION.DESELECTED,
+      placementController.request.disable
+    );
   };
 
-  const combatController = {
-    hit: () => {
-      const result = model.hit();
-      if (result === STATUSES.SHIP_SUNK) {
-        view.updateSunkStatus(true);
-        publisher.execute(PUBLISHER_KEYS.ACTIONS.HIT, { id: model.getScope() });
-      }
-    },
-    handleAttack: ({ data }) => {
-      combatController.hit();
-    }
+  const endSelectionAndPlacement = () => {
+    componentEventEmitter.reset();
+    placementController.end();
+    selectionController.end();
   };
-
-  const enableCombatSettings = () => {};
 
   return {
     getScope: () => model.getScope(),
@@ -53,25 +60,27 @@ export const ShipController = (scope, { name, length }) => {
     deselect: selectionController.deselect,
     initializeStateManagement: () => {
       // placement
-      stateCoordinator.placement.addExecute(selectionController.enable);
       stateCoordinator.placement.addSubscribe(
         SHIP_EVENTS.PLACEMENT.CONTAINER_CREATED,
-        placementController.enable
+        initializeSelectionAndPlacement
       );
       stateCoordinator.placement.addDynamic({
-        event: MAIN_GRID_EVENTS.PLACEMENT.PROCESSED,
+        executeOn: MAIN_GRID_EVENTS.PLACEMENT.PROCESSED,
         callback: placementController.place,
-        subscribeTrigger: SHIP_EVENTS.SELECTION.SELECTED,
-        unsubscribeTrigger: SHIP_EVENTS.SELECTION.DESELECTED,
-        id: model.getScopedID()
+        enableOn: SHIP_EVENTS.SELECTION.SELECTED,
+        disableOn: SHIP_EVENTS.SELECTION.DESELECTED,
+        scopedID: model.getScopedID()
       });
-      stateCoordinator.placement.addSubscribe(MAIN_GRID_EVENTS.PLACEMENT.FINALIZED, endPlacement);
-      // progress
-      stateCoordinator.progress.addExecute(enableCombatSettings);
-      stateCoordinator.progress.addSubscribe(
-        PROGRESS_EVENTS.ATTACK_INITIATED,
-        combatController.handleAttack
+      stateCoordinator.placement.addSubscribe(
+        MAIN_GRID_EVENTS.PLACEMENT.FINALIZED,
+        endSelectionAndPlacement
       );
+      // progress
+      // stateCoordinator.progress.addExecute(enableCombatSettings);
+      // stateCoordinator.progress.addSubscribe(
+      //   PROGRESS_EVENTS.ATTACK_INITIATED,
+      //   combatController.handleAttack
+      // );
       stateCoordinator.initializeManager();
     }
   };
