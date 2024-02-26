@@ -1,8 +1,8 @@
-import { RESULTS } from '../../../utility/constants';
+import { RESULTS } from '../../../Utility/constants';
 import {
   convertToInternalFormat,
   convertToDisplayFormat
-} from '../../../utility/utils/coordinatesUtils';
+} from '../../../Utility/utils/coordinatesUtils';
 
 const getBoardGrids = (board) => {
   const aiDisplay = board.querySelector('.ai-display-tracking-grid');

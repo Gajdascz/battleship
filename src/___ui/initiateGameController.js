@@ -1,5 +1,5 @@
 import initializeGameObjects from './initializeGameObjects';
-import { RESULTS } from '../../utility/constants/constants';
+import { RESULTS } from '../../Utility/constants/constants';
 
 /**
  * @module initiateGameController.js

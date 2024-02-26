@@ -1,4 +1,4 @@
-import { convertToInternalFormat } from '../../../../utility/coordinatesConverters';
+import { convertToInternalFormat } from '../../../../Utility/coordinatesConverters';
 
 /**
  * Handles all logic to handle events related to ship elements and their placement.

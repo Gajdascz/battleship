@@ -1,14 +1,14 @@
-import { GameController } from './js/components/Game/GameController';
+import { GameController } from './js/Components/Game/GameController';
 import './styles/normalize.css';
 import './styles/style.css';
 import './styles/page-style.css';
 
-import { SettingsDialogController } from './js/components/Dialogs/SettingsDialog/SettingsDialogController';
-import { InstructionsDialogView } from './js/components/Dialogs/InstructionsDialog/InstructionsDialogView';
+import { SettingsDialogController } from './js/Components/Dialogs/SettingsDialog/SettingsDialogController';
+import { InstructionsDialogView } from './js/Components/Dialogs/InstructionsDialog/InstructionsDialogView';
 
-import { GAME_EVENTS } from './js/utility/constants/events';
-import { AlternatePlayerDialogView } from './js/components/Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
-import { GameOverDialogView } from './js/components/Dialogs/GameOverDialog/GameOverDialogView';
+import { GAME_EVENTS } from './js/Events/eventConstants';
+import { AlternatePlayerDialogView } from './js/Components/Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
+import { GameOverDialogView } from './js/Components/Dialogs/GameOverDialog/GameOverDialogView';
 
 GameController(GAME_EVENTS.SETTINGS_SUBMITTED);
 const test = () => console.log('Game Over');
