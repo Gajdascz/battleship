@@ -15,7 +15,9 @@ export const EventEmitter = () => {
   const publish = (event, data) => {
     if (!hasEventSubscription(event)) return;
     const eventData = { data };
-    subscribers[event].forEach((callback) => callback(eventData));
+    subscribers[event].forEach((callback) => {
+      callback(eventData);
+    });
   };
 
   const reset = () => Object.keys(subscribers).forEach((event) => delete subscribers[event]);

@@ -22,7 +22,7 @@ export const FleetView = () => {
     setShipPlacementContainer: (container) => {
       shipViews.forEach((ship) => ship.placement.setPlacementContainer(container));
     },
-    // getRotateShipButton: (shipID) => shipViews.get(shipID)?.elements.rotateButton,
+    getRotateShipButton: (shipID) => shipViews.get(shipID)?.elements.getRotateButton(),
     getMainFleet: () => mainFleetElement,
     getTrackingFleet: () => trackingFleetElement
   };

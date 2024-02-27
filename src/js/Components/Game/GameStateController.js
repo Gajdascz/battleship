@@ -1,17 +1,17 @@
 import stateManagerRegistry from '../../Utility/stateManagement/stateManagerRegistry';
-import globalEmitter from '../../Events/core/globalEventEmitter';
+import { globalEmitter } from '../../Events/core/globalEventEmitter';
 import { GAME_EVENTS } from '../../Utility/constants/dom/domEvents';
 import { STATES } from '../../Utility/constants/common';
 
 export const GameStateController = () => {
   const enable = () =>
-    eventEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
+    globalEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
 
   const disable = () =>
-    eventEmitter.unsubscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
+    globalEmitter.unsubscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
 
-  const publishStateTransition = (state) => eventEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
-  const publishPlayerSwitched = () => eventEmitter.publish(GAME_EVENTS.PLAYER_SWITCHED);
+  const publishStateTransition = (state) => globalEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
+  const publishPlayerSwitched = () => globalEmitter.publish(GAME_EVENTS.PLAYER_SWITCHED);
 
   const transition = () => {
     const state = stateManagerRegistry.getCurrentState();

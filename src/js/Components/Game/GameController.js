@@ -1,6 +1,6 @@
 import { GameModel } from './GameModel';
 import { GameView } from './GameView';
-import globalEmitter from '../../Events/core/globalEventEmitter';
+import { globalEmitter } from '../../Events/core/globalEventEmitter';
 import { ScopedEventSwitcher } from '../../Events/management/ScopedEventSwitcher';
 import { getRenderStrategy } from './utility/getRenderStrategy';
 import { initializePlayerComponents } from './utility/initializePlayerComponents';
@@ -68,5 +68,5 @@ export const GameController = (startGameTrigger) => {
     initializePlacementState();
   };
 
-  eventEmitter.subscribe(startGameTrigger, startGame);
+  globalEmitter.subscribe(startGameTrigger, startGame);
 };

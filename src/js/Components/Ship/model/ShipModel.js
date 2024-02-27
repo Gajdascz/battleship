@@ -1,5 +1,4 @@
 import { ORIENTATIONS, STATUSES } from '../../../Utility/constants/common';
-import { convertToInternalFormat } from '../../../Utility/utils/coordinatesUtils';
 import { createIdentity } from '../../../Utility/utils/createIdentity';
 
 export const ShipModel = (shipScope, { shipLength, shipName }) => {
@@ -9,7 +8,7 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
   });
 
   const length = shipLength;
-  const placedCoordinates = { internal: null, display: null };
+  const placedCoordinates = [];
   let isPlaced = false;
   let isSelected = false;
   let health = length;
@@ -34,9 +33,8 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
     setIsPlaced: (value) => (isPlaced = value),
     setIsSelected: (value) => (isSelected = value),
     setPlacedCoordinates: (coordinates) => {
-      const { internal, display } = coordinates;
-      placedCoordinates.internal = internal;
-      placedCoordinates.display = display;
+      placedCoordinates.length = 0;
+      placedCoordinates.push(...coordinates);
     },
     clearPlacedCoordinates: () => (placedCoordinates.length = 0),
     toggleOrientation: () =>

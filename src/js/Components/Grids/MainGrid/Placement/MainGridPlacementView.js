@@ -13,8 +13,6 @@ export const MainGridPlacementView = ({
   previewConfig
 }) => {
   let isInitialized = false;
-
-  console.log(mainGridElement, submitPlacementsButtonElement, previewConfig);
   const listenerManager = ListenerManager();
   const previewManager = PreviewManager(previewConfig);
 
@@ -38,7 +36,6 @@ export const MainGridPlacementView = ({
   };
 
   const clearPlacedShip = (shipID) => {
-    console.trace();
     const shipCells = getShipPlacementCells(shipID);
     shipCells.forEach((cell) => {
       cell.classList.remove(MAIN_GRID.CLASSES.PLACED_SHIP);
@@ -48,7 +45,6 @@ export const MainGridPlacementView = ({
   };
 
   const processPlacementRequest = ({ id, length }) => {
-    console.log(`${id} processPlacementRequest`);
     if (!isValidPlacement()) return;
     const placementCells = [
       ...mainGridElement.querySelectorAll(MAIN_GRID.VALID_PLACEMENT_SELECTOR)
@@ -58,6 +54,7 @@ export const MainGridPlacementView = ({
     const placedCoordinates = placementCells.map((cell) => cell.dataset.coordinates);
     return placedCoordinates;
   };
+
   const initialize = (submitPlacementsCallback) => {
     if (isInitialized) return;
     listenerManager.addController({
@@ -70,32 +67,50 @@ export const MainGridPlacementView = ({
     previewManager.enable();
     isInitialized = true;
   };
+
+  const enableSubmitPlacements = () =>
+    listenerManager.enableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS);
+  const disableSubmitPlacements = () =>
+    listenerManager.disableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS);
+
   return {
     initialize,
-    preview: {
-      updateSelectedShip: ({ id, length, orientation }) => {
-        if (isShipPlaced(id)) clearPlacedShip(id);
-        previewManager.setCurrentShip({ length, orientation });
+    processPlacementRequest,
+    enable: {
+      preview: () => previewManager.enable(),
+      submitPlacements: () => enableSubmitPlacements(),
+      all: () => {
         previewManager.enable();
-      },
-      updateOrientation: (orientation) => previewManager.updateOrientation(orientation)
+        enableSubmitPlacements();
+      }
     },
-    placement: {
-      processRequest: ({ id, length }) => processPlacementRequest({ id, length }),
-      submitButton: {
-        getElement: () => submitPlacementsButtonElement,
-        enable: () => listenerManager.enableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS),
-        disable: () => listenerManager.disableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS),
-        delete: () => {
-          listenerManager.removeListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS);
-          submitPlacementsButtonElement.remove();
-        }
+    disable: {
+      preview: () => previewManager.disable(),
+      submitPlacements: () => disableSubmitPlacements(),
+      all: () => {
+        previewManager.disable();
+        disableSubmitPlacements();
+      }
+    },
+    update: {
+      preview: {
+        selectedShip: ({ id, length, orientation }) => {
+          if (isShipPlaced(id)) clearPlacedShip(id);
+          previewManager.setCurrentShip({ length, orientation });
+          previewManager.enable();
+        },
+        orientation: (orientation) => previewManager.updateOrientation(orientation)
+      },
+      submitPlacementsButtonContainer: (container) => {
+        submitPlacementsButtonElement.remove();
+        container.append(submitPlacementsButtonElement);
       }
     },
     end: () => {
       previewManager.reset();
       listenerManager.reset();
       submitPlacementsButtonElement.remove();
+      isInitialized = false;
     }
   };
 };

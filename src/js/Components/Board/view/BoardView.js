@@ -70,9 +70,7 @@ export const BoardView = (scopedID, playerName, { mainGridView, trackingGridView
         buttonsManager.updateButton(
           `submit-placements`,
           buttonsControllers.submitPlacements.staticButton
-        ),
-      enable: () => mainGridView.placement.submitButton.enable(),
-      disable: () => mainGridView.placement.submitButton.disable()
+        )
     }
   };
   const AIView = {

@@ -1,4 +1,4 @@
-const EMITTER = {
+const EMITTER_CONSTANTS = {
   FULFILLED_HANDLE: (event) => `${event}-fulfilled`
 };
 /**
@@ -6,13 +6,6 @@ const EMITTER = {
  * @type {Object<string, Array<Function>>}
  */
 const subscribers = {};
-
-/**
- * Checks if there is at least one subscriber for the given event.
- * @param {string} event - The event to check.
- * @returns {boolean} True if the event has at least one subscriber.
- */
-const hasEventSubscription = (event) => !!subscribers[event];
 
 /**
  * Manages the storage and fulfillment of pending events.
@@ -62,8 +55,9 @@ const globalEmitter = {
    * @param {string} event - The event to subscribe to.
    * @param {Function} callback - The callback to execute when the event is published.
    */
+  hasEventSubscription: (event) => !!subscribers[event],
   subscribe: (event, callback) => {
-    if (!hasEventSubscription(event)) subscribers[event] = [];
+    if (!globalEmitter.hasEventSubscription(event)) subscribers[event] = [];
     if (fulfillmentManager.isPending(event)) {
       fulfillmentManager.process(event, callback);
       if (fulfillmentManager.isPending(event)) subscribers[event].push(callback);
@@ -75,7 +69,7 @@ const globalEmitter = {
    * @param {Function} callback - The callback to remove from the subscription.
    */
   unsubscribe: (event, callback) => {
-    if (!hasEventSubscription(event)) return;
+    if (!globalEmitter.hasEventSubscription(event)) return;
     subscribers[event] = subscribers[event].filter((subscriber) => subscriber !== callback);
   },
   /**
@@ -85,20 +79,26 @@ const globalEmitter = {
    * @param {boolean} [requireFulfillment=false] - Whether the event requires fulfillment.
    */
   publish: (event, data, requireFulfillment = false) => {
-    if (!hasEventSubscription(event)) {
+    if (!globalEmitter.hasEventSubscription(event)) {
       if (requireFulfillment) {
         fulfillmentManager.addPending(event, data);
         const handleFulfillment = () => {
           fulfillmentManager.fulfill(event);
-          globalEmitter.unsubscribe(EMITTER.FULFILLED_HANDLE(event), handleFulfillment);
+          globalEmitter.unsubscribe(EMITTER_CONSTANTS.FULFILLED_HANDLE(event), handleFulfillment);
         };
-        globalEmitter.subscribe(EMITTER.FULFILLED_HANDLE(event), handleFulfillment);
+        globalEmitter.subscribe(EMITTER_CONSTANTS.FULFILLED_HANDLE(event), handleFulfillment);
       }
     } else {
       const eventData = { data };
       subscribers[event].forEach((callback) => callback(eventData));
     }
   },
+  publishFulfill: (event) => {
+    if (!fulfillmentManager.isPending(event)) return;
+    const handle = EMITTER_CONSTANTS.FULFILLED_HANDLE(event);
+    globalEmitter.publish(handle);
+  },
+  isPendingFulfillment: (event) => fulfillmentManager.isPending(event),
   /**
    * Resets the event emitter, clearing all subscriptions and pending events.
    */
@@ -108,4 +108,4 @@ const globalEmitter = {
   }
 };
 
-export default globalEmitter;
+export { globalEmitter };

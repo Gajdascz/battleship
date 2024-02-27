@@ -17,11 +17,13 @@ export const EventManager = (scope) => {
     publisher: {
       global: {
         noFulfill: (event, data) => publisher.noFulfillGlobal(event, data),
-        requireFulfill: (event, data) => publisher.requireFulfillGlobal(event, data)
+        requireFulfill: (event, data) => publisher.requireFulfillGlobal(event, data),
+        fulfill: (event) => publisher.fulfillGlobal(event)
       },
       scoped: {
         noFulfill: (event, data) => publisher.noFulfillScoped(event, data),
-        requireFulfill: (event, data) => publisher.requireFulfillScoped(event, data)
+        requireFulfill: (event, data) => publisher.requireFulfillScoped(event, data),
+        fulfill: (event) => publisher.fulfillScoped(event)
       }
     },
     subscriptionManager: {

@@ -74,13 +74,21 @@ export const ShipSelectionView = ({ mainShipElement, rotateButtonElement }) => {
   return {
     initialize: ({ requestSelectionCallback, toggleOrientationCallback }) =>
       initializeSelection({ requestSelectionCallback, toggleOrientationCallback }),
-    select: {
-      enable: () => enableSelect(),
-      disable: () => disableSelect()
+    enable: {
+      select: () => enableSelect(),
+      orientationToggle: () => enableOrientationToggle(),
+      all: () => {
+        enableSelect();
+        enableOrientationToggle();
+      }
     },
-    orientationToggle: {
-      enable: () => enableOrientationToggle(),
-      disable: () => disableOrientationToggle()
+    disable: {
+      select: () => disableSelect(),
+      orientationToggle: () => disableOrientationToggle(),
+      all: () => {
+        disableSelect();
+        disableOrientationToggle();
+      }
     },
     update: {
       orientation: (newOrientation) => (mainShipElement.dataset.orientation = newOrientation),

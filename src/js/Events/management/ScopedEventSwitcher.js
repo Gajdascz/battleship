@@ -1,4 +1,4 @@
-import globalEmitter from '../core/globalEventEmitter';
+import { globalEmitter } from '../core/globalEventEmitter';
 import { createEventKeyGenerator } from '../../Utility/utils/createEventKeyGenerator';
 
 export const ScopedEventSwitcher = (scopes = []) => {

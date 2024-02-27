@@ -1,5 +1,5 @@
 import stateManagerRegistry from '../../State/stateManagerRegistry';
-import globalEmitter from '../../Events/core/globalEventEmitter';
+import { globalEmitter } from '../../Events/core/globalEventEmitter';
 import { GAME_EVENTS } from '../../Events/eventConstants';
 import { STATES } from '../../Utility/constants/common';
 

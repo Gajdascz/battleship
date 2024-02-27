@@ -1,4 +1,4 @@
-import eventEmitter from '../Events/core/globalEventEmitter';
+import { globalEmitter } from '../Events/core/globalEventEmitter';
 import Queue from '../Components/AI/ai/dataStructures/Queue';
 
 /**
@@ -19,10 +19,10 @@ export const StateManager = (managerID) => {
   const transition = (targetState) => {
     while (!unsubscribeQueue.isEmpty()) {
       const event = unsubscribeQueue.dequeue();
-      eventEmitter.unsubscribe(event.name, event.callback);
+      globalEmitter.unsubscribe(event.name, event.callback);
     }
     if (activeDynamic.size > 0) {
-      activeDynamic.forEach((callback, event) => eventEmitter.unsubscribe(event, callback));
+      activeDynamic.forEach((callback, event) => globalEmitter.unsubscribe(event, callback));
       activeDynamic.clear();
     }
     setCurrentState(targetState);
@@ -32,15 +32,15 @@ export const StateManager = (managerID) => {
     const dynamicSubscribe = ({ data }) => {
       if (scopedID !== undefined && id !== data.scopedID) return;
       activeDynamic.set(executeOn, callback);
-      eventEmitter.subscribe(executeOn, callback);
+      globalEmitter.subscribe(executeOn, callback);
     };
     const dynamicUnsubscribe = ({ data }) => {
       if (scopedID !== undefined && scopedID !== data.scopedID) return;
       activeDynamic.delete(executeOn, callback);
-      eventEmitter.unsubscribe(executeOn, callback);
+      globalEmitter.unsubscribe(executeOn, callback);
     };
-    eventEmitter.subscribe(enableOn, dynamicSubscribe);
-    eventEmitter.subscribe(disableOn, dynamicUnsubscribe);
+    globalEmitter.subscribe(enableOn, dynamicSubscribe);
+    globalEmitter.subscribe(disableOn, dynamicUnsubscribe);
     unsubscribeQueue.enqueue({ name: enableOn, callback: dynamicSubscribe });
     unsubscribeQueue.enqueue({ name: disableOn, callback: dynamicUnsubscribe });
   };
@@ -52,7 +52,7 @@ export const StateManager = (managerID) => {
     const { execute, subscribe, dynamic } = state;
     execute.forEach((fn) => fn());
     subscribe.forEach(({ event, callback }) => {
-      eventEmitter.subscribe(event, callback);
+      globalEmitter.subscribe(event, callback);
       unsubscribeQueue.enqueue({ name: event, callback });
     });
     dynamic.forEach((dynamicSubscription) => handleDynamicSubscription(dynamicSubscription));

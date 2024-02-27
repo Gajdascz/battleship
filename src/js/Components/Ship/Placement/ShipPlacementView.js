@@ -10,7 +10,6 @@ export const ShipPlacementView = (mainShipElement) => {
   const listenerManager = ListenerManager();
   let isInitialized = false;
   const initializePlacement = ({ placementContainer, requestPlacementCallback }) => {
-    console.log(requestPlacementCallback);
     if (isInitialized) return;
     listenerManager.addController({
       element: placementContainer,
@@ -22,10 +21,12 @@ export const ShipPlacementView = (mainShipElement) => {
     isInitialized = true;
   };
 
-  const enableListeners = () =>
+  const enableListeners = () => {
     listenerManager.enableListener(LISTENER_MANAGER_KEYS.REQUEST_PLACEMENT);
-  const disableListeners = () =>
+  };
+  const disableListeners = () => {
     listenerManager.disableListener(LISTENER_MANAGER_KEYS.REQUEST_PLACEMENT);
+  };
   const endPlacement = () => {
     listenerManager.removeListener(LISTENER_MANAGER_KEYS.REQUEST_PLACEMENT);
     listenerManager.reset();
@@ -36,11 +37,15 @@ export const ShipPlacementView = (mainShipElement) => {
     initialize: ({ placementContainer, requestPlacementCallback }) => {
       initializePlacement({ placementContainer, requestPlacementCallback });
     },
+    enable: {
+      request: () => enableListeners()
+    },
+    disable: {
+      request: () => disableListeners()
+    },
     update: {
       placementStatus: (isPlaced) => (mainShipElement.dataset.placed = isPlaced ? BOOL.T : BOOL.F)
     },
-    enableRequest: () => enableListeners(),
-    disableRequest: () => disableListeners(),
     end: () => endPlacement()
   };
 };

@@ -2,11 +2,9 @@ import { BoardView } from './view/BoardView';
 import { BoardModel } from './model/BoardModel';
 import { StateCoordinator } from '../../State/StateCoordinator';
 import { mapShipQuadrants } from './utility/mapShipQuadrants';
-import { buildPublisher, PUBLISHER_KEYS } from './utility/buildPublisher';
-
 import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
 import { SHIP_EVENTS } from '../Ship/events/shipEvents';
-
+import { EventManager } from '../../Events/management/EventManager';
 export const BoardController = ({
   playerID,
   playerName,
@@ -31,23 +29,30 @@ export const BoardController = ({
     trackingGridView: controllers.trackingGrid.getView(),
     fleetView: controllers.fleet.getView()
   });
+  const { publisher, subscriptionManager, componentEmitter } = EventManager(model.getScope());
 
   const quadrantMap = { current: null };
-  const publisher = buildPublisher(model.getScope());
-
-  const checkPlacementStatus = () => {
-    if (model.isAllShipsPlaced()) view.buttons.submitPlacements.enable();
-  };
 
   const placementController = {
     initialize: () => {
       view.buttons.submitPlacements.init();
       view.trackingGrid.disable();
       view.trackingGrid.hide();
+      subscriptionManager.normal.scoped.subscribe(
+        SHIP_EVENTS.PLACEMENT.SET,
+        placementController.shipPlaced
+      );
     },
     shipSelected: ({ data }) => {
-      view.buttons.submitPlacements.disable();
+      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
+        isReady: false
+      });
       view.buttons.rotateShip.update(data.scopedID);
+    },
+    shipPlaced: () => {
+      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
+        isReady: model.isAllShipsPlaced()
+      });
     },
     placementFinalized: () => {
       const placements = model.getFleetPlacements();
@@ -58,10 +63,10 @@ export const BoardController = ({
           end: placement.internal[placement.internal.length - 1]
         });
       });
-      controllers.mainGrid.finalizePlacements(placeAt);
       const { width, height } = controllers.mainGrid.getDimensions();
       quadrantMap.current = mapShipQuadrants(placements, width, height);
-      publisher.execute(PUBLISHER_KEYS.ACTIONS.PLACEMENTS_FINALIZED, { playerID });
+      console.log(placeAt);
+      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED, { placeAt });
     }
   };
 
@@ -75,11 +80,6 @@ export const BoardController = ({
       stateCoordinator.placement.addSubscribe(
         SHIP_EVENTS.SELECTION.SELECTED,
         placementController.shipSelected
-      );
-      stateCoordinator.placement.addSubscribe(SHIP_EVENTS.PLACEMENT.SET, checkPlacementStatus);
-      stateCoordinator.placement.addSubscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED,
-        placementController.placementFinalized
       );
       stateCoordinator.initializeManager();
     }
