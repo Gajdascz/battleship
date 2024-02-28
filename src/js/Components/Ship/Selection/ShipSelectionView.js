@@ -1,6 +1,6 @@
 import { MOUSE_EVENTS, KEY_EVENTS } from '../../../Utility/constants/dom/domEvents';
 import { ListenerManager } from '../../../Utility/uiBuilderUtils/ListenerManager';
-import { SHIP_CLASSES } from '../ship';
+import { SHIP_CLASSES } from '../utility/ship';
 
 const LISTENER_MANAGER_KEYS = {
   MAIN_SHIP_SELECT: 'mainShipSelect',
@@ -40,7 +40,7 @@ export const ShipSelectionView = ({ mainShipElement, rotateButtonElement }) => {
       event: MOUSE_EVENTS.CLICK,
       callback: toggleOrientationCallback,
       key: LISTENER_MANAGER_KEYS.BUTTON_TOGGLE_ORIENTATION,
-      enable: false
+      enable: true
     });
     isInitialized = true;
   };

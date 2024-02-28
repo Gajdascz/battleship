@@ -17,101 +17,69 @@ export const MainGridPlacementController = ({ model, view, publisher, componentE
   });
 
   const execute = {
-    handle: {
-      placementRequest: ({ data }) => {
-        const { id, length } = data;
-        const placedCoordinates = placementView
-          .processPlacementRequest({ length, id })
-          .map(convertToInternalFormat);
-        model.place(placedCoordinates, id);
-        if (!placedCoordinates) return;
-        emit.placementCoordinatesProcessed(placedCoordinates);
-      },
-      removeEntity: ({ data }) => {
-        const { id } = data;
-        model.removePlacedEntity(id);
-      },
-      shipSelected: ({ data }) => {
-        const { id, length, orientation } = data;
-        if (model.isEntityPlaced(id)) execute.handle.removeEntity({ data });
-        placementView.update.preview.selectedShip({ id, length, orientation });
-      },
-      orientationToggle: ({ data }) => {
-        const { orientation } = data;
-        placementView.update.preview.orientation(orientation);
-      },
-      placementsFinalized: () => {
-        stateManager.end();
-        emit.placementsFinalized();
-      }
-    }
-  };
-
-  const emit = {
-    placementsFinalized: () => publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.FINALIZED),
-
-    containerCreated: () =>
-      publisher.scoped.requireFulfill(MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED, {
-        container: view.elements.getGrid()
-      }),
-
-    placementCoordinatesProcessed: (placedCoordinates) =>
+    placementRequest: ({ data }) => {
+      const { id, length } = data;
+      const placedCoordinates = placementView
+        .processPlacementRequest({ length, id })
+        ?.map(convertToInternalFormat);
+      if (!placedCoordinates) return;
+      model.place(placedCoordinates, id);
       publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED, {
         placedCoordinates
-      })
+      });
+    },
+    removeEntity: ({ data }) => {
+      const { id } = data;
+      model.removePlacedEntity(id);
+    },
+    shipSelected: ({ data }) => {
+      const { id, length, orientation } = data;
+      if (model.isEntityPlaced(id)) execute.removeEntity({ data });
+      placementView.update.preview.selectedShip({ id, length, orientation });
+    },
+    orientationToggle: ({ data }) => {
+      const { orientation } = data;
+      placementView.update.preview.orientation(orientation);
+    },
+    placementsFinalized: () => {
+      stateManager.end();
+      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.FINALIZED);
+    },
+    toggleSubmitPlacementsButton: ({ data }) => {
+      const { isReady } = data;
+      if (isReady) placementView.enable.submitPlacements();
+      else placementView.disable.submitPlacements();
+    }
   };
 
   const stateManager = {
     isInitialized: false,
     isEnabled: false,
-    subscribe: () => {
-      componentEmitter.subscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST,
-        stateManager.toggleSubmitPlacementsButton
-      );
-      componentEmitter.subscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.ENTITY_SELECTED,
-        execute.handle.shipSelected
-      );
-      componentEmitter.subscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.ENTITY_ORIENTATION_UPDATED,
-        execute.handle.orientationToggle
-      );
-
-      componentEmitter.subscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_REQUESTED,
-        execute.handle.placementRequest
-      );
-      componentEmitter.subscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED,
-        execute.finalizePlacements
-      );
-    },
-    unsubscribe: () => {
-      componentEmitter.unsubscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST,
-        stateManager.toggleSubmitPlacementsButton
-      );
-      componentEmitter.unsubscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.ENTITY_SELECTED,
-        execute.handle.shipSelected
-      );
-      componentEmitter.unsubscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.ENTITY_ORIENTATION_UPDATED,
-        execute.handle.orientationToggle
-      );
-      componentEmitter.unsubscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_REQUESTED,
-        execute.handle.placementRequest
-      );
-    },
+    subscriptions: [
+      {
+        event: MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST,
+        callback: execute.toggleSubmitPlacementsButton
+      },
+      { event: MAIN_GRID_EVENTS.PLACEMENT.ENTITY_SELECTED, callback: execute.shipSelected },
+      {
+        event: MAIN_GRID_EVENTS.PLACEMENT.ENTITY_ORIENTATION_UPDATED,
+        callback: execute.orientationToggle
+      },
+      {
+        event: MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_REQUESTED,
+        callback: execute.placementRequest
+      }
+    ],
+    subscribe: () => componentEmitter.subscribeMany(stateManager.subscriptions),
+    unsubscribe: () => componentEmitter.unsubscribeMany(stateManager.subscriptions),
     initialize: () => {
       if (stateManager.isInitialized) return;
       stateManager.subscribe();
-      placementView.initialize(execute.handle.placementsFinalized);
-      emit.containerCreated({ data: view.elements.getGrid() });
+      placementView.initialize(execute.placementsFinalized);
       stateManager.isInitialized = true;
-      componentEmitter.subscribe(MAIN_GRID_EVENTS.PLACEMENT.END_REQUESTED, stateManager.end);
+      publisher.scoped.requireFulfill(MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED, {
+        container: view.elements.getGrid()
+      });
     },
     enable: () => {
       if (stateManager.isEnabled) return;
@@ -124,11 +92,7 @@ export const MainGridPlacementController = ({ model, view, publisher, componentE
       placementView.placement.submitButton.disable();
       stateManager.isEnabled = false;
     },
-    toggleSubmitPlacementsButton: ({ data }) => {
-      const { isReady } = data;
-      if (isReady) placementView.enable.submitPlacements();
-      else placementView.disable.submitPlacements();
-    },
+
     end: () => {
       if (!stateManager.isInitialized) return;
       stateManager.unsubscribe();
@@ -141,4 +105,5 @@ export const MainGridPlacementController = ({ model, view, publisher, componentE
     MAIN_GRID_EVENTS.PLACEMENT.INITIALIZE_REQUESTED,
     stateManager.initialize
   );
+  componentEmitter.subscribe(MAIN_GRID_EVENTS.PLACEMENT.END_REQUESTED, stateManager.end);
 };

@@ -2,14 +2,14 @@ export const SHIP_EVENTS = {
   SELECTION: {
     ENABLED: 'shipSelectionEnableRequested',
     DISABLED: 'shipSelectionDisableRequested',
-    END: 'shipSelectionEndRequested',
     INITIALIZE_REQUESTED: 'shipSelectionInitializeRequested',
     SELECTION_REQUESTED: 'shipSelectionRequested',
     SELECTION_REQUEST_ACCEPTED: 'shipSelectionRequestAccepted',
     SELECTED: 'shipSelected', // Ship selection request was realized and processed
     DESELECT_REQUESTED: 'shipDeselectRequested',
     DESELECTED: 'shipDeselected',
-    ORIENTATION_TOGGLED: 'shipOrientationToggled'
+    ORIENTATION_TOGGLED: 'shipOrientationToggled',
+    OVER: 'shipSelectionOver'
   },
   PLACEMENT: {
     CONTAINER_RECEIVED: 'shipPlacementInitializeRequested',

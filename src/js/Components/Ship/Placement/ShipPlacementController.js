@@ -67,11 +67,12 @@ export const ShipPlacementController = ({ model, view, publisher, componentEmitt
     disable: () => {
       if (!stateManager.isEnabled) return;
       componentEmitter.unsubscribe(SHIP_EVENTS.PLACEMENT.PICKUP_REQUESTED, execute.pickup);
-      placementView.disable.request();
       componentEmitter.unsubscribe(
         SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED,
         execute.place
       );
+      placementView.disable.request();
+
       placementView.disable.request();
       stateManager.isEnabled = false;
     },

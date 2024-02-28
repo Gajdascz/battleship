@@ -1,10 +1,13 @@
 import { BoardView } from './view/BoardView';
 import { BoardModel } from './model/BoardModel';
-import { StateCoordinator } from '../../State/StateCoordinator';
 import { mapShipQuadrants } from './utility/mapShipQuadrants';
 import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
 import { SHIP_EVENTS } from '../Ship/events/shipEvents';
 import { EventManager } from '../../Events/management/EventManager';
+import { GameStateController } from '../Game/GameStateController';
+import { GameStateManager } from '../../State/GameStateManager';
+import stateManagerRegistry from '../../State/stateManagerRegistry';
+import { GAME_EVENTS } from '../Game/utility/gameEvents';
 export const BoardController = ({
   playerID,
   playerName,
@@ -22,7 +25,6 @@ export const BoardController = ({
     trackingGridModel: controllers.trackingGrid.getModel(),
     fleetModel: controllers.fleet.getModel()
   });
-  const stateCoordinator = StateCoordinator(model.getScopedID(), model.getScope());
 
   const view = BoardView(model.getScopedID(), playerName, {
     mainGridView: controllers.mainGrid.getView(),
@@ -30,19 +32,11 @@ export const BoardController = ({
     fleetView: controllers.fleet.getView()
   });
   const { publisher, subscriptionManager, componentEmitter } = EventManager(model.getScope());
+  const stateManager = GameStateManager(model.getScopedID());
 
   const quadrantMap = { current: null };
 
-  const placementController = {
-    initialize: () => {
-      view.buttons.submitPlacements.init();
-      view.trackingGrid.disable();
-      view.trackingGrid.hide();
-      subscriptionManager.normal.scoped.subscribe(
-        SHIP_EVENTS.PLACEMENT.SET,
-        placementController.shipPlaced
-      );
-    },
+  const handlers = {
     shipSelected: ({ data }) => {
       publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
         isReady: false
@@ -53,35 +47,51 @@ export const BoardController = ({
       publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
         isReady: model.isAllShipsPlaced()
       });
+      view.buttons.rotateShip.clearWrapper();
     },
-    placementFinalized: () => {
-      const placements = model.getFleetPlacements();
-      const placeAt = [];
-      placements.forEach((placement) => {
-        placeAt.push({
-          start: placement.internal[0],
-          end: placement.internal[placement.internal.length - 1]
-        });
-      });
-      const { width, height } = controllers.mainGrid.getDimensions();
-      quadrantMap.current = mapShipQuadrants(placements, width, height);
-      console.log(placeAt);
-      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED, { placeAt });
+    attackSent: ({ data }) => {
+      view.trackingGrid.disable();
     }
   };
+
+  const placementManager = {
+    subscriptions: [
+      { event: SHIP_EVENTS.PLACEMENT.SET, callback: handlers.shipPlaced },
+      { event: SHIP_EVENTS.SELECTION.SELECTED, callback: handlers.shipSelected }
+    ],
+    subscribe: () => subscriptionManager.scoped.subscribeMany(placementManager.subscriptions),
+    unsubscribe: () => subscriptionManager.all.unsubscribe(placementManager.subscriptions),
+    initialize: () => {
+      view.buttons.submitPlacements.init();
+      view.trackingGrid.disable();
+      view.trackingGrid.hide();
+      placementManager.subscribe();
+    },
+    end: () => {
+      view.trackingGrid.show();
+      view.trackingGrid.enable();
+      placementManager.unsubscribe();
+    }
+  };
+
+  const combatManager = {
+    subscriptions: [{ event: GAME_EVENTS.ATTACK_SENT }],
+    initialize: () => {
+      view.buttons.endTurn.init();
+    }
+  };
+
+  stateManager.setFunctions.placement(placementManager.initialize, placementManager.end);
 
   return {
     getBoardElement: () => view.getBoardElement(),
     setTrackingFleet: (opponentTrackingFleet) => view.setTrackingFleet(opponentTrackingFleet),
     isAllShipsPlaced: () => model.isAllShipsPlaced(),
     getView: () => view,
-    initializeStateManagement: () => {
-      stateCoordinator.placement.addExecute(placementController.initialize);
-      stateCoordinator.placement.addSubscribe(
-        SHIP_EVENTS.SELECTION.SELECTED,
-        placementController.shipSelected
-      );
-      stateCoordinator.initializeManager();
+    initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager),
+    aiView: {
+      setView: (aiView) => view.aiView.setView(aiView),
+      display: () => view.aiView.display()
     }
   };
 };

@@ -10,6 +10,7 @@ export const ShipSelectionController = ({ model, view, publisher, componentEmitt
 
   const execute = {
     select: () => {
+      console.log('selected');
       selectionView.update.selectedStatus(true);
       selectionView.enable.orientationToggle();
       model.setIsSelected(true);
@@ -76,7 +77,6 @@ export const ShipSelectionController = ({ model, view, publisher, componentEmitt
         toggleOrientationCallback: execute.toggleOrientation
       });
       stateManager.enable();
-      componentEmitter.subscribe(SHIP_EVENTS.SELECTION.END, stateManager.end);
       stateManager.isInitialized = true;
     },
     enable: () => {
@@ -97,10 +97,11 @@ export const ShipSelectionController = ({ model, view, publisher, componentEmitt
       if (!stateManager.isInitialized) return;
       stateManager.disable();
       selectionView.end();
-      componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.END, stateManager.end);
       stateManager.isInitialized = false;
+      componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.OVER, stateManager.end);
     }
   };
 
   componentEmitter.subscribe(SHIP_EVENTS.SELECTION.INITIALIZE_REQUESTED, stateManager.initialize);
+  componentEmitter.subscribe(SHIP_EVENTS.SELECTION.OVER, stateManager.end);
 };

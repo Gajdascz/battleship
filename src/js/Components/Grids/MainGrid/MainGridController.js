@@ -4,7 +4,8 @@ import { SHIP_EVENTS } from '../../Ship/events/shipEvents';
 import { MainGridPlacementController } from './Placement/MainGridPlacementController';
 import { MAIN_GRID_EVENTS } from './utility/mainGridEvents';
 import { EventManager } from '../../../Events/management/EventManager';
-
+import { GameStateManager } from '../../../State/GameStateManager';
+import stateManagerRegistry from '../../../State/stateManagerRegistry';
 export const MainGridController = (scope, boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;
   const model = MainGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
@@ -17,86 +18,63 @@ export const MainGridController = (scope, boardConfig) => {
     componentEmitter
   });
 
+  const stateManager = GameStateManager(model.getScopedID());
+
+  const handlers = {
+    select: ({ data }) =>
+      componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_SELECTED, data),
+    orientationToggle: ({ data }) =>
+      componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_ORIENTATION_UPDATED, data),
+    placementRequest: ({ data }) =>
+      componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_REQUESTED, data),
+    toggleSubmitRequest: ({ data }) =>
+      componentEmitter.publish(
+        MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST,
+        data
+      ),
+    finalizePlacements: ({ data }) =>
+      componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED, data)
+  };
+
   const placementManager = {
-    subscribe: () => {
-      subscriptionManager.normal.scoped.subscribe(
-        SHIP_EVENTS.PLACEMENT.REQUESTED,
-        placementManager.handle.placementRequest
-      );
-      subscriptionManager.normal.scoped.subscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST,
-        placementManager.handle.toggleSubmitRequest
-      );
-      subscriptionManager.normal.scoped.subscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED,
-        placementManager.handle.finalizePlacements
-      );
-      subscriptionManager.normal.scoped.subscribe(
-        SHIP_EVENTS.SELECTION.SELECTED,
-        placementManager.handle.select
-      );
-      subscriptionManager.normal.scoped.subscribe(
-        SHIP_EVENTS.SELECTION.ORIENTATION_TOGGLED,
-        placementManager.handle.orientationToggle
-      );
-    },
-    unsubscribe: () => {
-      subscriptionManager.normal.scoped.unsubscribe(
-        SHIP_EVENTS.PLACEMENT.REQUESTED,
-        placementManager.handle.placementRequest
-      );
-      subscriptionManager.normal.scoped.unsubscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST,
-        placementManager.handle.toggleSubmitRequest
-      );
-      subscriptionManager.normal.scoped.unsubscribe(
-        MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED,
-        placementManager.handle.finalizePlacements
-      );
-      subscriptionManager.normal.scoped.unsubscribe(
-        SHIP_EVENTS.SELECTION.SELECTED,
-        placementManager.handle.select
-      );
-      subscriptionManager.normal.scoped.unsubscribe(
-        SHIP_EVENTS.SELECTION.ORIENTATION_TOGGLED,
-        placementManager.handle.orientationToggle
-      );
-    },
+    subscriptions: [
+      {
+        event: SHIP_EVENTS.PLACEMENT.REQUESTED,
+        callback: handlers.placementRequest
+      },
+      {
+        event: MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST,
+        callback: handlers.toggleSubmitRequest
+      },
+      {
+        event: MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED,
+        callback: handlers.finalizePlacements
+      },
+      { event: SHIP_EVENTS.SELECTION.SELECTED, callback: handlers.select },
+      {
+        event: SHIP_EVENTS.SELECTION.ORIENTATION_TOGGLED,
+        callback: handlers.orientationToggle
+      }
+    ],
+    subscribe: () => subscriptionManager.scoped.subscribeMany(placementManager.subscriptions),
+    unsubscribe: () => subscriptionManager.all.unsubscribe(),
     initialize: () => {
       placementManager.subscribe();
       componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.INITIALIZE_REQUESTED);
     },
-    handle: {
-      select: ({ data }) => {
-        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_SELECTED, data);
-      },
-      orientationToggle: ({ data }) => {
-        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_ORIENTATION_UPDATED, data);
-      },
-      placementRequest: ({ data }) => {
-        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_REQUESTED, data);
-      },
-      toggleSubmitRequest: ({ data }) => {
-        componentEmitter.publish(
-          MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST,
-          data
-        );
-      },
-      finalizePlacements: ({ data }) => {
-        console.log(data);
-        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED, data);
-      }
-    },
+
     end: () => {
       placementManager.unsubscribe();
       componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.END_REQUESTED);
+      componentEmitter.reset();
     }
   };
+  stateManager.setFunctions.placement(placementManager.initialize, placementManager.end);
 
   return {
+    getDimensions: () => model.getDimensions(),
     getModel: () => model,
     getView: () => view,
-    getDimensions: () => model.getDimensions(),
-    initializeStateManagement: () => placementManager.initialize()
+    initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager)
   };
 };

@@ -6,6 +6,8 @@ import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
 import { ShipSelectionController } from './Selection/ShipSelectionController';
 import { ShipPlacementController } from './Placement/ShipPlacementController';
 import { EventManager } from '../../Events/management/EventManager';
+import { GameStateManager } from '../../State/GameStateManager';
+import stateManagerRegistry from '../../State/stateManagerRegistry';
 
 export const ShipController = (scope, shipData) => {
   const { name, length } = shipData;
@@ -18,21 +20,20 @@ export const ShipController = (scope, shipData) => {
     model,
     view,
     publisher,
-    componentEmitter,
-    subscriptionManager
+    componentEmitter
   });
   ShipPlacementController({
     model,
     view,
     publisher,
-    componentEmitter,
-    subscriptionManager
+    componentEmitter
   });
+  const stateManager = GameStateManager(model.getScopedID());
 
   const selectionAndPlacementManager = {
     initialize: () => {
       componentEmitter.publish(SHIP_EVENTS.SELECTION.INITIALIZE_REQUESTED);
-      subscriptionManager.normal.scoped.subscribe(
+      subscriptionManager.scoped.subscribe(
         MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED,
         selectionAndPlacementManager.handle.containerCreated
       );
@@ -47,10 +48,11 @@ export const ShipController = (scope, shipData) => {
         selectionAndPlacementManager.handle.deselection();
       },
       selection: () => {
+        console.log('test');
         componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECTION_REQUESTED);
         componentEmitter.publish(SHIP_EVENTS.PLACEMENT.ENABLE_PLACEMENT_REQUESTED);
         if (model.isPlaced()) componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PICKUP_REQUESTED);
-        subscriptionManager.normal.scoped.subscribe(
+        subscriptionManager.scoped.subscribe(
           MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED,
           selectionAndPlacementManager.handle.placementCoordinatesReceived
         );
@@ -58,32 +60,40 @@ export const ShipController = (scope, shipData) => {
       deselection: () => {
         componentEmitter.publish(SHIP_EVENTS.SELECTION.DESELECT_REQUESTED);
         componentEmitter.publish(SHIP_EVENTS.PLACEMENT.DISABLE_PLACEMENT_REQUESTED);
-        subscriptionManager.normal.scoped.unsubscribe(
+        subscriptionManager.scoped.unsubscribe(
           MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED,
           selectionAndPlacementManager.handle.placementCoordinatesReceived
         );
       }
     },
     end: () => {
-      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.OVER);
       selectionAndPlacementManager.handle.deselection();
-      subscriptionManager.normal.scoped.unsubscribe(
+      subscriptionManager.scoped.unsubscribe(
         MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED,
         selectionAndPlacementManager.handle.containerCreated
       );
+      componentEmitter.publish(SHIP_EVENTS.SELECTION.OVER);
+      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.OVER);
     }
   };
+  stateManager.setFunctions.placement(
+    selectionAndPlacementManager.initialize,
+    selectionAndPlacementManager.end
+  );
 
   return {
-    getScope: () => model.getScope(),
-    getID: () => model.getID(),
-    getScopedID: () => model.getScopedID(),
-    isSelected: () => model.isSelected(),
+    properties: {
+      getScoped: () => model.getScope(),
+      getID: () => model.getID(),
+      getScopedID: () => model.getScopedID(),
+      isSelected: () => model.isSelected()
+    },
+    placement: {
+      select: () => selectionAndPlacementManager.handle.selection(),
+      deselect: () => selectionAndPlacementManager.handle.deselection()
+    },
     getModel: () => model,
     getView: () => view,
-    initializeSelectionAndPlacement: () => selectionAndPlacementManager.initialize(),
-    initializeStateManagement: () => selectionAndPlacementManager.initialize(),
-    select: () => selectionAndPlacementManager.handle.selection(),
-    deselect: () => selectionAndPlacementManager.handle.deselection()
+    initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager)
   };
 };

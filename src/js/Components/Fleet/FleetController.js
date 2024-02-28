@@ -1,18 +1,17 @@
 import { FleetModel } from './model/FleetModel';
 import { FleetView } from './view/FleetView';
-import { PLACEMENT_EVENTS } from '../../Events/eventConstants';
-import { StateCoordinator } from '../../State/StateCoordinator';
 import { SHIP_EVENTS } from '../Ship/events/shipEvents';
 import { EventManager } from '../../Events/management/EventManager';
 import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
-
+import { GameStateManager } from '../../State/GameStateManager';
+import stateManagerRegistry from '../../State/stateManagerRegistry';
 export const FleetController = (scope) => {
   const model = FleetModel(scope);
   const view = FleetView();
   const { publisher, componentEmitter, subscriptionManager } = EventManager(scope);
-  const stateCoordinator = StateCoordinator(model.getScopedID(), model.getScope());
   const shipControllers = new Map();
   const shipDataTracker = { containersReceived: 0 };
+  const stateManager = GameStateManager(model.getScopedID());
 
   const assignShipToFleet = (shipController) => {
     const shipModel = shipController.getModel();
@@ -23,27 +22,50 @@ export const FleetController = (scope) => {
     view.populateFleetShipLists();
   };
 
-  const handleShipSelectionRequest = ({ data }) => {
-    const { scopedID } = data;
-    shipControllers.forEach((controller) => {
-      if (controller.getScopedID() === scopedID) controller.select();
-      else if (controller.isSelected()) controller.deselect();
-    });
-  };
-
-  const initializeShipsStateManagement = () =>
-    shipControllers.forEach((ship) => ship.initializeStateManagement());
-
-  const handleContainerReceived = () => {
-    shipDataTracker.containersReceived += 1;
-    if (shipDataTracker.containersReceived === shipControllers.size) {
-      publisher.scoped.fulfill(MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED);
+  const handlers = {
+    shipSelectRequested: ({ data }) => {
+      console;
+      const { scopedID } = data;
+      shipControllers.forEach((controller) => {
+        if (controller.properties.getScopedID() === scopedID) controller.placement.select();
+        else if (controller.properties.isSelected()) controller.placement.deselect();
+      });
+    },
+    containerReceived: () => {
+      shipDataTracker.containersReceived += 1;
+      if (shipDataTracker.containersReceived === shipControllers.size) {
+        publisher.scoped.fulfill(MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED);
+      }
     }
   };
 
-  subscriptionManager.normal.scoped.subscribe(
-    SHIP_EVENTS.PLACEMENT.CONTAINER_RECEIVED,
-    handleContainerReceived
+  const selectionAndPlacementManager = {
+    subscriptions: [
+      {
+        event: SHIP_EVENTS.PLACEMENT.CONTAINER_RECEIVED,
+        callback: handlers.containerReceived
+      },
+      {
+        event: SHIP_EVENTS.SELECTION.SELECTION_REQUESTED,
+        callback: handlers.shipSelectRequested
+      }
+    ],
+    subscribe: () =>
+      subscriptionManager.scoped.subscribeMany(selectionAndPlacementManager.subscriptions),
+    unsubscribe: () =>
+      subscriptionManager.all.unsubscribe(selectionAndPlacementManager.subscriptions),
+
+    initialize: () => {
+      subscriptionManager.scoped.subscribeMany(selectionAndPlacementManager.subscriptions);
+    },
+    end: () => {
+      selectionAndPlacementManager.unsubscribe();
+    }
+  };
+
+  stateManager.setFunctions.placement(
+    selectionAndPlacementManager.initialize,
+    selectionAndPlacementManager.end
   );
 
   return {
@@ -53,12 +75,8 @@ export const FleetController = (scope) => {
     assignShipToFleet,
     forEach: (callback) => shipControllers.forEach((ship) => callback(ship)),
     initializeStateManagement: () => {
-      stateCoordinator.placement.addExecute(initializeShipsStateManagement);
-      stateCoordinator.placement.addSubscribe(
-        SHIP_EVENTS.SELECTION.SELECTION_REQUESTED,
-        handleShipSelectionRequest
-      );
-      stateCoordinator.initializeManager();
+      shipControllers.forEach((ship) => ship.initializeStateManagement());
+      stateManagerRegistry.registerManager(stateManager);
     }
   };
 };

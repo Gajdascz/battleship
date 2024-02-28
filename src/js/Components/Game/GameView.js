@@ -6,22 +6,21 @@ const CLASSES = {
 };
 
 export const GameView = () => {
-  const boardDisplay = { current: null };
-  const boardViews = new Map();
+  const boardViews = { current: null, waiting: null };
   const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
-  let aiView = null;
 
   return {
-    updateDisplay: (playerID, playerName) => {
-      boardDisplay.current?.remove();
-      const view = boardViews.get(playerID);
-      view.attachTo(gameContainer);
-      boardDisplay.current = view;
+    displayCurrent: () => boardViews.current.attachTo(gameContainer),
+    switch: () => {
+      const tmp = boardViews.current;
+      boardViews.waiting = boardViews.current;
+      boardViews.current = tmp;
     },
-    setAIView: (view) => (aiView = view),
-    attachAIDisplay: () =>
-      boardDisplay.current.trackingGrid.attachToWrapper(aiView.getGridElement()),
-    addBoardView: (playerID, boardView) => boardViews.set(playerID, boardView),
-    getBoardView: (playerID) => boardViews.get(playerID)
+    setBoardViews: (current, waiting) => {
+      boardViews.current = current;
+      boardViews.waiting = waiting;
+      boardDisplay.current = current;
+    },
+    getBoardViews: () => boardViews
   };
 };

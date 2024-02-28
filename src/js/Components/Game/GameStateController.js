@@ -1,9 +1,14 @@
-import stateManagerRegistry from '../../Utility/stateManagement/stateManagerRegistry';
+import stateManagerRegistry from '../../State/stateManagerRegistry';
 import { globalEmitter } from '../../Events/core/globalEventEmitter';
-import { GAME_EVENTS } from '../../Utility/constants/dom/domEvents';
+import { GAME_EVENTS } from './utility/gameEvents';
 import { STATES } from '../../Utility/constants/common';
 
 export const GameStateController = () => {
+  const initialize = () => {
+    stateManagerRegistry.initialize({ data: STATES.START });
+    enable();
+  };
+
   const enable = () =>
     globalEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
 
@@ -34,6 +39,7 @@ export const GameStateController = () => {
   };
 
   return {
+    initialize,
     transition,
     enable,
     disable,

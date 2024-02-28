@@ -1,3 +1,4 @@
+import { MOUSE_EVENTS } from '../../../Utility/constants/dom/domEvents';
 import { COMMON_ELEMENTS } from '../../../Utility/constants/dom/elements';
 import { buildUIElement } from '../../../Utility/uiBuilderUtils/uiBuilders';
 import './board-style.css';
@@ -15,6 +16,10 @@ export const BoardView = (scopedID, playerName, { mainGridView, trackingGridView
   });
   const buttonsContainer = buildUIElement(COMMON_ELEMENTS.DIV, {
     attributes: { class: BOARD_BUTTONS_CONTAINER_CLASS }
+  });
+  const endTurnButton = buildUIElement(COMMON_ELEMENTS.BUTTON, {
+    text: 'End Turn',
+    attributes: { class: 'end-turn-button' }
   });
   boardContainer.append(playerNameDisplay);
 
@@ -62,6 +67,9 @@ export const BoardView = (scopedID, playerName, { mainGridView, trackingGridView
       update: (scopedShipID) => {
         const btn = fleetView.getRotateShipButton(scopedShipID);
         buttonsManager.updateButton(`rotate-ship`, btn);
+      },
+      clearWrapper: () => {
+        buttonsManager.getWrapper(`rotate-ship`).textContent = '';
       }
     },
     submitPlacements: {
@@ -71,12 +79,31 @@ export const BoardView = (scopedID, playerName, { mainGridView, trackingGridView
           `submit-placements`,
           buttonsControllers.submitPlacements.staticButton
         )
+    },
+    endTurn: {
+      callback: null,
+      staticButton: endTurnButton,
+      init: () => {
+        const wrapper = buttonsManager.getWrapper(`end-turn`);
+        wrapper.textContent = '';
+        wrapper.append(buttonsControllers.endTurn.staticButton);
+      },
+      addListener: (fn) => {
+        buttonsControllers.endTurn.callback = fn;
+        buttonsControllers.endTurn.staticButton.addEventListener(MOUSE_EVENTS.CLICK, fn);
+      },
+      removeListener: () => {
+        buttonsControllers.endTurn.callback = null;
+        buttonsControllers.endTurn.staticButton.removeEventListener(MOUSE_EVENTS.CLICK, fn);
+      },
+      enable: () => (buttonsControllers.endTurn.staticButton.disabled = false),
+      disable: () => (buttonsControllers.endTurn.staticButton.disabled = true)
     }
   };
-  const AIView = {
+  const aiView = {
     view: null,
-    setView: (newView) => (AIView.view = newView),
-    display: () => trackingGridView.attachToWrapper(AIView.getGridElement())
+    setView: (newView) => (aiView.view = newView),
+    display: () => trackingGridView.attachToWrapper(aiView.getGridElement())
   };
 
   return {
@@ -91,7 +118,7 @@ export const BoardView = (scopedID, playerName, { mainGridView, trackingGridView
       attachToUtilityContainer: (element) => gridUtilityContainers.tracking.append(element),
       attachToWrapper: (element) => trackingGridView.attachToWrapper(element)
     },
-    AIView,
+    aiView,
     buttons: buttonsControllers
   };
 };

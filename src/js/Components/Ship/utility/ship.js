@@ -1,4 +1,4 @@
-import { GENERAL_ATTRIBUTES } from '../../Utility/constants/dom/attributes';
+import { GENERAL_ATTRIBUTES } from '../../../Utility/constants/dom/attributes';
 
 export const SHIP_CLASSES = {
   ENTRY: 'fleet-entry',

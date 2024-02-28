@@ -10,6 +10,16 @@ export const EventManager = (scope) => {
   return {
     componentEmitter: {
       subscribe: (event, callback) => componentEmitter.subscribe(event, callback),
+      subscribeMany: (subscriptions) => {
+        subscriptions.forEach((subscription) =>
+          componentEmitter.subscribe(subscription.event, subscription.callback)
+        );
+      },
+      unsubscribeMany: (subscriptions) => {
+        subscriptions.forEach((subscription) =>
+          componentEmitter.unsubscribe(subscription.event, subscription.callback)
+        );
+      },
       unsubscribe: (event, callback) => componentEmitter.unsubscribe(event, callback),
       publish: (event, data) => componentEmitter.publish(event, data),
       reset: () => componentEmitter.reset()
@@ -27,39 +37,15 @@ export const EventManager = (scope) => {
       }
     },
     subscriptionManager: {
-      normal: {
-        global: {
-          subscribe: (event, callback) =>
-            subscriptionManager.subscribeNormalGlobal(event, callback),
-          unsubscribe: (event, callback) =>
-            subscriptionManager.unsubscribeNormalGlobal(event, callback)
-        },
-        scoped: {
-          subscribe: (event, callback) =>
-            subscriptionManager.subscribeNormalScoped(event, callback),
-          unsubscribe: (event, callback) =>
-            subscriptionManager.unsubscribeNormalScoped(event, callback)
-        },
-        all: {
-          unsubscribe: () => subscriptionManager.unsubscribeAllNormal()
-        }
+      global: {
+        subscribe: (event, callback) => subscriptionManager.subscribeGlobal(event, callback),
+        subscribeMany: (subscriptions) => subscriptionManager.subscribeManyGlobal(subscriptions),
+        unsubscribe: (event, callback) => subscriptionManager.unsubscribeGlobal(event, callback)
       },
-      dynamic: {
-        global: {
-          subscribe: (event, callback, triggers) =>
-            subscriptionManager.subscribeDynamicGlobal(event, callback, triggers),
-          unsubscribe: (event, callback, triggers) =>
-            subscriptionManager.unsubscribeDynamicGlobal(event, callback, triggers)
-        },
-        scoped: {
-          subscribe: (event, callback, triggers) =>
-            subscriptionManager.subscribeDynamicScoped(event, callback, triggers),
-          unsubscribe: (event, callback, triggers) =>
-            subscriptionManager.unsubscribeDynamicScoped(event, callback, triggers)
-        },
-        all: {
-          unsubscribe: () => subscriptionManager.unsubscribeAllDynamic()
-        }
+      scoped: {
+        subscribe: (event, callback) => subscriptionManager.subscribeScoped(event, callback),
+        subscribeMany: (subscriptions) => subscriptionManager.subscribeManyScoped(subscriptions),
+        unsubscribe: (event, callback) => subscriptionManager.unsubscribeScoped(event, callback)
       },
       all: {
         unsubscribe: () => subscriptionManager.unsubscribeAll()
