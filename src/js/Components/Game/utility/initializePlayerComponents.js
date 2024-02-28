@@ -4,20 +4,18 @@ import { FleetController } from '../../Fleet/FleetController';
 import { MainGridController } from '../../Grids/MainGrid/MainGridController';
 import { TrackingGridController } from '../../Grids/TrackingGrid/TrackingGridController';
 import { BoardController } from '../../Board/BoardController';
-import { DEFAULT_FLEET } from '../../Fleet/fleetConstants';
+import { DEFAULT_FLEET } from '../../Fleet/utility/fleetConstants';
 import { PLAYERS } from '../../../Utility/constants/common';
 import { AIController } from '../../AI/AIController';
 
-const initializeAIController = ({ difficulty, boardSettings, shipData }) =>
-  AIController({ difficulty, shipData, boardSettings });
-
-export const initializePlayerComponents = ({ playerSettings, boardSettings }) => {
+export const initializePlayerComponents = ({
+  playerModel,
+  boardSettings,
+  gameMode,
+  opponentScope
+}) => {
+  console.log(playerModel);
   const shipData = DEFAULT_FLEET;
-  const { username, type, difficulty, id } = playerSettings;
-  if (type === PLAYERS.TYPES.AI)
-    return initializeAIController({ difficulty, boardSettings, shipData });
-  const playerModel = PlayerModel({ playerName: username, playerType: type, playerID: id });
-
   const scope = playerModel.getID();
   const fleetController = FleetController(scope);
   shipData.forEach((ship) => {
@@ -31,7 +29,9 @@ export const initializePlayerComponents = ({ playerSettings, boardSettings }) =>
     playerName: playerModel.getName(),
     fleetController,
     mainGridController,
-    trackingGridController
+    trackingGridController,
+    gameMode,
+    opponentScope
   });
   const controllers = {
     board: boardController,

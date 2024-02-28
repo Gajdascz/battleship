@@ -8,12 +8,18 @@ import { GameStateController } from '../Game/GameStateController';
 import { GameStateManager } from '../../State/GameStateManager';
 import stateManagerRegistry from '../../State/stateManagerRegistry';
 import { GAME_EVENTS } from '../Game/utility/gameEvents';
+import { GAME_MODES } from '../../Utility/constants/common';
+import { HvHBoardView } from './view/HvHBoardView';
+import { HvABoardView } from './view/HvABoardView';
+
 export const BoardController = ({
   playerID,
   playerName,
   fleetController,
   mainGridController,
-  trackingGridController
+  trackingGridController,
+  gameMode,
+  opponentScope
 }) => {
   const controllers = {
     fleet: fleetController,
@@ -25,12 +31,17 @@ export const BoardController = ({
     trackingGridModel: controllers.trackingGrid.getModel(),
     fleetModel: controllers.fleet.getModel()
   });
-
-  const view = BoardView(model.getScopedID(), playerName, {
+  const viewParameters = {
+    scopedID: model.getScopedID(),
+    playerName,
     mainGridView: controllers.mainGrid.getView(),
     trackingGridView: controllers.trackingGrid.getView(),
     fleetView: controllers.fleet.getView()
-  });
+  };
+
+  const view =
+    gameMode === GAME_MODES.HvH ? HvHBoardView(viewParameters) : HvABoardView(viewParameters);
+
   const { publisher, subscriptionManager, componentEmitter } = EventManager(model.getScope());
   const stateManager = GameStateManager(model.getScopedID());
 
@@ -49,15 +60,19 @@ export const BoardController = ({
       });
       view.buttons.rotateShip.clearWrapper();
     },
-    attackSent: ({ data }) => {
-      view.trackingGrid.disable();
+    placementsFinalized: () => {
+      // map placement quadrants
+      if (gameMode === GAME_MODES.HvA) view.aiView.display();
+      else view.displayAlternatePlayerDialog();
+      publisher.global.noFulfill(GAME_EVENTS.TURN_ENDED);
     }
   };
 
   const placementManager = {
     subscriptions: [
       { event: SHIP_EVENTS.PLACEMENT.SET, callback: handlers.shipPlaced },
-      { event: SHIP_EVENTS.SELECTION.SELECTED, callback: handlers.shipSelected }
+      { event: SHIP_EVENTS.SELECTION.SELECTED, callback: handlers.shipSelected },
+      { event: MAIN_GRID_EVENTS.PLACEMENT.FINALIZED, callback: handlers.placementsFinalized }
     ],
     subscribe: () => subscriptionManager.scoped.subscribeMany(placementManager.subscriptions),
     unsubscribe: () => subscriptionManager.all.unsubscribe(placementManager.subscriptions),
@@ -74,6 +89,8 @@ export const BoardController = ({
     }
   };
 
+  const combatHvHStrategy = {};
+
   const combatManager = {
     subscriptions: [{ event: GAME_EVENTS.ATTACK_SENT }],
     initialize: () => {
@@ -89,9 +106,6 @@ export const BoardController = ({
     isAllShipsPlaced: () => model.isAllShipsPlaced(),
     getView: () => view,
     initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager),
-    aiView: {
-      setView: (aiView) => view.aiView.setView(aiView),
-      display: () => view.aiView.display()
-    }
+    view
   };
 };

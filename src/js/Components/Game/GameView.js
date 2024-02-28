@@ -1,26 +1,24 @@
-import { buildUIElement } from '../../Utility/uiBuilderUtils/uiBuilders';
-import { COMMON_ELEMENTS } from '../../Utility/constants/dom/elements';
-
 const CLASSES = {
   GAME_CONTAINER: 'game-container'
 };
 
 export const GameView = () => {
-  const boardViews = { current: null, waiting: null };
+  const boardDisplay = { current: null };
+  const boardViews = new Map();
   const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
 
   return {
-    displayCurrent: () => boardViews.current.attachTo(gameContainer),
-    switch: () => {
-      const tmp = boardViews.current;
-      boardViews.waiting = boardViews.current;
-      boardViews.current = tmp;
+    updateDisplay: (playerID) => {
+      boardDisplay.current?.remove();
+      const view = boardViews.get(playerID);
+      view.attachTo(gameContainer);
+      boardDisplay.current = view;
     },
-    setBoardViews: (current, waiting) => {
-      boardViews.current = current;
-      boardViews.waiting = waiting;
+    setBoardView: (current, waiting) => {
       boardDisplay.current = current;
+      boardDisplay.waiting = waiting;
     },
-    getBoardViews: () => boardViews
+    addBoardView: (playerID, boardView) => boardViews.set(playerID, boardView),
+    getBoardView: (playerID) => boardViews.get(playerID)
   };
 };

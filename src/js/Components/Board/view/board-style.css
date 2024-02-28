@@ -1,12 +1,5 @@
 @import url('../../../../styles/style.css');
 
-.board-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-top: 1.25em;
-}
-
 .player-name-display {
   text-align: center;
   font-size: 3em;
@@ -15,6 +8,7 @@
 
 .board {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;

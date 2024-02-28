@@ -49,7 +49,7 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     get isAI() {
       return model.properties.isAI();
     },
-    getID: () => model.getID(),
+    getID: () => model.properties.getID(),
     placeShips,
     getView: () => view
   };
