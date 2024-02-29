@@ -19,13 +19,6 @@ export const FleetModel = (fleetScope) => {
     addTrackingShip: (ship) => trackingFleet.set(ship.id, ship),
     getFleet: () => [...mainFleet.values()],
     getTrackingFleet: () => [...trackingFleet.values()],
-    getShipFromMainFleet: (shipID) => mainFleet.get(shipID),
-    getFleetPlacements: () => {
-      const placements = new Map();
-      [...mainFleet.values()].forEach((ship) => {
-        placements.set(ship.getScopedID(), ship.getPlacedCoordinates());
-      });
-      return placements;
-    }
+    getShipFromMainFleet: (shipID) => mainFleet.get(shipID)
   };
 };

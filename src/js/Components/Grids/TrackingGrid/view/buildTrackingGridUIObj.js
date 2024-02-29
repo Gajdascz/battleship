@@ -11,6 +11,7 @@ import {
 
 import { TRACKING_GRID } from '../utility/trackingGridConstants';
 import { COMMON_GRID } from '../../common/gridConstants';
+import { STATUSES } from '../../../../Utility/constants/common';
 /**
  * Creates the specified grid's structured object.
  * Used to create the interface element.
@@ -43,7 +44,8 @@ export const buildTrackingGridUIObj = ({ numberOfRows, numberOfCols, letterAxis 
     buildGridCellObj({
       elementType: TRACKING_GRID.PROPERTIES.CELL_ELEMENT,
       attributes: {
-        value: `${coordinateAttribute}`
+        value: `${coordinateAttribute}`,
+        [TRACKING_GRID.PROPERTIES.ATTRIBUTES.CELL_STATUS_DATA]: STATUSES.UNEXPLORED
       }
     });
 
@@ -62,7 +64,7 @@ export const buildTrackingGridUIObj = ({ numberOfRows, numberOfCols, letterAxis 
     },
     children: [
       buildUIObj(COMMON_ELEMENTS.DIV, {
-        attributes: { class: TRACKING_GRID.TYPE },
+        attributes: { class: TRACKING_GRID.CLASSES.TYPE },
         children: [headerObj, wrapColLabels({ labels: colLabelObjs }), ...rowObjs]
       })
     ]

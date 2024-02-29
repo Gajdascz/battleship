@@ -10,7 +10,6 @@ export const ShipSelectionController = ({ model, view, publisher, componentEmitt
 
   const execute = {
     select: () => {
-      console.log('selected');
       selectionView.update.selectedStatus(true);
       selectionView.enable.orientationToggle();
       model.setIsSelected(true);

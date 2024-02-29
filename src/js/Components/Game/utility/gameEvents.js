@@ -8,5 +8,7 @@ export const GAME_EVENTS = {
   ALL_PLACEMENTS_FINALIZED: 'allPlacementsFinalized', // placement to progress
   ALL_PLAYER_SHIPS_SUNK: 'allPlayerShipsSunk', // progress to over
   ATTACK_SENT: 'playerAttackSent',
-  ATTACK_PROCESSED: 'playerAttackProcessed'
+  ATTACK_AWAITING_PROCESSING: 'playerAttackAwaitingProcessing',
+  ATTACK_PROCESSED: 'playerAttackProcessed',
+  PLAYER_TURN: 'playerTurn'
 };

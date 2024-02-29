@@ -8,14 +8,8 @@ import { DEFAULT_FLEET } from '../../Fleet/utility/fleetConstants';
 import { PLAYERS } from '../../../Utility/constants/common';
 import { AIController } from '../../AI/AIController';
 
-export const initializePlayerComponents = ({
-  playerModel,
-  boardSettings,
-  gameMode,
-  opponentScope
-}) => {
+export const initializePlayerComponents = ({ playerModel, boardSettings, gameMode, shipData }) => {
   console.log(playerModel);
-  const shipData = DEFAULT_FLEET;
   const scope = playerModel.getID();
   const fleetController = FleetController(scope);
   shipData.forEach((ship) => {
@@ -30,8 +24,7 @@ export const initializePlayerComponents = ({
     fleetController,
     mainGridController,
     trackingGridController,
-    gameMode,
-    opponentScope
+    gameMode
   });
   const controllers = {
     board: boardController,
@@ -41,5 +34,5 @@ export const initializePlayerComponents = ({
   };
 
   Object.values(controllers).forEach((controller) => controller.initializeStateManagement());
-  return { playerModel, controllers };
+  return { getID: () => playerModel.getID(), playerModel, controllers };
 };

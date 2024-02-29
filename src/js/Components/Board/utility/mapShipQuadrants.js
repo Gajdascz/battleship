@@ -17,9 +17,7 @@ export const mapShipQuadrants = (placementsMap, gridWidth, gridHeight) => {
   ]);
 
   placementsMap.forEach((storedCoordinates, shipID) => {
-    const coordinates = storedCoordinates.internal;
-    coordinates.forEach((coordinatePair) => {
-      // Now passing both gridWidth and gridHeight
+    storedCoordinates.forEach((coordinatePair) => {
       const quadrantKey = calculateQuadrant(
         coordinatePair[0],
         coordinatePair[1],

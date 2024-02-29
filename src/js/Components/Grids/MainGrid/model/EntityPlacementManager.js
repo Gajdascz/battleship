@@ -1,7 +1,7 @@
 import { STATUSES, ORIENTATIONS } from '../../../../Utility/constants/common';
 import { getRelativeOrientation } from '../../../../Utility/utils/coordinatesUtils';
 
-export const EntityPlacementManager = ({ mainGrid, getCellStatus, setCellStatus, isInBounds }) => {
+export const EntityPlacementManager = ({ mainGrid, valueAt, setCellStatus, isInBounds }) => {
   const placedEntityCoordinates = new Map();
   const isEntityPlaced = (id) => placedEntityCoordinates.has(id);
   const isVertical = (orientation) => orientation === ORIENTATIONS.VERTICAL;
@@ -10,12 +10,12 @@ export const EntityPlacementManager = ({ mainGrid, getCellStatus, setCellStatus,
     if (!isInBounds(start) || !isInBounds(end)) return false;
     if (isVertical(orientation)) {
       for (let i = start[1]; i <= end[1]; i++) {
-        const status = getCellStatus([start[0], i]);
+        const status = valueAt([start[0], i]).status;
         if (status !== STATUSES.EMPTY) return false;
       }
     } else {
       for (let i = start[0]; i <= end[0]; i++) {
-        const status = getCellStatus([i, start[1]]);
+        const status = valueAt([i, start[1]]).status;
         if (status !== STATUSES.EMPTY) return false;
       }
     }
@@ -39,13 +39,13 @@ export const EntityPlacementManager = ({ mainGrid, getCellStatus, setCellStatus,
         for (let i = start[0]; i <= end[0]; i++) {
           const placement = [i, start[1]];
           entityPlacementCoordinates.push(placement);
-          setCellStatus(placement, STATUSES.OCCUPIED);
+          setCellStatus(placement, { status: STATUSES.OCCUPIED, id: entityID });
         }
       } else {
         for (let i = start[1]; i <= end[1]; i++) {
           const placement = [start[0], i];
           entityPlacementCoordinates.push(placement);
-          setCellStatus(placement, STATUSES.OCCUPIED);
+          setCellStatus(placement, { status: STATUSES.OCCUPIED, id: entityID });
         }
       }
     } else return false;

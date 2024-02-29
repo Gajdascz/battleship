@@ -12,7 +12,7 @@ export const FleetView = () => {
 
   return {
     attachMainFleetTo: (container) => container.append(mainFleetElement),
-    attachTrackingGridTo: (container) => container.append(trackingFleetElement),
+    attachTrackingFleetTo: (container) => container.append(trackingFleetElement),
     addShipView: (shipID, shipView) => shipViews.set(shipID, shipView),
     populateFleetShipLists: () =>
       shipViews.forEach((shipView) => {

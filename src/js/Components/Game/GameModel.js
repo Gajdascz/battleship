@@ -1,22 +1,16 @@
-import { STATES } from '../../Utility/constants/common';
 import { createIdentity } from '../../Utility/utils/createIdentity';
 
 export const GameModel = (gameScope) => {
   const { id, scopedID, scope } = createIdentity({ scope: gameScope, name: 'game' });
-  const players = {
-    p1: { id: null, model: null, board: null },
-    p2: { id: null, model: null, board: null }
-  };
-  const playerStates = { current: players.p1, opponent: players.p2 };
-  const state = { current: STATES.START };
-  const mode = { current: null };
-  const fleetPlacementStatus = {};
+  const players = new Map();
+  const dataTracker = { numberOfPlacementsFinalized: 0, numberOfFleetsSunk: 0 };
+  const playerOrder = [];
+  const currentPlayer = { id: null, player: null, index: null };
+  let mode = null;
 
-  const isAllPlayerShipsPlaced = () =>
-    fleetPlacementStatus[players.p1.id] && fleetPlacementStatus[players.p2.id];
+  const isAllPlayerShipsPlaced = () => players.size === dataTracker.numberOfPlacementsFinalized;
 
-  const hasPlayerLost = () =>
-    playerStates.current.board.isAllShipsSunk() || playerStates.opponent.board.isAllShipsSunk();
+  const hasPlayerLost = () => dataTracker.numberOfFleetsSunk > 0;
 
   const isInProgress = () => !(isAllPlayerShipsPlaced() || hasPlayerLost());
 
@@ -24,37 +18,50 @@ export const GameModel = (gameScope) => {
     getID: () => id,
     getScopedID: () => scopedID,
     getScope: () => scope,
-    getCurrentPlayer: () => playerStates.current,
-    getOpponentPlayer: () => playerStates.opponent,
-    getCurrentPlayerID: () => playerStates.current.model.getID(),
-    getCurrentPlayerName: () => playerStates.current.model.getName(),
-    getWaitingPlayerName: () => playerStates.opponent.model.getName(),
-    getGameMode: () => mode.current,
-    setCurrentPlayerPlacementStatus: (status) =>
-      (fleetPlacementStatus[playerStates.current.id] = status),
-    setOpponentPlayerPlacementStatus: (status) =>
-      (fleetPlacementStatus[playerStates.opponent.id] = status), // Used for setting AI placement automatically
+    getCurrentPlayerObj: () => currentPlayer.player,
+    getCurrentPlayerID: () => currentPlayer.id,
+    getGameMode: () => mode,
+    addPlayer: (id, player) => players.set(id, player),
     isAllPlayerShipsPlaced,
     hasPlayerLost,
     isInProgress,
-    setP1: ({ id, playerModel, boardController }) => {
-      players.p1.id = id;
-      players.p1.model = playerModel;
-      players.p1.board = boardController;
-      fleetPlacementStatus[id] = false;
+    placementFinalized: () => {
+      dataTracker.numberOfPlacementsFinalized += 1;
+      console.log(dataTracker.numberOfPlacementsFinalized);
     },
-    setP2: ({ id, playerModel, boardController }) => {
-      players.p2.id = id;
-      players.p2.model = playerModel;
-      players.p2.board = boardController;
-      fleetPlacementStatus[id] = false;
+    fleetSunk: () => (dataTracker.numberOfFleetsSunk += 1),
+    setGameMode: (value) => (mode = value),
+    setPlayerOrder: (ids = null) => {
+      playerOrder.length = 0;
+      if (!ids) players.forEach((player) => playerOrder.push(player));
+      else {
+        ids.forEach((id) => {
+          const player = players.get(id);
+          playerOrder.push(player);
+        });
+      }
+      currentPlayer.player = playerOrder[0];
+      currentPlayer.index = 0;
+      currentPlayer.id = currentPlayer.player.getID();
     },
-    setGameMode: (value) => (mode.current = value),
-    switchCurrentPlayer: () => {
-      const currentPlayer = playerStates.current;
-      playerStates.current = playerStates.opponent;
-      playerStates.opponent = currentPlayer;
-      return playerStates.current;
+    moveToNextPlayer: () => {
+      const nextIndex = currentPlayer.index + 1;
+      if (nextIndex < playerOrder.length) {
+        currentPlayer.player = playerOrder[nextIndex];
+        currentPlayer.index = nextIndex;
+      } else {
+        currentPlayer.player = playerOrder[0];
+        currentPlayer.index = 0;
+        currentPlayer.id = currentPlayer.player.getID();
+      }
+    },
+    reset: () => {
+      currentPlayer.player = null;
+      currentPlayer.index = null;
+      currentPlayer.id = null;
+      players.clear();
+      dataTracker.numberOfFleetsSunk = 0;
+      dataTracker.numberOfPlacementsFinalized = 0;
     }
   };
 };

@@ -1,4 +1,3 @@
-import { BoardView } from './view/BoardView';
 import { BoardModel } from './model/BoardModel';
 import { mapShipQuadrants } from './utility/mapShipQuadrants';
 import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
@@ -11,6 +10,7 @@ import { GAME_EVENTS } from '../Game/utility/gameEvents';
 import { GAME_MODES } from '../../Utility/constants/common';
 import { HvHBoardView } from './view/HvHBoardView';
 import { HvABoardView } from './view/HvABoardView';
+import { TRACKING_GRID_EVENTS } from '../Grids/TrackingGrid/utility/trackingGridEvents';
 
 export const BoardController = ({
   playerID,
@@ -18,8 +18,7 @@ export const BoardController = ({
   fleetController,
   mainGridController,
   trackingGridController,
-  gameMode,
-  opponentScope
+  gameMode
 }) => {
   const controllers = {
     fleet: fleetController,
@@ -61,10 +60,34 @@ export const BoardController = ({
       view.buttons.rotateShip.clearWrapper();
     },
     placementsFinalized: () => {
-      // map placement quadrants
-      if (gameMode === GAME_MODES.HvA) view.aiView.display();
-      else view.displayAlternatePlayerDialog();
-      publisher.global.noFulfill(GAME_EVENTS.TURN_ENDED);
+      // const { width, height } = mainGridController.getDimensions();
+      // quadrantMap.current = mapShipQuadrants(
+      //   mainGridController.getEntityPlacements(),
+      //   width,
+      //   height
+      // );
+      // console.log(quadrantMap.current);
+      view.placement.end();
+      placementManager.unsubscribe();
+      publisher.scoped.noFulfill(GAME_EVENTS.TURN_ENDED);
+    },
+    attackSent: ({ data }) => {
+      const { internal, display } = data;
+      subscriptionManager.scoped.subscribe(
+        MAIN_GRID_EVENTS.COMBAT.INCOMING_ATTACK_PROCESSED,
+        handlers.attackProcessed
+      );
+      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.COMBAT.INCOMING_ATTACK_REQUESTED, {
+        coordinates: internal
+      });
+    },
+    attackProcessed: ({ data }) => {
+      const { result } = data;
+      subscriptionManager.scoped.unsubscribe(
+        MAIN_GRID_EVENTS.COMBAT.INCOMING_ATTACK_REQUESTED,
+        handlers.attackProcessed
+      );
+      publisher.scoped.noFulfill(TRACKING_GRID_EVENTS.ATTACK_RESULT_REQUESTED, { result });
     }
   };
 
@@ -77,32 +100,29 @@ export const BoardController = ({
     subscribe: () => subscriptionManager.scoped.subscribeMany(placementManager.subscriptions),
     unsubscribe: () => subscriptionManager.all.unsubscribe(placementManager.subscriptions),
     initialize: () => {
-      view.buttons.submitPlacements.init();
-      view.trackingGrid.disable();
-      view.trackingGrid.hide();
+      view.placement.start();
       placementManager.subscribe();
-    },
-    end: () => {
-      view.trackingGrid.show();
-      view.trackingGrid.enable();
-      placementManager.unsubscribe();
     }
   };
 
   const combatHvHStrategy = {};
 
   const combatManager = {
-    subscriptions: [{ event: GAME_EVENTS.ATTACK_SENT }],
+    subscriptions: [{ event: TRACKING_GRID_EVENTS.ATTACK_SENT, callback: handlers.attackSent }],
     initialize: () => {
-      view.buttons.endTurn.init();
+      subscriptionManager.scoped.subscribeMany(combatManager.subscriptions);
     }
   };
 
-  stateManager.setFunctions.placement(placementManager.initialize, placementManager.end);
+  stateManager.setFunctions.placement({ enterFns: placementManager.initialize });
+  stateManager.setFunctions.progress({ enterFns: combatManager.initialize });
 
   return {
     getBoardElement: () => view.getBoardElement(),
-    setTrackingFleet: (opponentTrackingFleet) => view.setTrackingFleet(opponentTrackingFleet),
+    set: {
+      displayContainer: (container) => view.setContainer(container),
+      trackingFleet: (fleet) => view.trackingGrid.setFleet(fleet)
+    },
     isAllShipsPlaced: () => model.isAllShipsPlaced(),
     getView: () => view,
     initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager),

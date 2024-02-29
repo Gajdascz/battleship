@@ -18,10 +18,13 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     boardSettings.numberOfCols
   );
   const fleetModel = AIFleetModel();
+
+  const shipNames = [];
   shipData.forEach((ship) => {
     const shipModel = AIShipModel(ship.length, ship.name);
     fleetModel.addMainShip(shipModel);
     fleetModel.addTrackingShip(shipModel.getID(), ship.length);
+    shipNames.push(shipModel.getName());
   });
   const model = AIModel({
     aiName: AI_NAMES[difficulty],
@@ -30,7 +33,8 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     mainGridModel,
     trackingGridModel
   });
-  const view = AIView(boardSettings, model.properties.getName());
+  const view = AIView(boardSettings, model.properties.getName(), shipNames);
+
   const placementManager = PlacementManager(model.mainGrid.get());
 
   /**

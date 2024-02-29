@@ -5,8 +5,10 @@ import './board-style.css';
 export const BaseBoardView = (
   scopedID,
   playerName,
-  { mainGridView, trackingGridView, fleetView }
+  { mainGridView, trackingGridView, fleetView },
+  container = document.querySelector('body')
 ) => {
+  let displayContainer = container;
   const BOARD_CONTAINER_CLASS = 'board';
   const BOARD_BUTTONS_CONTAINER_CLASS = 'board-buttons-container';
   const PLAYER_NAME_DISPLAY = 'player-name-display';
@@ -36,6 +38,7 @@ export const BaseBoardView = (
   mainGridView.attachTo(boardContainer);
   fleetView.attachMainFleetTo(gridUtilityContainers.main);
   mainGridView.attachToWrapper(gridUtilityContainers.main);
+  trackingGridView.attachToWrapper(gridUtilityContainers.tracking);
   gridUtilityContainers.main.append(buttonsContainer);
 
   trackingGridView.attachTo(boardContainer);
@@ -76,18 +79,21 @@ export const BaseBoardView = (
       )
   };
 
+  const trackingGrid = {
+    setFleet: (opponentTrackingFleet) =>
+      gridUtilityContainers.tracking.append(opponentTrackingFleet),
+    hide: () => trackingGridView.hide(),
+    show: () => trackingGridView.show(),
+    enable: () => trackingGridView.enable(),
+    disable: () => trackingGridView.disable(),
+    attachToWrapper: (element) => trackingGridView.attachToWrapper(element)
+  };
+
   return {
-    attachTo: (container) => container.append(boardContainer),
+    setContainer: (container) => (displayContainer = container),
+    display: () => displayContainer.append(boardContainer),
     remove: () => boardContainer.remove(),
-    trackingGrid: {
-      setFleet: (opponentTrackingFleet) => trackingGridView.attachToWrapper(opponentTrackingFleet),
-      hide: () => trackingGridView.hide(),
-      show: () => trackingGridView.show(),
-      enable: () => trackingGridView.enable(),
-      disable: () => trackingGridView.disable(),
-      attachToUtilityContainer: (element) => gridUtilityContainers.tracking.append(element),
-      attachToWrapper: (element) => trackingGridView.attachToWrapper(element)
-    },
+    trackingGrid,
     buttonsManager,
     buttons: {
       rotateShip: {

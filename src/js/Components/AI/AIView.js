@@ -1,5 +1,7 @@
 import { MOUSE_EVENTS } from '../../Utility/constants/dom/domEvents';
 import { TrackingGridView } from '../Grids/TrackingGrid/view/TrackingGridView';
+import { AIShipView } from './components/Ship/AIShipView';
+import { AIFleetView } from './components/Fleet/AIFleetView';
 
 const AI_DISPLAY = {
   CLASSES: {
@@ -26,9 +28,22 @@ const buildAIDisplay = (boardSettings, aiName) => {
   return trackingGridView;
 };
 
-export const AIView = (boardSettings, aiName) => {
+const buildAIFleet = (shipNames) => {
+  const fleetView = AIFleetView();
+  shipNames.forEach((name) => {
+    const shipView = AIShipView(name);
+    const id = name.toLowerCase().replace(/' '/, '-');
+    fleetView.addShipView(id, shipView);
+  });
+  fleetView.populateFleetShipLists();
+  return fleetView;
+};
+
+export const AIView = (boardSettings, aiName, shipNames) => {
   const trackingGridView = buildAIDisplay(boardSettings, aiName);
+  const fleetView = buildAIFleet(shipNames);
   return {
-    ...trackingGridView
+    ...trackingGridView,
+    getFleetElement: () => fleetView.getTrackingFleet()
   };
 };

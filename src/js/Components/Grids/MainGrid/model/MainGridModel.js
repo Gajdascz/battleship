@@ -23,39 +23,34 @@ export const MainGridModel = (
   const maxHorizontal = mainGrid[0].length - 1;
 
   const isInBounds = (coordinates) => isWithinGrid(mainGrid, coordinates);
+  const valueAt = (coordinates) => getValueAt(mainGrid, coordinates);
 
-  const getCellStatus = (coordinates) => {
-    if (!isInBounds(coordinates)) return;
-    getValueAt(mainGrid, coordinates);
-  };
   const setCellStatus = (coordinates, status) => {
     if (!isInBounds(coordinates)) return;
     mainGrid[coordinates[0]][coordinates[1]] = status;
+    return status;
   };
   const entityPlacementManager = EntityPlacementManager({
     mainGrid,
-    getCellStatus,
+    valueAt,
     setCellStatus,
     isInBounds
   });
 
-  function incomingAttack(coordinates) {
+  const processIncomingAttack = (coordinates) => {
     if (!isInBounds(coordinates)) return false;
-    const cellStatus = getCellStatus(coordinates);
-    if (cellStatus.status === STATUSES.OCCUPIED) {
-      setCellStatus(coordinates, STATUSES.HIT);
-      return STATUSES.HIT;
-    } else return STATUSES.MISS;
-  }
+    const cell = valueAt(coordinates);
+    if (cell.status === STATUSES.OCCUPIED) return setCellStatus(coordinates, STATUSES.HIT);
+    else return setCellStatus(coordinates, STATUSES.MISS);
+  };
 
   return {
     place: (coordinates, id) => entityPlacementManager.placeEntity(coordinates, id),
     removePlacedEntity: (id) => entityPlacementManager.removePlacedEntity(id),
     isEntityPlaced: (id) => entityPlacementManager.isEntityPlaced(id),
-    getPlacedEntities: () => entityPlacementManager.getPlacedEntityMap(),
-    incomingAttack,
+    getEntityPlacements: () => entityPlacementManager.getPlacedEntityMap(),
+    processIncomingAttack,
     isInBounds,
-    getCellStatus,
     setCellStatus,
     getMainGrid: () => copyGrid(mainGrid),
     getLetterAxis: () => letterAxis,

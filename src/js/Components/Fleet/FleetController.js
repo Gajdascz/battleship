@@ -24,7 +24,6 @@ export const FleetController = (scope) => {
 
   const handlers = {
     shipSelectRequested: ({ data }) => {
-      console;
       const { scopedID } = data;
       shipControllers.forEach((controller) => {
         if (controller.properties.getScopedID() === scopedID) controller.placement.select();
@@ -63,15 +62,15 @@ export const FleetController = (scope) => {
     }
   };
 
-  stateManager.setFunctions.placement(
-    selectionAndPlacementManager.initialize,
-    selectionAndPlacementManager.end
-  );
+  stateManager.setFunctions.placement({
+    enterFns: selectionAndPlacementManager.initialize,
+    exitFns: selectionAndPlacementManager.end
+  });
 
   return {
     getView: () => view,
     getModel: () => model,
-    getTrackingFleet: () => view.elements.trackingFleet,
+    getTrackingFleet: () => view.getTrackingFleet(),
     assignShipToFleet,
     forEach: (callback) => shipControllers.forEach((ship) => callback(ship)),
     initializeStateManagement: () => {

@@ -6,6 +6,7 @@ import { MAIN_GRID_EVENTS } from './utility/mainGridEvents';
 import { EventManager } from '../../../Events/management/EventManager';
 import { GameStateManager } from '../../../State/GameStateManager';
 import stateManagerRegistry from '../../../State/stateManagerRegistry';
+import { GAME_EVENTS } from '../../Game/utility/gameEvents';
 export const MainGridController = (scope, boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;
   const model = MainGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
@@ -33,7 +34,12 @@ export const MainGridController = (scope, boardConfig) => {
         data
       ),
     finalizePlacements: ({ data }) =>
-      componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED, data)
+      componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.FINALIZATION_REQUESTED, data),
+    acceptAttackRequest: ({ data }) => {
+      const { coordinates } = data;
+      const result = model.processIncomingAttack(coordinates);
+      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.COMBAT.INCOMING_ATTACK_PROCESSED, { result });
+    }
   };
 
   const placementManager = {
@@ -69,12 +75,32 @@ export const MainGridController = (scope, boardConfig) => {
       componentEmitter.reset();
     }
   };
-  stateManager.setFunctions.placement(placementManager.initialize, placementManager.end);
+
+  const combatManager = {
+    subscriptions: [
+      {
+        event: MAIN_GRID_EVENTS.COMBAT.INCOMING_ATTACK_REQUESTED,
+        callback: handlers.acceptAttackRequest
+      }
+    ],
+    initialize: () => {
+      subscriptionManager.scoped.subscribeMany(combatManager.subscriptions);
+    }
+  };
+
+  stateManager.setFunctions.placement({
+    enterFns: placementManager.initialize,
+    exitFns: placementManager.end
+  });
+  stateManager.setFunctions.progress({
+    enterFns: combatManager.initialize
+  });
 
   return {
     getDimensions: () => model.getDimensions(),
     getModel: () => model,
     getView: () => view,
+    getEntityPlacements: () => model.getEntityPlacements(),
     initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager)
   };
 };

@@ -48,7 +48,6 @@ export const ShipController = (scope, shipData) => {
         selectionAndPlacementManager.handle.deselection();
       },
       selection: () => {
-        console.log('test');
         componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECTION_REQUESTED);
         componentEmitter.publish(SHIP_EVENTS.PLACEMENT.ENABLE_PLACEMENT_REQUESTED);
         if (model.isPlaced()) componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PICKUP_REQUESTED);
@@ -76,10 +75,10 @@ export const ShipController = (scope, shipData) => {
       componentEmitter.publish(SHIP_EVENTS.PLACEMENT.OVER);
     }
   };
-  stateManager.setFunctions.placement(
-    selectionAndPlacementManager.initialize,
-    selectionAndPlacementManager.end
-  );
+  stateManager.setFunctions.placement({
+    enterFns: selectionAndPlacementManager.initialize,
+    exitFns: selectionAndPlacementManager.end
+  });
 
   return {
     properties: {

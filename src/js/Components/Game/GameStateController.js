@@ -15,7 +15,10 @@ export const GameStateController = () => {
   const disable = () =>
     globalEmitter.unsubscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
 
-  const publishStateTransition = (state) => globalEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
+  const publishStateTransition = (state) => {
+    console.log(state);
+    globalEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
+  };
   const publishPlayerSwitched = () => globalEmitter.publish(GAME_EVENTS.PLAYER_SWITCHED);
 
   const transition = () => {

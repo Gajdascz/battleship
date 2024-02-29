@@ -24,7 +24,7 @@ export const HvHBoardView = ({
 
   const endTurnButtonController = {
     init: () => {
-      const wrapper = buttonsManager.getWrapper(`end-turn`);
+      const wrapper = base.buttonsManager.getWrapper(`end-turn`);
       wrapper.textContent = '';
       wrapper.append(endTurnButton);
       endTurnButton.addEventListener(MOUSE_EVENTS.CLICK, onEndTurn);
@@ -45,6 +45,21 @@ export const HvHBoardView = ({
   base.setOpponentPlayerName = (name) => (opponentName = name);
 
   base.displayAlternatePlayerDialog = () => alternatePlayerDialog.display(opponentName);
+
+  base.placement = {
+    start: () => {
+      base.trackingGrid.disable();
+      base.trackingGrid.hide();
+      base.buttons.submitPlacements.init();
+      base.display();
+    },
+    end: () => {
+      base.displayAlternatePlayerDialog();
+      base.trackingGrid.enable();
+      base.trackingGrid.show();
+      base.remove();
+    }
+  };
 
   return base;
 };

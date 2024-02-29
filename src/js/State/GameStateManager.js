@@ -58,10 +58,14 @@ export const GameStateManager = (
     executeCurrentEnter();
   };
   const setStateFns = (state, enter, exit) => {
-    const onEnter = Array.isArray(enter) ? enter : [enter];
-    const onExit = Array.isArray(exit) ? exit : [exit];
-    states[state][FN_TYPES.ENTER] = onEnter;
-    states[state][FN_TYPES.EXIT] = onExit;
+    if (enter) {
+      const onEnter = Array.isArray(enter) ? enter : [enter];
+      states[state][FN_TYPES.ENTER] = onEnter;
+    }
+    if (exit) {
+      const onExit = Array.isArray(exit) ? exit : [exit];
+      states[state][FN_TYPES.EXIT] = onExit;
+    }
   };
 
   const loadConfig = (configurations) => {
@@ -77,10 +81,12 @@ export const GameStateManager = (
     setAllStates,
     loadConfig,
     setFunctions: {
-      start: (enterFn, exitFn) => setStateFns(STATES.START, enterFn, exitFn),
-      placement: (enterFn, exitFn) => setStateFns(STATES.PLACEMENT, enterFn, exitFn),
-      progress: (enterFn, exitFn) => setStateFns(STATES.PROGRESS, enterFn, exitFn),
-      over: (enterFn, exitFn) => setStateFns(STATES.OVER, enterFn, exitFn)
+      start: ({ enterFns = null, exitFns = null }) => setStateFns(STATES.START, enterFns, exitFns),
+      placement: ({ enterFns = null, exitFns = null }) =>
+        setStateFns(STATES.PLACEMENT, enterFns, exitFns),
+      progress: ({ enterFns = null, exitFns = null }) =>
+        setStateFns(STATES.PROGRESS, enterFns, exitFns),
+      over: ({ enterFns = null, exitFns = null }) => setStateFns(STATES.OVER, enterFns, exitFns)
     },
     isStateManager
   };

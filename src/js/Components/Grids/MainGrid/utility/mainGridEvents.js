@@ -11,5 +11,9 @@ export const MAIN_GRID_EVENTS = {
     FINALIZATION_REQUESTED: 'gridPlacementsFinalizationRequested', // Player placement submission parsed for grid-placement
     FINALIZED: 'gridPlacementsFinalized', // Placements have been processed and finalized
     END_REQUESTED: 'gridPlacementEndRequested' // Grid placement state is over
+  },
+  COMBAT: {
+    INCOMING_ATTACK_REQUESTED: 'incomingAttackRequested',
+    INCOMING_ATTACK_PROCESSED: 'incomingAttackProcessed'
   }
 };
