@@ -1,12 +1,10 @@
 import { BoardModel } from './model/BoardModel';
-import { mapShipQuadrants } from './utility/mapShipQuadrants';
-import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
-import { SHIP_EVENTS } from '../Ship/events/shipEvents';
+import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/common/mainGridEvents';
+import { SHIP_EVENTS } from '../Ship/common/shipEvents';
 import { EventManager } from '../../Events/management/EventManager';
-import { GameStateController } from '../Game/GameStateController';
 import { GameStateManager } from '../../State/GameStateManager';
 import stateManagerRegistry from '../../State/stateManagerRegistry';
-import { GAME_EVENTS } from '../Game/utility/gameEvents';
+import { GAME_EVENTS } from '../Game/common/gameEvents';
 import { GAME_MODES } from '../../Utility/constants/common';
 import { HvHBoardView } from './view/HvHBoardView';
 import { HvABoardView } from './view/HvABoardView';

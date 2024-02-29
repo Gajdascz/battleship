@@ -1,6 +1,6 @@
 import stateManagerRegistry from '../../State/stateManagerRegistry';
 import { globalEmitter } from '../../Events/core/globalEventEmitter';
-import { GAME_EVENTS } from './utility/gameEvents';
+import { GAME_EVENTS } from './common/gameEvents';
 import { STATES } from '../../Utility/constants/common';
 
 export const GameStateController = () => {

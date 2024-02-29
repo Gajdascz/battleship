@@ -10,6 +10,7 @@ export const EventManager = (scope) => {
   return {
     componentEmitter: {
       subscribe: (event, callback) => componentEmitter.subscribe(event, callback),
+      unsubscribe: (event, callback) => componentEmitter.unsubscribe(event, callback),
       subscribeMany: (subscriptions) => {
         subscriptions.forEach((subscription) =>
           componentEmitter.subscribe(subscription.event, subscription.callback)
@@ -20,7 +21,6 @@ export const EventManager = (scope) => {
           componentEmitter.unsubscribe(subscription.event, subscription.callback)
         );
       },
-      unsubscribe: (event, callback) => componentEmitter.unsubscribe(event, callback),
       publish: (event, data) => componentEmitter.publish(event, data),
       reset: () => componentEmitter.reset()
     },
@@ -39,13 +39,15 @@ export const EventManager = (scope) => {
     subscriptionManager: {
       global: {
         subscribe: (event, callback) => subscriptionManager.subscribeGlobal(event, callback),
+        unsubscribe: (event, callback) => subscriptionManager.unsubscribeGlobal(event, callback),
         subscribeMany: (subscriptions) => subscriptionManager.subscribeManyGlobal(subscriptions),
-        unsubscribe: (event, callback) => subscriptionManager.unsubscribeGlobal(event, callback)
+        unsubscribeMany: (subscriptions) => subscriptionManager.unsubscribeManyGlobal(subscriptions)
       },
       scoped: {
         subscribe: (event, callback) => subscriptionManager.subscribeScoped(event, callback),
+        unsubscribe: (event, callback) => subscriptionManager.unsubscribeScoped(event, callback),
         subscribeMany: (subscriptions) => subscriptionManager.subscribeManyScoped(subscriptions),
-        unsubscribe: (event, callback) => subscriptionManager.unsubscribeScoped(event, callback)
+        unsubscribeMany: (subscriptions) => subscriptionManager.unsubscribeManyScoped(subscriptions)
       },
       all: {
         unsubscribe: () => subscriptionManager.unsubscribeAll()

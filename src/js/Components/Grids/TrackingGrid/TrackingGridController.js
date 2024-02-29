@@ -4,7 +4,7 @@ import { TrackingGridModel } from './model/TrackingGridModel';
 import { TrackingGridView } from './view/TrackingGridView';
 import { convertToInternalFormat } from '../../../Utility/utils/coordinatesUtils';
 import { TRACKING_GRID_EVENTS } from './utility/trackingGridEvents';
-import { GAME_EVENTS } from '../../Game/utility/gameEvents';
+import { GAME_EVENTS } from '../../Game/common/gameEvents';
 import stateManagerRegistry from '../../../State/stateManagerRegistry';
 
 export const TrackingGridController = (scope, { numberOfRows, numberOfCols, letterAxis }) => {

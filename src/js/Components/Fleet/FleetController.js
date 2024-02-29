@@ -1,8 +1,7 @@
 import { FleetModel } from './model/FleetModel';
 import { FleetView } from './view/FleetView';
-import { SHIP_EVENTS } from '../Ship/events/shipEvents';
 import { EventManager } from '../../Events/management/EventManager';
-import { MAIN_GRID_EVENTS } from '../Grids/MainGrid/utility/mainGridEvents';
+import { SHIP_EVENTS, MAIN_GRID_EVENTS } from '../../Events/events';
 import { GameStateManager } from '../../State/GameStateManager';
 import stateManagerRegistry from '../../State/stateManagerRegistry';
 export const FleetController = (scope) => {

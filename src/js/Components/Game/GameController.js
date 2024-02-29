@@ -5,9 +5,9 @@ import { GAME_MODES, PLAYERS } from '../../Utility/constants/common';
 import { GameStateController } from './GameStateController';
 import { globalEmitter } from '../../Events/core/globalEventEmitter';
 import { AIController } from '../AI/AIController';
-import { DEFAULT_FLEET } from '../Fleet/utility/fleetConstants';
+import { DEFAULT_FLEET } from '../Fleet/common/fleetConstants';
 import { PlayerModel } from '../Player/PlayerModel';
-import { GAME_EVENTS } from './utility/gameEvents';
+import { GAME_EVENTS } from './common/gameEvents';
 import { EventScopeManager } from '../../Events/management/EventScopeManager';
 
 const CLASSES = {

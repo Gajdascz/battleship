@@ -1,4 +1,4 @@
-import { GAME_EVENTS } from '../../../Events/eventConstants';
+import { GAME_EVENTS } from '../../../Events/events';
 import { globalEmitter } from '../../../Events/core/globalEventEmitter';
 import { SettingsDialogModel } from './model/SettingsDialogModel';
 import { SettingsDialogView } from './view/SettingsDialogView';

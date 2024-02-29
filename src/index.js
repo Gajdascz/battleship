@@ -6,10 +6,9 @@ import './styles/page-style.css';
 import { SettingsDialogController } from './js/Components/Dialogs/SettingsDialog/SettingsDialogController';
 import { InstructionsDialogView } from './js/Components/Dialogs/InstructionsDialog/InstructionsDialogView';
 
-import { GAME_EVENTS } from './js/Events/eventConstants';
 import { AlternatePlayerDialogView } from './js/Components/Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
 import { GameOverDialogView } from './js/Components/Dialogs/GameOverDialog/GameOverDialogView';
-
+import { GAME_EVENTS } from './js/Events/events';
 GameController(GAME_EVENTS.SETTINGS_SUBMITTED);
 const test = () => console.log('Game Over');
 const settingsDialogController = SettingsDialogController();

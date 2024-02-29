@@ -1,6 +1,6 @@
 import { buildUIObj, buildElementFromUIObj } from '../../../../Utility/uiBuilderUtils/uiBuilders';
 import { COMMON_ELEMENTS } from '../../../../Utility/constants/dom/elements';
-import { TRACKING_FLEET } from '../../../Fleet/utility/fleetConstants';
+import { TRACKING_FLEET } from '../../../Fleet/common/fleetConstants';
 
 const buildFleetContainerObj = () =>
   buildUIObj(COMMON_ELEMENTS.DIV, {

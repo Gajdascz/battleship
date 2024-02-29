@@ -1,7 +1,6 @@
-import { SHIP_CLASSES, SHIP_DATA_ATTRIBUTES } from '../../../Ship/utility/shipConstants';
 import { buildUIObj, buildElementFromUIObj } from '../../../../Utility/uiBuilderUtils/uiBuilders';
 import { COMMON_ELEMENTS } from '../../../../Utility/constants/dom/elements';
-
+import { SHIP_CLASSES, SHIP_DATA_ATTRIBUTES } from '../../../Ship/common/shipConstants';
 const buildBaseShipUIObj = (name, id, type) =>
   buildUIObj(type, {
     attributes: {

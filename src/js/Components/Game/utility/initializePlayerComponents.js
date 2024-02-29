@@ -4,7 +4,7 @@ import { FleetController } from '../../Fleet/FleetController';
 import { MainGridController } from '../../Grids/MainGrid/MainGridController';
 import { TrackingGridController } from '../../Grids/TrackingGrid/TrackingGridController';
 import { BoardController } from '../../Board/BoardController';
-import { DEFAULT_FLEET } from '../../Fleet/utility/fleetConstants';
+import { DEFAULT_FLEET } from '../../Fleet/common/fleetConstants';
 import { PLAYERS } from '../../../Utility/constants/common';
 import { AIController } from '../../AI/AIController';
 
