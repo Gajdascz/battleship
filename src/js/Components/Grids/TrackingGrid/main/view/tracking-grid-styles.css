@@ -1,4 +1,4 @@
-@import url('../../common/grid-style.css');
+@import url('../../../common/grid-style.css');
 
 .tracking-grid > .board-row > .grid-cell[data-cell-status='unexplored']:hover {
   background-color: var(--color-vibrant-green);

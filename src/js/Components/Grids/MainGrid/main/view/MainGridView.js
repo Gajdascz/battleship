@@ -15,12 +15,13 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
     mainGridElement.querySelector(MAIN_GRID.CELL_SELECTOR(coordinates));
 
   const displayShipHit = (coordinates) =>
-    getCell(coordinates[0], coordinates[1]).classList.add(MAIN_GRID.CLASSES.HIT_MARKER);
+    getCell(coordinates).classList.add(MAIN_GRID.CLASSES.HIT_MARKER);
 
   return {
     getCell,
     attachTo: (container) => container.append(wrappedMainGridElement),
     attachToWrapper: (element) => wrappedMainGridElement.append(element),
+    displayShipHit,
     elements: {
       getWrapper: () => wrappedMainGridElement,
       getGrid: () => mainGridElement,

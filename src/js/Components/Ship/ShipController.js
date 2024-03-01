@@ -1,8 +1,9 @@
 // Ship Component
 import { ShipModel } from './main/model/ShipModel';
 import { ShipView } from './main/view/ShipView';
+import { SHIP_EVENTS } from './common/shipEvents';
 import { ShipSelectionAndPlacementManager } from './features/selectionAndPlacement/SelectionAndPlacementManager';
-
+import { ShipCombatManager } from './features/combat/ShipCombatManager';
 // External
 import { EventManager } from '../../Events/management/EventManager';
 import { GameStateManager } from '../../State/GameStateManager';
@@ -22,11 +23,16 @@ export const ShipController = (scope, shipData) => {
     publisher,
     subscriptionManager
   });
+  const combatManager = ShipCombatManager({ model, view, componentEmitter, publisher });
   const stateManager = GameStateManager(model.getScopedID());
 
   stateManager.setFunctions.placement({
     enterFns: selectionAndPlacementManager.initialize,
     exitFns: selectionAndPlacementManager.end
+  });
+  stateManager.setFunctions.progress({
+    enterFns: combatManager.initialize,
+    exitFns: combatManager.end
   });
 
   return {
@@ -37,8 +43,11 @@ export const ShipController = (scope, shipData) => {
       isSelected: () => model.isSelected()
     },
     placement: {
-      select: () => selectionAndPlacementManager.select(),
-      deselect: () => selectionAndPlacementManager.deselect()
+      select: () => componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECT_REQUEST_RECEIVED),
+      deselect: () => componentEmitter.publish(SHIP_EVENTS.SELECTION.DESELECT_REQUEST_RECEIVED)
+    },
+    combat: {
+      hit: () => componentEmitter.publish(SHIP_EVENTS.COMBAT.HIT_REQUEST_RECEIVED)
     },
     getModel: () => model,
     getView: () => view,

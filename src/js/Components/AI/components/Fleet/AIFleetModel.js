@@ -5,6 +5,7 @@ export const AIFleetModel = () => {
 
   return {
     isAllShipsSunk: () => [...aiFleet.values()].every((ship) => ship.isSunk()),
+    isAllShipsPlaced: () => [...aiFleet.values()].every((ship) => ship.isPlaced()),
     addMainShip: (shipModel) => aiFleet.set(shipModel.getID(), shipModel),
     addTrackingShip: (shipID, shipLength) => opponentFleetTracker.set(shipID, shipLength),
     getShipFromAIFleet: (shipID) => aiFleet.get(shipID),

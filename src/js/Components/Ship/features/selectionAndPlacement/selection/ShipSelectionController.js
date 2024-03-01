@@ -77,6 +77,7 @@ export const ShipSelectionController = ({ model, view, publisher, componentEmitt
       });
       stateManager.enable();
       stateManager.isInitialized = true;
+      componentEmitter.subscribe(SHIP_EVENTS.SELECTION.OVER, stateManager.end);
     },
     enable: () => {
       if (stateManager.isEnabled) return;
@@ -102,5 +103,4 @@ export const ShipSelectionController = ({ model, view, publisher, componentEmitt
   };
 
   componentEmitter.subscribe(SHIP_EVENTS.SELECTION.INITIALIZE_REQUESTED, stateManager.initialize);
-  componentEmitter.subscribe(SHIP_EVENTS.SELECTION.OVER, stateManager.end);
 };

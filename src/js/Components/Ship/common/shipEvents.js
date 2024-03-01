@@ -4,9 +4,10 @@ export const SHIP_EVENTS = {
     DISABLED: 'shipSelectionDisableRequested',
     INITIALIZE_REQUESTED: 'shipSelectionInitializeRequested',
     SELECTION_REQUESTED: 'shipSelectionRequested',
-    SELECTION_REQUEST_ACCEPTED: 'shipSelectionRequestAccepted',
+    SELECT_REQUEST_RECEIVED: 'shipSelectionRequestReceived',
     SELECTED: 'shipSelected', // Ship selection request was realized and processed
     DESELECT_REQUESTED: 'shipDeselectRequested',
+    DESELECT_REQUEST_RECEIVED: 'shipDeselectRequestReceived',
     DESELECTED: 'shipDeselected',
     ORIENTATION_TOGGLED: 'shipOrientationToggled',
     OVER: 'shipSelectionOver'
@@ -25,7 +26,9 @@ export const SHIP_EVENTS = {
     DISABLE_PLACEMENT_REQUESTED: 'shipPlacementDisableRequested,'
   },
   COMBAT: {
-    SHIP_HIT: 'shipHit',
-    SHIP_SUNK: 'shipSunk'
+    HIT_REQUEST_RECEIVED: 'shipHitRequestReceived',
+    HIT_REQUESTED: 'shipHitRequested',
+    HIT_PROCESSED: 'shipHitProcessed',
+    SUNK: 'shipSunk'
   }
 };

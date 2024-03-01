@@ -19,18 +19,18 @@ export const HvABoardView = ({
   };
 
   base.placement = {
-    start: () => {
+    initialize: () => {
       base.trackingGrid.disable();
       base.trackingGrid.hide();
       base.buttons.submitPlacements.init();
+    },
+    onTurnStart: () => {
       base.display();
     },
     end: () => {
       base.aiView.display();
-      base.trackingGrid.enable();
       base.trackingGrid.show();
     }
   };
-
   return base;
 };

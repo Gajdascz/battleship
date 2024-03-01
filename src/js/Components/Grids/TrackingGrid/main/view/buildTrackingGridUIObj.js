@@ -1,5 +1,8 @@
-import { COMMON_ELEMENTS } from '../../../../Utility/constants/dom/elements';
-import { buildUIObj, buildElementFromUIObj } from '../../../../Utility/uiBuilderUtils/uiBuilders';
+import { COMMON_ELEMENTS } from '../../../../../Utility/constants/dom/elements';
+import {
+  buildUIObj,
+  buildElementFromUIObj
+} from '../../../../../Utility/uiBuilderUtils/uiBuilders';
 import {
   buildGridCellObj,
   buildGridHeaderObj,
@@ -7,11 +10,11 @@ import {
   generateLabels,
   getLabelTypes,
   wrapColLabels
-} from '../../../../Utility/uiBuilderUtils/gridBuilderUtils';
+} from '../../../../../Utility/uiBuilderUtils/gridBuilderUtils';
 
-import { TRACKING_GRID } from '../utility/trackingGridConstants';
-import { COMMON_GRID } from '../../common/gridConstants';
-import { STATUSES } from '../../../../Utility/constants/common';
+import { TRACKING_GRID } from '../../common/trackingGridConstants';
+import { COMMON_GRID } from '../../../common/gridConstants';
+import { STATUSES } from '../../../../../Utility/constants/common';
 /**
  * Creates the specified grid's structured object.
  * Used to create the interface element.

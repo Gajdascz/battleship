@@ -11,6 +11,7 @@ export const AIShipModel = (shipLength, shipName) => {
   return {
     isShip: () => true,
     isSunk: () => health <= 0,
+    isPlaced: () => placedCoordinates.length === length,
     getID: () => id,
     getLength: () => length,
     getName: () => name,

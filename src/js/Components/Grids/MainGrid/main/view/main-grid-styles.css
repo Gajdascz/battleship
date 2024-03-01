@@ -14,3 +14,9 @@
 .main-grid > .board-row > .grid-cell.main-grid-hit-marker {
   background-color: var(--color-deep-orange-red);
 }
+.submit-ships-placement-button:disabled:hover,
+.submit-ships-placement-button:disabled {
+  background-color: gray;
+  color: #e2e1e1;
+  border: none;
+}

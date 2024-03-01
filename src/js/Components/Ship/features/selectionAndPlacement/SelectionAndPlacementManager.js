@@ -31,10 +31,8 @@ export const ShipSelectionAndPlacementManager = ({
       componentEmitter.publish(SHIP_EVENTS.PLACEMENT.CONTAINER_RECEIVED, data);
       publisher.scoped.noFulfill(SHIP_EVENTS.PLACEMENT.CONTAINER_RECEIVED);
     },
-    placementCoordinatesReceived: ({ data }) => {
-      console.log(data);
-      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED, data);
-    },
+    placementCoordinatesReceived: ({ data }) =>
+      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED, data),
     selectRequest: () => {
       componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECTION_REQUESTED);
       componentEmitter.publish(SHIP_EVENTS.PLACEMENT.ENABLE_PLACEMENT_REQUESTED);
@@ -52,6 +50,8 @@ export const ShipSelectionAndPlacementManager = ({
 
   const onInitialize = () => {
     emit.initializeRequest();
+    componentEmitter.subscribe(SHIP_EVENTS.SELECTION.SELECT_REQUEST_RECEIVED, onSelect);
+    componentEmitter.subscribe(SHIP_EVENTS.SELECTION.DESELECT_REQUEST_RECEIVED, onDeselect);
     subscriptionManager.scoped.subscribe(
       MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED,
       emit.containerCreated
@@ -59,7 +59,6 @@ export const ShipSelectionAndPlacementManager = ({
   };
 
   const onPlacementCoordinatesReceived = ({ data }) => {
-    console.log(data);
     emit.placementCoordinatesReceived({ data });
     onDeselect();
   };
@@ -80,6 +79,8 @@ export const ShipSelectionAndPlacementManager = ({
 
   const onEnd = () => {
     onDeselect();
+    componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.SELECT_REQUEST_RECEIVED, onSelect);
+    componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.DESELECT_REQUEST_RECEIVED, onDeselect);
     subscriptionManager.scoped.unsubscribe(
       MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED,
       emit.containerCreated
@@ -89,8 +90,6 @@ export const ShipSelectionAndPlacementManager = ({
 
   return {
     initialize: () => onInitialize(),
-    end: () => onEnd(),
-    select: () => onSelect(),
-    deselect: () => onDeselect
+    end: () => onEnd()
   };
 };

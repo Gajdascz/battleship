@@ -1,8 +1,10 @@
 import { BaseBoardView } from './BaseBoardView';
-import { AlternatePlayerDialogView } from '../../Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
-import { MOUSE_EVENTS } from '../../../Utility/constants/dom/domEvents';
-import { buildUIElement } from '../../../Utility/uiBuilderUtils/uiBuilders';
-import { COMMON_ELEMENTS } from '../../../Utility/constants/dom/elements';
+import { AlternatePlayerDialogView } from '../../../Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
+import { MOUSE_EVENTS } from '../../../../Utility/constants/dom/domEvents';
+import { buildUIElement } from '../../../../Utility/uiBuilderUtils/uiBuilders';
+import { COMMON_ELEMENTS } from '../../../../Utility/constants/dom/elements';
+import { BASE_CLASSES } from '../../../../Utility/constants/dom/baseStyles';
+
 export const HvHBoardView = ({
   scopedID,
   playerName,
@@ -16,10 +18,13 @@ export const HvHBoardView = ({
   const alternatePlayerDialog = AlternatePlayerDialogView();
   const endTurnButton = buildUIElement(COMMON_ELEMENTS.BUTTON, {
     text: 'End Turn',
-    attributes: { class: 'end-turn-button' }
+    attributes: { class: `${BASE_CLASSES.BUTTON} end-turn-button`, disabled: '' }
   });
+
   const onEndTurn = () => {
-    alternatePlayerDialog.display(opponentPlayerName);
+    alternatePlayerDialog.display(opponentName);
+    endTurnButton.disabled = true;
+    base.remove();
   };
 
   const endTurnButtonController = {
@@ -47,15 +52,16 @@ export const HvHBoardView = ({
   base.displayAlternatePlayerDialog = () => alternatePlayerDialog.display(opponentName);
 
   base.placement = {
-    start: () => {
+    initialize: () => {
       base.trackingGrid.disable();
       base.trackingGrid.hide();
       base.buttons.submitPlacements.init();
+    },
+    onTurnStart: () => {
       base.display();
     },
     end: () => {
       base.displayAlternatePlayerDialog();
-      base.trackingGrid.enable();
       base.trackingGrid.show();
       base.remove();
     }

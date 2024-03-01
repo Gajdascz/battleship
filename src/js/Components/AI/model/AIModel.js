@@ -2,8 +2,8 @@ import { AvailableMovesManager } from './AvailableMovesManager';
 
 export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackingGridModel }) => {
   const name = aiName;
-  const id = 'AI';
-  const type = 'AI';
+  const id = 'ai';
+  const type = 'ai';
   const mainGrid = mainGridModel;
   const trackingGrid = trackingGridModel;
   const fleet = fleetModel;
@@ -26,7 +26,9 @@ export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackin
       setShipPlacementCoordinates: (id, placement) => {
         const ship = fleet.getShipFromAIFleet(id);
         ship.setPlacedCoordinates(placement);
-      }
+      },
+      isAllShipsSunk: () => fleet.isAllShipsSunk(),
+      isAllShipsPlaced: () => fleet.isAllShipsPlaced()
     },
     moves: {
       initialize: () => movesManager.initializeAvailableMoves(trackingGrid),

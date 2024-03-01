@@ -3,14 +3,19 @@ import { createIdentity } from '../../Utility/utils/createIdentity';
 export const GameModel = (gameScope) => {
   const { id, scopedID, scope } = createIdentity({ scope: gameScope, name: 'game' });
   const players = new Map();
-  const dataTracker = { numberOfPlacementsFinalized: 0, numberOfFleetsSunk: 0 };
   const playerOrder = [];
-  const currentPlayer = { id: null, player: null, index: null };
+  const currentPlayer = { player: null, index: null };
   let mode = null;
 
-  const isAllPlayerShipsPlaced = () => players.size === dataTracker.numberOfPlacementsFinalized;
+  const isAllPlayerShipsPlaced = () =>
+    [...players.values()].every((player) => player.isAllShipsPlaced());
 
-  const hasPlayerLost = () => dataTracker.numberOfFleetsSunk > 0;
+  const hasPlayerLost = () => {
+    for (const player of players.values()) {
+      if (player.isAllShipsSunk()) return player.name;
+    }
+    return false;
+  };
 
   const isInProgress = () => !(isAllPlayerShipsPlaced() || hasPlayerLost());
 
@@ -19,17 +24,12 @@ export const GameModel = (gameScope) => {
     getScopedID: () => scopedID,
     getScope: () => scope,
     getCurrentPlayerObj: () => currentPlayer.player,
-    getCurrentPlayerID: () => currentPlayer.id,
+    getCurrentPlayerID: () => currentPlayer.player.id,
     getGameMode: () => mode,
-    addPlayer: (id, player) => players.set(id, player),
+    addPlayer: (player) => players.set(player.id, player),
     isAllPlayerShipsPlaced,
     hasPlayerLost,
     isInProgress,
-    placementFinalized: () => {
-      dataTracker.numberOfPlacementsFinalized += 1;
-      console.log(dataTracker.numberOfPlacementsFinalized);
-    },
-    fleetSunk: () => (dataTracker.numberOfFleetsSunk += 1),
     setGameMode: (value) => (mode = value),
     setPlayerOrder: (ids = null) => {
       playerOrder.length = 0;
@@ -40,28 +40,27 @@ export const GameModel = (gameScope) => {
           playerOrder.push(player);
         });
       }
-      currentPlayer.player = playerOrder[0];
+      const player = playerOrder[0];
+      currentPlayer.player = player;
       currentPlayer.index = 0;
-      currentPlayer.id = currentPlayer.player.getID();
     },
     moveToNextPlayer: () => {
       const nextIndex = currentPlayer.index + 1;
       if (nextIndex < playerOrder.length) {
-        currentPlayer.player = playerOrder[nextIndex];
+        const player = playerOrder[nextIndex];
+        currentPlayer.player = player;
         currentPlayer.index = nextIndex;
       } else {
-        currentPlayer.player = playerOrder[0];
+        const player = playerOrder[0];
+        currentPlayer.player = player;
         currentPlayer.index = 0;
-        currentPlayer.id = currentPlayer.player.getID();
       }
+      console.log(currentPlayer);
     },
     reset: () => {
       currentPlayer.player = null;
       currentPlayer.index = null;
-      currentPlayer.id = null;
       players.clear();
-      dataTracker.numberOfFleetsSunk = 0;
-      dataTracker.numberOfPlacementsFinalized = 0;
     }
   };
 };

@@ -9,13 +9,13 @@ export const EntityPlacementManager = ({ mainGrid, valueAt, setCellStatus, isInB
   const isPlacementValid = (start, end, orientation) => {
     if (!isInBounds(start) || !isInBounds(end)) return false;
     if (isVertical(orientation)) {
-      for (let i = start[1]; i <= end[1]; i++) {
-        const status = valueAt([start[0], i]).status;
+      for (let i = start[0]; i <= end[0]; i++) {
+        const status = valueAt([i, start[1]]).status;
         if (status !== STATUSES.EMPTY) return false;
       }
     } else {
-      for (let i = start[0]; i <= end[0]; i++) {
-        const status = valueAt([i, start[1]]).status;
+      for (let i = start[1]; i <= end[1]; i++) {
+        const status = valueAt([start[0], i]).status;
         if (status !== STATUSES.EMPTY) return false;
       }
     }
@@ -35,17 +35,19 @@ export const EntityPlacementManager = ({ mainGrid, valueAt, setCellStatus, isInB
     const entityPlacementCoordinates = [];
     const orientation = getRelativeOrientation(start, end, false);
     if (isPlacementValid(start, end, orientation)) {
-      if (orientation === ORIENTATIONS.VERTICAL) {
+      if (isVertical(orientation)) {
         for (let i = start[0]; i <= end[0]; i++) {
           const placement = [i, start[1]];
           entityPlacementCoordinates.push(placement);
-          setCellStatus(placement, { status: STATUSES.OCCUPIED, id: entityID });
+          const [x, y] = placement;
+          mainGrid[x][y] = { status: STATUSES.OCCUPIED, id: entityID };
         }
       } else {
         for (let i = start[1]; i <= end[1]; i++) {
           const placement = [start[0], i];
           entityPlacementCoordinates.push(placement);
-          setCellStatus(placement, { status: STATUSES.OCCUPIED, id: entityID });
+          const [x, y] = placement;
+          mainGrid[x][y] = { status: STATUSES.OCCUPIED, id: entityID };
         }
       }
     } else return false;

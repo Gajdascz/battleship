@@ -18,7 +18,7 @@ export const MainGridModel = (
     scope: gridScope,
     name: 'mainGrid'
   });
-  const mainGrid = createGrid(numberOfRows, numberOfCols, STATUSES.EMPTY);
+  const mainGrid = createGrid(numberOfRows, numberOfCols, { status: STATUSES.EMPTY, id: null });
   const maxVertical = mainGrid.length - 1;
   const maxHorizontal = mainGrid[0].length - 1;
 
@@ -27,8 +27,7 @@ export const MainGridModel = (
 
   const setCellStatus = (coordinates, status) => {
     if (!isInBounds(coordinates)) return;
-    mainGrid[coordinates[0]][coordinates[1]] = status;
-    return status;
+    mainGrid[coordinates[0]][coordinates[1]].status = status;
   };
   const entityPlacementManager = EntityPlacementManager({
     mainGrid,
@@ -40,8 +39,10 @@ export const MainGridModel = (
   const processIncomingAttack = (coordinates) => {
     if (!isInBounds(coordinates)) return false;
     const cell = valueAt(coordinates);
-    if (cell.status === STATUSES.OCCUPIED) return setCellStatus(coordinates, STATUSES.HIT);
-    else return setCellStatus(coordinates, STATUSES.MISS);
+    if (cell.status === STATUSES.OCCUPIED) setCellStatus(coordinates, STATUSES.HIT);
+    else setCellStatus(coordinates, STATUSES.MISS);
+    console.log(valueAt(coordinates));
+    return valueAt(coordinates);
   };
 
   return {

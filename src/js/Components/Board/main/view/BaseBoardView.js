@@ -1,5 +1,5 @@
-import { COMMON_ELEMENTS } from '../../../Utility/constants/dom/elements';
-import { buildUIElement } from '../../../Utility/uiBuilderUtils/uiBuilders';
+import { COMMON_ELEMENTS } from '../../../../Utility/constants/dom/elements';
+import { buildUIElement } from '../../../../Utility/uiBuilderUtils/uiBuilders';
 import './board-style.css';
 
 export const BaseBoardView = (

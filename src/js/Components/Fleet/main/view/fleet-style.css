@@ -1,0 +1,22 @@
+@import url('../../../../../styles/style.css');
+
+.tracking-fleet,
+.main-fleet {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: baseline;
+  min-width: fit-content;
+  gap: 0.3em;
+}
+.tracking-fleet-header,
+.main-fleet-header {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-bottom: 2px solid var(--text-white);
+  width: 100%;
+}
+.main-fleet-ship-list {
+  width: 100%;
+}

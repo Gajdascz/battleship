@@ -1,4 +1,4 @@
-import { MAIN_FLEET, TRACKING_FLEET } from '../common/fleetConstants';
+import { MAIN_FLEET, TRACKING_FLEET } from '../../common/fleetConstants';
 import { buildFleetUIObj } from './buildFleetUIObj';
 import './fleet-style.css';
 export const FleetView = () => {

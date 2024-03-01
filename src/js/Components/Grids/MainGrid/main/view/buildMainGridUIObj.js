@@ -13,6 +13,7 @@ import {
   getLabelTypes,
   wrapColLabels
 } from '../../../../../Utility/uiBuilderUtils/gridBuilderUtils';
+import { BASE_CLASSES } from '../../../../../Utility/constants/dom/baseStyles';
 
 /**
  * Creates the specified grid's structured object.
@@ -73,7 +74,7 @@ export const buildMainGridUIObj = ({ numberOfRows, numberOfCols, letterAxis }) =
 
   const submitPlacementsButtonUIObj = buildUIObj(COMMON_ELEMENTS.BUTTON, {
     text: 'Submit Placements',
-    attributes: { class: 'submit-ships-placement-button', disabled: '' }
+    attributes: { class: `${BASE_CLASSES.BUTTON} submit-ships-placement-button`, disabled: '' }
   });
   return {
     wrappedMainGridElement: buildElementFromUIObj(mainGridUIObj),

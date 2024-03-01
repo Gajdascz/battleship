@@ -1,4 +1,4 @@
-@import url('../../../../styles/style.css');
+@import url('../../../../../styles/style.css');
 
 .player-name-display {
   text-align: center;
@@ -48,7 +48,14 @@
   flex-direction: column;
   gap: 0.25em;
 }
-.board-buttons-container > button {
+.board-buttons-container > div > button {
   flex: 1;
-  height: 60px;
+  width: 100%;
+}
+
+.end-turn-button:disabled,
+.end-turn-button:disabled:hover {
+  background-color: gray;
+  color: #e2e1e1;
+  border-color: gray;
 }

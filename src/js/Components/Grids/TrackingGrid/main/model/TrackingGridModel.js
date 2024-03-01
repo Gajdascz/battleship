@@ -1,6 +1,6 @@
-import { createGrid, isWithinGrid, getValueAt } from '../../../../Utility/utils/gridUtils';
-import { STATUSES } from '../../../../Utility/constants/common';
-import { createIdentity } from '../../../../Utility/utils/createIdentity';
+import { createGrid, isWithinGrid, getValueAt } from '../../../../../Utility/utils/gridUtils';
+import { STATUSES } from '../../../../../Utility/constants/common';
+import { createIdentity } from '../../../../../Utility/utils/createIdentity';
 
 export const TrackingGridModel = (gridScope, { rows = 10, cols = 10, letterAxis = 'row' } = {}) => {
   if (rows > 26 || cols > 26) throw new Error('Board cannot have more than 25 rows or columns.');

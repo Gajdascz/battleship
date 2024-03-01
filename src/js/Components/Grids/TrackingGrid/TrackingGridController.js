@@ -1,11 +1,13 @@
+// Tracking Grid Component
+import { TrackingGridModel } from './main/model/TrackingGridModel';
+import { TrackingGridView } from './main/view/TrackingGridView';
+import { TrackingGridCombatManager } from './features/combat/TrackingGridCombatManager';
+
+// External
 import { EventManager } from '../../../Events/management/EventManager';
 import { GameStateManager } from '../../../State/GameStateManager';
-import { TrackingGridModel } from './model/TrackingGridModel';
-import { TrackingGridView } from './view/TrackingGridView';
-import { convertToInternalFormat } from '../../../Utility/utils/coordinatesUtils';
-import { TRACKING_GRID_EVENTS } from './utility/trackingGridEvents';
-import { GAME_EVENTS } from '../../Game/common/gameEvents';
 import stateManagerRegistry from '../../../State/stateManagerRegistry';
+import { TRACKING_GRID_EVENTS } from './common/trackingGridEvents';
 
 export const TrackingGridController = (scope, { numberOfRows, numberOfCols, letterAxis }) => {
   const model = TrackingGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
@@ -23,49 +25,7 @@ export const TrackingGridController = (scope, { numberOfRows, numberOfCols, lett
       view.show();
     }
   };
-
-  const combatManager = {
-    initialize: () => {
-      view.combatManager.initialize(combatManager.onAttack);
-      subscriptionManager.scoped.subscribe(GAME_EVENTS.PLAYER_TURN, combatManager.enable);
-      subscriptionManager.scoped.subscribe(
-        GAME_EVENTS.ATTACK_PROCESSED,
-        combatManager.onResultReceived
-      );
-    },
-    onAttack: (displayCoordinates) => {
-      const coordinates = {
-        internal: convertToInternalFormat(displayCoordinates),
-        display: displayCoordinates
-      };
-      subscriptionManager.scoped.subscribe(
-        TRACKING_GRID_EVENTS.ATTACK_RESULT_REQUESTED,
-        combatManager.onResultReceived
-      );
-      view.disable();
-      view.combatManager.disable();
-      publisher.scoped.noFulfill(TRACKING_GRID_EVENTS.ATTACK_SENT, coordinates);
-    },
-    onResultReceived: ({ data }) => {
-      const { result } = data;
-      subscriptionManager.scoped.unsubscribe(
-        TRACKING_GRID_EVENTS.ATTACK_RESULT_REQUESTED,
-        combatManager.onResultReceived
-      );
-      view.combatManager.displayResult(result);
-      publisher.scoped.noFulfill(TRACKING_GRID_EVENTS.ATTACK_PROCESSED);
-    },
-    enable: () => {
-      view.enable();
-      view.combatManager.enable();
-    },
-    end: () => {
-      subscriptionManager.scoped.unsubscribe(
-        TRACKING_GRID_EVENTS.ATTACK_RESULT_REQUESTED,
-        combatManager.onResultReceived
-      );
-    }
-  };
+  const combatManager = TrackingGridCombatManager({ view, publisher, subscriptionManager });
 
   stateManager.setFunctions.placement({
     enterFns: placementManager.initialize,
@@ -73,7 +33,7 @@ export const TrackingGridController = (scope, { numberOfRows, numberOfCols, lett
   });
   stateManager.setFunctions.progress({
     enterFns: combatManager.initialize,
-    exitFns: placementManager.end
+    exitFns: combatManager.end
   });
 
   return {

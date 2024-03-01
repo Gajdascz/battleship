@@ -19,7 +19,7 @@ export const MainGridController = (scope, boardConfig) => {
     componentEmitter,
     subscriptionManager
   });
-  const combatManager = MainGridCombatManager({ model, publisher, subscriptionManager });
+  const combatManager = MainGridCombatManager({ model, view, publisher, subscriptionManager });
 
   const stateManager = GameStateManager(model.getScopedID());
 

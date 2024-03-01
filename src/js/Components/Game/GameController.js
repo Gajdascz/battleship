@@ -22,29 +22,39 @@ export const GameController = (startGameTrigger) => {
   const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
 
   const moveToNextPlayer = () => {
-    if (model.getCurrentPlayerID() === 'playerOne') {
-      eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.PLAYER_TURN);
-
-      return;
-    }
+    eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.TURN_ENDED);
     model.moveToNextPlayer();
     eventScopeManager.setActiveScope(model.getCurrentPlayerID());
+    console.log(model.getCurrentPlayerID());
+    eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.PLAYER_TURN);
   };
 
-  const initializePlacementState = () => {
-    const handlePlacementFinalized = () => {
-      model.placementFinalized();
-      if (model.isAllPlayerShipsPlaced()) {
-        gameStateController.transition();
-      }
+  const startPlacementState = () => {
+    const handleTransition = () => {
+      gameStateController.transition(); // Placement -> Progress
       moveToNextPlayer();
+      startProgressState();
     };
-    eventScopeManager.setAllScopeDetails(GAME_EVENTS.TURN_ENDED, handlePlacementFinalized);
+    const handlePlacementFinalized = () => {
+      if (model.isAllPlayerShipsPlaced()) handleTransition();
+      else moveToNextPlayer();
+    };
+    eventScopeManager.setAllScopeDetails(
+      GAME_EVENTS.PLAYER_FINALIZED_PLACEMENT,
+      handlePlacementFinalized
+    );
     eventScopeManager.setActiveScope(model.getCurrentPlayerID());
-    gameStateController.transition(); // transition to placement state from start state.
+    gameStateController.transition(); // Start -> Placement.
+    eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.PLAYER_TURN);
   };
 
-  const initializeProgressState = () => {};
+  const startProgressState = () => {
+    const handleAttackProcessed = () => {
+      console.log(model.hasPlayerLost());
+      if (!model.hasPlayerLost()) moveToNextPlayer();
+    };
+    eventScopeManager.setAllScopeDetails(GAME_EVENTS.ATTACK_PROCESSED, handleAttackProcessed);
+  };
 
   const initializePlayer = (playerSettings, boardSettings, isAI = false) => {
     if (isAI) {
@@ -53,8 +63,15 @@ export const GameController = (startGameTrigger) => {
         boardSettings,
         shipData: DEFAULT_FLEET
       });
-      player.placeShips();
-      model.placementFinalized();
+      const gameModelObj = {
+        id: player.getID(),
+        name: player.getName(),
+        isAllShipsSunk: player.isAllShipsSunk,
+        isAllShipsPlaced: player.isAllShipsPlaced
+      };
+      model.addPlayer(gameModelObj);
+      eventScopeManager.addScopeToRegistry(player.getID());
+      player.initializeStateManagement();
       return player;
     }
     const playerModel = PlayerModel({
@@ -69,6 +86,15 @@ export const GameController = (startGameTrigger) => {
       shipData: DEFAULT_FLEET
     });
     player.controllers.board.set.displayContainer(gameContainer);
+    const gameModelObj = {
+      id: player.playerModel.getID(),
+      name: player.playerModel.getName(),
+      isAllShipsSunk: player.controllers.fleet.isAllShipsSunk,
+      isAllShipsPlaced: player.controllers.fleet.isAllShipsPlaced
+    };
+    model.addPlayer(gameModelObj);
+    eventScopeManager.addScopeToRegistry(player.playerModel.getID());
+
     return player;
   };
 
@@ -89,16 +115,12 @@ export const GameController = (startGameTrigger) => {
     const gameMode = isP2AI ? GAME_MODES.HvA : GAME_MODES.HvH;
     model.setGameMode(gameMode);
     const p1 = initializePlayer(p1Settings, boardSettings);
-    model.addPlayer(p1.getID(), p1);
-    eventScopeManager.addScopeToRegistry(p1.getID());
     const p2 = initializePlayer(p2Settings, boardSettings, isP2AI);
-    model.addPlayer(p2.getID(), p2);
-    eventScopeManager.addScopeToRegistry(p2.getID());
     model.setPlayerOrder();
     if (isP2AI) initializeHvA(p1, p2);
     else initializeHvH(p1, p2);
-    gameStateController.initialize();
-    initializePlacementState();
+    gameStateController.initialize(); // None -> Start
+    startPlacementState();
   };
   globalEmitter.subscribe(startGameTrigger, startGame);
 };

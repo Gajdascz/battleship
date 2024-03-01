@@ -44,9 +44,7 @@ export const EventScopeManager = (scopes = []) => {
    * @param {*} data Data to provide
    */
   const publishActiveScopeEvent = (event, data = null) => {
-    if (!active) return;
-    console.log(active.manager.getKey(event));
-    globalEmitter.publish(active.manager.getKey(event), data);
+    if (active) globalEmitter.publish(active.manager.getKey(event), data);
   };
 
   /**

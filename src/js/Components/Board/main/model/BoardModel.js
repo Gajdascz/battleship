@@ -1,4 +1,4 @@
-import { createIdentity } from '../../../Utility/utils/createIdentity';
+import { createIdentity } from '../../../../Utility/utils/createIdentity';
 
 export const BoardModel = (boardScope, { mainGridModel, trackingGridModel, fleetModel }) => {
   const { id, scopedID, scope } = createIdentity({ scope: boardScope, name: 'board' });

@@ -1,5 +1,5 @@
 import { MOUSE_EVENTS } from '../../Utility/constants/dom/domEvents';
-import { TrackingGridView } from '../Grids/TrackingGrid/view/TrackingGridView';
+import { TrackingGridView } from '../Grids/TrackingGrid/main/view/TrackingGridView';
 import { AIShipView } from './components/Ship/AIShipView';
 import { AIFleetView } from './components/Fleet/AIFleetView';
 
