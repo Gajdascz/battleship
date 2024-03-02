@@ -2,7 +2,7 @@ import { KEY_EVENTS } from '../../../../../Utility/constants/dom/domEvents';
 import { SHIP_EVENTS } from '../../../common/shipEvents';
 import { ShipSelectionView } from './ShipSelectionView';
 
-export const ShipSelectionController = ({ model, view, publisher, componentEmitter }) => {
+export const ShipSelectionController = ({ model, view, componentEmitter }) => {
   const selectionView = ShipSelectionView({
     mainShipElement: view.elements.getMainShip(),
     rotateButtonElement: view.elements.getRotateButton()
@@ -38,31 +38,27 @@ export const ShipSelectionController = ({ model, view, publisher, componentEmitt
 
   const emit = {
     orientationToggled: () => {
-      publisher.scoped.noFulfill(SHIP_EVENTS.SELECTION.ORIENTATION_TOGGLED, {
-        length: model.getLength(),
+      componentEmitter.publish(SHIP_EVENTS.SELECTION.ORIENTATION_TOGGLED, {
         orientation: model.getOrientation()
       });
     },
     requestSelection: () => {
-      publisher.scoped.noFulfill(SHIP_EVENTS.SELECTION.SELECTION_REQUESTED, {
+      console.log(model.getScopedID());
+      componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECTION_REQUESTED, {
         scopedID: model.getScopedID()
       });
     },
     selected: () => {
-      publisher.scoped.noFulfill(SHIP_EVENTS.SELECTION.SELECTED, {
+      componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECTED, {
         id: model.getID(),
         scopedID: model.getScopedID(),
         scope: model.getScope(),
         length: model.getLength(),
         orientation: model.getOrientation()
       });
-      componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECTED);
     },
     deselected: () => {
-      publisher.scoped.noFulfill(SHIP_EVENTS.SELECTION.DESELECTED, {
-        scopedID: model.getScopedID()
-      });
-      componentEmitter.publish(SHIP_EVENTS.SELECTION.DESELECTED);
+      componentEmitter.publish(SHIP_EVENTS.SELECTION.DESELECTED, { scopedID: model.getScopedID() });
     }
   };
 

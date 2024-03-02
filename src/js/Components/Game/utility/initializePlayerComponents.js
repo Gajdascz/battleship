@@ -28,7 +28,7 @@ export const initializePlayerComponents = ({ playerModel, boardSettings, gameMod
     trackingGrid: trackingGridController
   };
 
-  Object.values(controllers).forEach((controller) => controller.initializeStateManagement());
+  // Object.values(controllers).forEach((controller) => controller.initializeStateManagement());
   return {
     playerModel,
     controllers

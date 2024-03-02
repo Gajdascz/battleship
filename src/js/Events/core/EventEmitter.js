@@ -7,14 +7,20 @@ export const EventEmitter = () => {
     subscribers[event].push(callback);
   };
 
+  const subscribeMany = (subscriptions) =>
+    subscriptions.forEach(({ event, callback }) => subscribe(event, callback));
+
+  const unsubscribeMany = (subscriptions) =>
+    subscriptions.forEach(({ event, callback }) => unsubscribe(event, callback));
+
   const unsubscribe = (event, callback) => {
     if (!hasEventSubscription(event)) return;
     subscribers[event] = subscribers[event].filter((subscriber) => subscriber !== callback);
   };
 
-  const publish = (event, data) => {
+  const publish = (event, incomingData) => {
     if (!hasEventSubscription(event)) return;
-    const eventData = { data };
+    const eventData = incomingData?.data ? incomingData : { data: incomingData };
     subscribers[event].forEach((callback) => {
       callback(eventData);
     });
@@ -22,5 +28,5 @@ export const EventEmitter = () => {
 
   const reset = () => Object.keys(subscribers).forEach((event) => delete subscribers[event]);
 
-  return { subscribe, unsubscribe, publish, reset };
+  return { subscribe, subscribeMany, unsubscribe, unsubscribeMany, publish, reset };
 };

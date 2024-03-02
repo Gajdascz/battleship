@@ -19,30 +19,30 @@ export const MainGridPlacementView = ({
   const listenerManager = ListenerManager();
   const previewManager = PreviewManager(previewConfig);
 
-  const isShipPlaced = (shipID) =>
-    mainGridElement.querySelector(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID)) !== null;
+  const isEntityPlaced = (entityID) =>
+    mainGridElement.querySelector(MAIN_GRID.PLACED_ENTITY_SELECTOR(entityID)) !== null;
 
   const isValidPlacement = () =>
     mainGridElement.querySelector(MAIN_GRID.INVALID_PLACEMENT_SELECTOR) === null &&
     mainGridElement.querySelector(MAIN_GRID.VALID_PLACEMENT_SELECTOR) !== null;
 
-  const getShipPlacementCells = (shipID) =>
-    mainGridElement.querySelectorAll(MAIN_GRID.PLACED_SHIP_SELECTOR(shipID));
+  const getEntityPlacementCells = (entityID) =>
+    mainGridElement.querySelectorAll(MAIN_GRID.PLACED_ENTITY_SELECTOR(entityID));
 
-  const displayPlacedShip = (placementCells, id) => {
+  const displayPlacedEntity = (placementCells, id) => {
     placementCells.forEach((cell) => {
-      cell.classList.replace(MAIN_GRID.CLASSES.VALID_PLACEMENT, MAIN_GRID.CLASSES.PLACED_SHIP);
-      cell.setAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME, id);
+      cell.classList.replace(MAIN_GRID.CLASSES.VALID_PLACEMENT, MAIN_GRID.CLASSES.PLACED_ENTITY);
+      cell.setAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_ENTITY_NAME, id);
       cell.textContent = id.charAt(0).toUpperCase();
     });
     previewManager.disable();
   };
 
-  const clearPlacedShip = (shipID) => {
-    const shipCells = getShipPlacementCells(shipID);
-    shipCells.forEach((cell) => {
-      cell.classList.remove(MAIN_GRID.CLASSES.PLACED_SHIP);
-      cell.removeAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME);
+  const clearPlacedEntity = (entityID) => {
+    const EntityCells = getEntityPlacementCells(entityID);
+    EntityCells.forEach((cell) => {
+      cell.classList.remove(MAIN_GRID.CLASSES.PLACED_ENTITY);
+      cell.removeAttribute(MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_ENTITY_NAME);
       cell.textContent = '';
     });
   };
@@ -53,7 +53,7 @@ export const MainGridPlacementView = ({
       ...mainGridElement.querySelectorAll(MAIN_GRID.VALID_PLACEMENT_SELECTOR)
     ];
     if (placementCells.length !== length) return;
-    displayPlacedShip(placementCells, id);
+    displayPlacedEntity(placementCells, id);
     const placedCoordinates = placementCells.map((cell) => cell.dataset.coordinates);
     return placedCoordinates;
   };
@@ -97,9 +97,9 @@ export const MainGridPlacementView = ({
     },
     update: {
       preview: {
-        selectedShip: ({ id, length, orientation }) => {
-          if (isShipPlaced(id)) clearPlacedShip(id);
-          previewManager.setCurrentShip({ length, orientation });
+        selectedEntity: ({ id, length, orientation }) => {
+          if (isEntityPlaced(id)) clearPlacedEntity(id);
+          previewManager.setCurrentEntity({ length, orientation });
           previewManager.enable();
         },
         orientation: (orientation) => previewManager.updateOrientation(orientation)

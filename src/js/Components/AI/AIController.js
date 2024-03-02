@@ -47,7 +47,7 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
   const placeShips = () => {
     const placements = placementManager.calculateRandomShipPlacements(model.fleet.getData());
     placements.forEach(({ id, placement }) => {
-      model.mainGrid.place(placement[0], placement[placement.length - 1]);
+      model.mainGrid.place(id, placement[0], placement[placement.length - 1]);
       model.fleet.setShipPlacementCoordinates(id, placement);
     });
   };
@@ -67,7 +67,30 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
       subscriptionManager.scoped.unsubscribe(GAME_EVENTS.PLAYER_TURN, placement.onTurn);
     }
   };
+
+  const combat = {
+    onTurn: () => {
+      const result = sendAttack();
+      console.log(result);
+      publisher.scoped.noFulfill(GAME_EVENTS.PLAYER_END_TURN_REQUESTED);
+    },
+    receiveAttack: ({ data }) => {
+      const {
+        coordinates: [x, y]
+      } = data;
+      const result = model.mainGrid.processIncomingAttack(x, y);
+      console.log(result);
+    },
+    init: () => {
+      subscriptionManager.scoped.subscribe(GAME_EVENTS.PLAYER_TURN, combat.onTurn);
+    },
+    end: () => {
+      subscriptionManager.scoped.unsubscribe(GAME_EVENTS.PLAYER_TURN, combat.onTurn);
+    }
+  };
+
   stateManager.setFunctions.placement({ enterFns: placement.init, exitFns: placement.end });
+  stateManager.setFunctions.progress({ enterFns: combat.init, exitFns: combat.end });
 
   return {
     get isAI() {

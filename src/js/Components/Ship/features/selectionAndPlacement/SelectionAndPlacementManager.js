@@ -2,37 +2,26 @@
 import { SHIP_EVENTS } from '../../common/shipEvents';
 import { ShipSelectionController } from './selection/ShipSelectionController';
 import { ShipPlacementController } from './placement/ShipPlacementController';
-// External
-import { MAIN_GRID_EVENTS } from '../../../../Events/events';
 
-export const ShipSelectionAndPlacementManager = ({
-  model,
-  view,
-  componentEmitter,
-  publisher,
-  subscriptionManager
-}) => {
+export const ShipSelectionAndPlacementManager = ({ model, view, componentEmitter }) => {
   ShipSelectionController({
     model,
     view,
-    publisher,
     componentEmitter
   });
   ShipPlacementController({
     model,
     view,
-    publisher,
     componentEmitter
   });
 
   const emit = {
-    initializeRequest: () => componentEmitter.publish(SHIP_EVENTS.SELECTION.INITIALIZE_REQUESTED),
-    containerCreated: ({ data }) => {
-      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.CONTAINER_RECEIVED, data);
-      publisher.scoped.noFulfill(SHIP_EVENTS.PLACEMENT.CONTAINER_RECEIVED);
+    initializeRequest: (container) => {
+      componentEmitter.publish(SHIP_EVENTS.SELECTION.INITIALIZE_REQUESTED);
+      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.INITIALIZE_REQUESTED, { container });
     },
     placementCoordinatesReceived: ({ data }) =>
-      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED, data),
+      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED, { data }),
     selectRequest: () => {
       componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECTION_REQUESTED);
       componentEmitter.publish(SHIP_EVENTS.PLACEMENT.ENABLE_PLACEMENT_REQUESTED);
@@ -43,19 +32,18 @@ export const ShipSelectionAndPlacementManager = ({
       componentEmitter.publish(SHIP_EVENTS.PLACEMENT.DISABLE_PLACEMENT_REQUESTED);
     },
     end: () => {
-      componentEmitter.publish(SHIP_EVENTS.SELECTION.OVER);
-      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.OVER);
+      componentEmitter.publish(SHIP_EVENTS.SELECTION.END_REQUESTED);
+      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.END_REQUESTED);
     }
   };
 
-  const onInitialize = () => {
-    emit.initializeRequest();
+  const onInitialize = ({ data }) => {
+    const { container } = data;
+    console.log(container);
+    emit.initializeRequest(container);
     componentEmitter.subscribe(SHIP_EVENTS.SELECTION.SELECT_REQUEST_RECEIVED, onSelect);
     componentEmitter.subscribe(SHIP_EVENTS.SELECTION.DESELECT_REQUEST_RECEIVED, onDeselect);
-    subscriptionManager.scoped.subscribe(
-      MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED,
-      emit.containerCreated
-    );
+    componentEmitter.subscribe(SHIP_EVENTS.SELECTION_PLACEMENT.END_REQUESTED, onEnd);
   };
 
   const onPlacementCoordinatesReceived = ({ data }) => {
@@ -64,15 +52,15 @@ export const ShipSelectionAndPlacementManager = ({
   };
   const onSelect = () => {
     emit.selectRequest();
-    subscriptionManager.scoped.subscribe(
-      MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED,
+    componentEmitter.subscribe(
+      SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED,
       onPlacementCoordinatesReceived
     );
   };
   const onDeselect = () => {
     emit.deselectRequest();
-    subscriptionManager.scoped.unsubscribe(
-      MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED,
+    componentEmitter.unsubscribe(
+      SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED,
       onPlacementCoordinatesReceived
     );
   };
@@ -81,15 +69,9 @@ export const ShipSelectionAndPlacementManager = ({
     onDeselect();
     componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.SELECT_REQUEST_RECEIVED, onSelect);
     componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.DESELECT_REQUEST_RECEIVED, onDeselect);
-    subscriptionManager.scoped.unsubscribe(
-      MAIN_GRID_EVENTS.PLACEMENT.GRID_INITIALIZED,
-      emit.containerCreated
-    );
+    componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION_PLACEMENT.END_REQUESTED, onEnd);
     emit.end();
   };
 
-  return {
-    initialize: () => onInitialize(),
-    end: () => onEnd()
-  };
+  componentEmitter.subscribe(SHIP_EVENTS.SELECTION_PLACEMENT.INITIALIZE_REQUESTED, onInitialize);
 };

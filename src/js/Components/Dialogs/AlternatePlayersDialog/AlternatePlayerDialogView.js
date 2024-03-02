@@ -5,6 +5,8 @@ export const AlternatePlayerDialogView = () => {
   const { dialogElement, proceedButtonElement, playerNameElement } =
     buildAlternatePlayerDialogElement();
 
+  let displayName = null;
+
   const closeDialog = () => {
     proceedButtonElement.removeEventListener(MOUSE_EVENTS.CLICK, dialogElement.showModal);
     dialogElement.close();
@@ -17,7 +19,7 @@ export const AlternatePlayerDialogView = () => {
       throw new Error(`Invalid Container: ${newContainer}`);
     container.current = newContainer;
   };
-  const display = (playerName, newContainer = null) => {
+  const display = (playerName = displayName, newContainer = null) => {
     if (newContainer) setContainer(newContainer);
     if (!container.current) throw new Error('Cannot display dialog without a container.');
     container.current.append(dialogElement);
@@ -27,6 +29,7 @@ export const AlternatePlayerDialogView = () => {
   };
   return {
     setContainer,
+    setPlayerName: (name) => (displayName = name),
     display
   };
 };

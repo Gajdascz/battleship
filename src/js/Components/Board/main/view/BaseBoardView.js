@@ -46,12 +46,13 @@ export const BaseBoardView = (
   const buttonsManager = {
     wrappers: {},
     container: buttonsContainer,
+    addWrapper: (id) => {
+      const wrapper = buildButtonWrapper(id);
+      buttonsManager.container.append(wrapper);
+      buttonsManager.wrappers[id] = wrapper;
+    },
     getWrapper: (id) => {
-      if (!buttonsManager.wrappers[id]) {
-        const wrapper = buildButtonWrapper(id);
-        buttonsManager.container.append(wrapper);
-        buttonsManager.wrappers[id] = wrapper;
-      }
+      if (!buttonsManager.wrappers[id]) buttonsManager.addWrapper(id);
       return buttonsManager.wrappers[id];
     },
     updateButton: (id, newButton) => {
@@ -64,8 +65,8 @@ export const BaseBoardView = (
     }
   };
   const rotateShipButtonController = {
-    update: (scopedShipID) => {
-      const btn = fleetView.getRotateShipButton(scopedShipID);
+    update: (shipID) => {
+      const btn = fleetView.getRotateShipButton(shipID);
       buttonsManager.updateButton(`rotate-ship`, btn);
     },
     clearWrapper: () => (buttonsManager.getWrapper(`rotate-ship`).textContent = '')
@@ -97,7 +98,7 @@ export const BaseBoardView = (
     buttonsManager,
     buttons: {
       rotateShip: {
-        update: (scopedShipID) => rotateShipButtonController.update(scopedShipID),
+        update: (shipID) => rotateShipButtonController.update(shipID),
         clearWrapper: () => rotateShipButtonController.clearWrapper()
       },
       submitPlacements: {

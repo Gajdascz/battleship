@@ -10,14 +10,14 @@ export const MAIN_GRID = {
     HIT_MARKER: 'main-grid-hit-marker',
     VALID_PLACEMENT: 'valid-placement',
     INVALID_PLACEMENT: 'invalid-placement',
-    PLACED_SHIP: 'placed-ship'
+    PLACED_ENTITY: 'placed-ship'
   },
   PROPERTIES: {
     CELL_ELEMENT: COMMON_ELEMENTS.DIV,
     HEADER_TEXT: 'Home Territory',
     ATTRIBUTES: {
       CELL_COORDINATES_DATA: GENERAL_ATTRIBUTES.DATA('coordinates'),
-      PLACED_SHIP_NAME: GENERAL_ATTRIBUTES.DATA('placed-ship-name')
+      PLACED_ENTITY_NAME: GENERAL_ATTRIBUTES.DATA('placed-ship-name')
     }
   },
   get INVALID_PLACEMENT_SELECTOR() {
@@ -32,7 +32,7 @@ export const MAIN_GRID = {
       attribute: MAIN_GRID.PROPERTIES.ATTRIBUTES.CELL_COORDINATES_DATA,
       value: coordinates
     }),
-  PLACED_SHIP_SELECTOR: (id) =>
+  PLACED_ENTITY_SELECTOR: (id) =>
     createAttributeSelector({
       elementType: MAIN_GRID.PROPERTIES.CELL_ELEMENT,
       attribute: MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME,

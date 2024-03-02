@@ -1,19 +1,24 @@
 export const SHIP_EVENTS = {
+  SELECTION_PLACEMENT: {
+    INITIALIZE_REQUESTED: 'shipSelectionAndPlacementInitializeRequested',
+    END_REQUESTED: 'shipSelectionAndPlacementEndRequested'
+  },
   SELECTION: {
     ENABLED: 'shipSelectionEnableRequested',
     DISABLED: 'shipSelectionDisableRequested',
     INITIALIZE_REQUESTED: 'shipSelectionInitializeRequested',
     SELECTION_REQUESTED: 'shipSelectionRequested',
     SELECT_REQUEST_RECEIVED: 'shipSelectionRequestReceived',
-    SELECTED: 'shipSelected', // Ship selection request was realized and processed
+    SELECTED: 'shipSelected',
     DESELECT_REQUESTED: 'shipDeselectRequested',
     DESELECT_REQUEST_RECEIVED: 'shipDeselectRequestReceived',
     DESELECTED: 'shipDeselected',
     ORIENTATION_TOGGLED: 'shipOrientationToggled',
-    OVER: 'shipSelectionOver'
+    END_REQUESTED: 'shipSelectionEnded'
   },
   PLACEMENT: {
-    CONTAINER_RECEIVED: 'shipPlacementInitializeRequested',
+    INITIALIZE_REQUESTED: 'shipPlacementInitializeRequested',
+    CONTAINER_RECEIVED: 'shipPlacementContainerReceived',
     ENABLE_PLACEMENT_REQUEST_REQUESTED: 'shipEnablePlacementRequestRequested',
     DISABLE_PLACEMENT_REQUEST_REQUESTED: 'shipDisablePlacementRequestRequested',
     PLACEMENT_COORDINATES_RECEIVED: 'shipPlacementCoordinatesReceived',
@@ -21,9 +26,10 @@ export const SHIP_EVENTS = {
     READY: 'shipReadyForPlacement', // Ship selection and placement settings are initialized and ready for placement.
     SET: 'shipPlacementSet', // Ship received and stored placement details
     PICKUP_REQUESTED: 'shipPickupRequested', // Placed ship is selected and requires pick-up
-    OVER: 'shipPlacementOver',
     ENABLE_PLACEMENT_REQUESTED: 'shipPlacementEnableRequested',
-    DISABLE_PLACEMENT_REQUESTED: 'shipPlacementDisableRequested,'
+    DISABLE_PLACEMENT_REQUESTED: 'shipPlacementDisableRequested,',
+    END_REQUESTED: 'shipPlacementEndRequested',
+    END: 'shipPlacementEnded'
   },
   COMBAT: {
     HIT_REQUEST_RECEIVED: 'shipHitRequestReceived',

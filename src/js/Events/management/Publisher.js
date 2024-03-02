@@ -9,12 +9,10 @@ import { createEventKeyGenerator } from '../../Utility/utils/createEventKeyGener
  */
 export const Publisher = (scope) => {
   const { getKey } = createEventKeyGenerator(scope);
-
   const publish = ({ event, data, requireFulfillment }) => {
     if (!event) throw new Error(`Invalid Event: ${event}`);
     globalEmitter.publish(event, data, requireFulfillment);
   };
-
   const publishFulfill = (event) => globalEmitter.publishFulfill(event);
 
   return {

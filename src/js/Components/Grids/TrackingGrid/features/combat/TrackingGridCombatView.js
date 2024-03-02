@@ -15,17 +15,14 @@ export const TrackingGridCombatView = ({ view }) => {
   let isInitialized = false;
   let lastCell = null;
   const listenerManager = ListenerManager();
-  const getTargetCoordinates = (e) => {
-    const target = e.target.closest(
-      `${TRACKING_GRID.PROPERTIES.CELL_ELEMENT}.${COMMON_GRID.CLASSES.CELL}`
-    );
-    if (target) return target.value;
-  };
+  const getTargetCoordinates = (e) =>
+    e.target.closest(`${TRACKING_GRID.PROPERTIES.CELL_ELEMENT}.${COMMON_GRID.CLASSES.CELL}`)?.value;
 
   const initialize = (onAttackCallback) => {
     if (isInitialized) return;
     const onAttack = (e) => {
       const coordinates = getTargetCoordinates(e);
+      if (!coordinates) return;
       lastCell = view.getCell(coordinates);
       onAttackCallback(coordinates);
     };
@@ -43,7 +40,10 @@ export const TrackingGridCombatView = ({ view }) => {
     lastCell = null;
   };
 
-  const enable = () => listenerManager.enableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK);
+  const enable = () => {
+    view.enable();
+    listenerManager.enableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK);
+  };
   const disable = () => {
     view.disable();
     listenerManager.disableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK);

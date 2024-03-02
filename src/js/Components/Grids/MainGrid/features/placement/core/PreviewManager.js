@@ -113,7 +113,7 @@ export const PreviewManager = ({
       if (!currentTarget.coordinates) return;
       processPreview(currentTarget.coordinates);
     },
-    setCurrentShip: ({ length, orientation }) => {
+    setCurrentEntity: ({ length, orientation }) => {
       clearPlacementPreview();
       currentShip.length = length;
       currentShip.orientation = orientation;

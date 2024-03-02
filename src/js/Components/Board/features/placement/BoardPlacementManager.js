@@ -15,7 +15,7 @@ export const BoardPlacementManager = ({ view, model, publisher, subscriptionMana
 
   const onShipSelected = ({ data }) => {
     emit.shipSelected();
-    view.buttons.rotateShip.update(data.scopedID);
+    view.buttons.rotateShip.update(data.id);
   };
   const onShipPlaced = () => {
     emit.shipPlaced();

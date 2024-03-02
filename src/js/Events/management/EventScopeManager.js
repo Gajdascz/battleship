@@ -59,6 +59,7 @@ export const EventScopeManager = (scopes = []) => {
       manager.event = event;
       manager.callback = callback;
     });
+    if (active) setActiveScope(active.scope);
   };
 
   /**
@@ -69,10 +70,11 @@ export const EventScopeManager = (scopes = []) => {
    * @param {Function} callback Callback to execute when the event is emitted.
    */
   const setScopeDetails = (scope, event, callback) => {
-    if (scope === active.scope) unsubscribeScopeEvent(eventScopeRegistry[scope]);
+    if (scope === active?.scope) unsubscribeScopeEvent(eventScopeRegistry[scope]);
     const manager = eventScopeRegistry[scope];
     manager.event = event;
     manager.callback = callback;
+    setActiveScope(scope);
   };
 
   /**
@@ -85,8 +87,20 @@ export const EventScopeManager = (scopes = []) => {
     if (manager) {
       if (active) unsubscribeScopeEvent(eventScopeRegistry[active.scope]);
       subscribeScopeEvent(manager);
-      active = { scope, manager };
+      active = { scope, manager, isEnabled: true };
     }
+  };
+
+  const enableActiveScope = () => {
+    console.log(active);
+    if (!active || active.isEnabled) return;
+    console.log(active.manager);
+    subscribeScopeEvent(active.manager);
+  };
+
+  const disableActiveScope = () => {
+    if (!active || !active.isEnabled) return;
+    unsubscribeScopeEvent(active.manager);
   };
 
   // Registers all scopes given as parameter
@@ -97,6 +111,8 @@ export const EventScopeManager = (scopes = []) => {
     addScopeToRegistry,
     setActiveScope,
     publishActiveScopeEvent,
+    enableActiveScope,
+    disableActiveScope,
     clearAllSubscriptions: () => {
       Object.values(eventScopeRegistry).forEach((manager) => {
         unsubscribeScopeEvent(manager);

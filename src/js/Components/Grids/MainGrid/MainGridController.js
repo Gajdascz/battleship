@@ -1,41 +1,61 @@
 import { MainGridModel } from './main/model/MainGridModel';
 import { MainGridView } from './main/view/MainGridView';
-import { EventManager } from '../../../Events/management/EventManager';
-import { GameStateManager } from '../../../State/GameStateManager';
-import stateManagerRegistry from '../../../State/stateManagerRegistry';
-
-import { MainGridPlacementManager } from './features/placement/MainGridPlacementManager';
+import { MainGridPlacementController } from './features/placement/core/MainGridPlacementController';
 import { MainGridCombatManager } from './features/combat/MainGridCombatManager';
+import { MAIN_GRID_EVENTS } from './common/mainGridEvents';
+import { EventEmitter } from '../../../Events/core/EventEmitter';
 
 export const MainGridController = (scope, boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;
   const model = MainGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
   const view = MainGridView({ numberOfRows, numberOfCols, letterAxis });
-  const { publisher, subscriptionManager, componentEmitter } = EventManager(scope);
-  const placementManager = MainGridPlacementManager({
-    model,
-    view,
-    publisher,
-    componentEmitter,
-    subscriptionManager
-  });
-  const combatManager = MainGridCombatManager({ model, view, publisher, subscriptionManager });
+  const componentEmitter = EventEmitter();
 
-  const stateManager = GameStateManager(model.getScopedID());
-
-  stateManager.setFunctions.placement({
-    enterFns: placementManager.initialize,
-    exitFns: placementManager.end
-  });
-  stateManager.setFunctions.progress({
-    enterFns: combatManager.initialize,
-    exitFns: combatManager.end
-  });
+  MainGridPlacementController({ model, view, componentEmitter });
+  const combatManager = MainGridCombatManager({ model, view, componentEmitter });
 
   return {
+    placement: {
+      initialize: () => componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.INITIALIZE_REQUESTED),
+      updatePreviewOrientation: ({ data }) => {
+        const { orientation } = data;
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_ORIENTATION_UPDATED, {
+          orientation
+        });
+      },
+      requestPlacement: ({ data }) => {
+        const { id, length } = data;
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_REQUESTED, {
+          id,
+          length
+        });
+      },
+      updatePreviewEntity: ({ data }) => {
+        const { id, length, orientation } = data;
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_SELECTED, {
+          id,
+          length,
+          orientation
+        });
+      },
+      subscribe: {
+        placementProcessed: (callback) =>
+          componentEmitter.subscribe(
+            MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED,
+            callback
+          )
+      },
+      unsubscribe: {
+        placementProcessed: (callback) =>
+          componentEmitter.unsubscribe(
+            MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED,
+            callback
+          )
+      }
+    },
+    getGridElement: () => view.elements.getGrid(),
     getDimensions: () => model.getDimensions(),
     getModel: () => model,
-    getView: () => view,
-    initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager)
+    getView: () => view
   };
 };

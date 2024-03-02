@@ -1,7 +1,7 @@
 import { ShipPlacementView } from './ShipPlacementView';
 import { SHIP_EVENTS } from '../../../common/shipEvents';
 
-export const ShipPlacementController = ({ model, view, publisher, componentEmitter }) => {
+export const ShipPlacementController = ({ model, view, componentEmitter }) => {
   const placementView = ShipPlacementView(view.elements.getMainShip());
 
   const execute = {
@@ -21,11 +21,10 @@ export const ShipPlacementController = ({ model, view, publisher, componentEmitt
 
   const emit = {
     placementSet: () => {
-      publisher.scoped.noFulfill(SHIP_EVENTS.PLACEMENT.SET, { scopedID: model.getScopedID() });
-      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.SET);
+      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.SET, { scopedID: model.getScopedID() });
     },
     requestPlacement: () => {
-      publisher.scoped.noFulfill(SHIP_EVENTS.PLACEMENT.REQUESTED, {
+      componentEmitter.publish(SHIP_EVENTS.PLACEMENT.REQUESTED, {
         id: model.getID(),
         scopedID: model.getScopedID(),
         length: model.getLength()
@@ -84,5 +83,5 @@ export const ShipPlacementController = ({ model, view, publisher, componentEmitt
     }
   };
 
-  componentEmitter.subscribe(SHIP_EVENTS.PLACEMENT.CONTAINER_RECEIVED, stateManager.initialize);
+  componentEmitter.subscribe(SHIP_EVENTS.PLACEMENT.INITIALIZE_REQUESTED, stateManager.initialize);
 };

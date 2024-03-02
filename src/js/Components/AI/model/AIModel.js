@@ -19,7 +19,8 @@ export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackin
     },
     mainGrid: {
       get: () => mainGrid.getMainGrid(),
-      place: (start, end) => mainGrid.placeShip(start, end)
+      place: (id, start, end) => mainGrid.placeShip(id, start, end),
+      processIncomingAttack: (x, y) => mainGrid.processIncomingAttack(x, y)
     },
     fleet: {
       getData: () => fleet.getAIFleetData(),

@@ -1,7 +1,8 @@
 import { ORIENTATIONS, STATUSES } from '../../Utility/constants/common';
 
 export const PlacementManager = (gridArray) => {
-  const copyGrid = (grid) => grid.map((row) => [...row]);
+  const copyGrid = (grid) =>
+    grid.map((row) => Array.from({ length: row.length }).fill(STATUSES.EMPTY));
   let grid = copyGrid(gridArray);
   let rows = grid.length;
   let cols = grid[0].length;

@@ -1,5 +1,4 @@
 import { GameModel } from './GameModel';
-import { GameView } from './GameView';
 import { initializePlayerComponents } from './utility/initializePlayerComponents';
 import { GAME_MODES, PLAYERS } from '../../Utility/constants/common';
 import { GameStateController } from './GameStateController';
@@ -16,14 +15,13 @@ const CLASSES = {
 
 export const GameController = (startGameTrigger) => {
   const model = GameModel();
-  const view = GameView();
   const gameStateController = GameStateController();
   const eventScopeManager = EventScopeManager();
   const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
 
-  const moveToNextPlayer = () => {
+  const alternatePlayers = () => {
     eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.TURN_ENDED);
-    model.moveToNextPlayer();
+    model.alternatePlayers();
     eventScopeManager.setActiveScope(model.getCurrentPlayerID());
     console.log(model.getCurrentPlayerID());
     eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.PLAYER_TURN);
@@ -32,12 +30,12 @@ export const GameController = (startGameTrigger) => {
   const startPlacementState = () => {
     const handleTransition = () => {
       gameStateController.transition(); // Placement -> Progress
-      moveToNextPlayer();
+      alternatePlayers();
       startProgressState();
     };
     const handlePlacementFinalized = () => {
       if (model.isAllPlayerShipsPlaced()) handleTransition();
-      else moveToNextPlayer();
+      else alternatePlayers();
     };
     eventScopeManager.setAllScopeDetails(
       GAME_EVENTS.PLAYER_FINALIZED_PLACEMENT,
@@ -49,11 +47,13 @@ export const GameController = (startGameTrigger) => {
   };
 
   const startProgressState = () => {
-    const handleAttackProcessed = () => {
-      console.log(model.hasPlayerLost());
-      if (!model.hasPlayerLost()) moveToNextPlayer();
+    const handlePlayerRequestedEndTurn = () => {
+      if (!model.hasPlayerLost()) alternatePlayers();
     };
-    eventScopeManager.setAllScopeDetails(GAME_EVENTS.ATTACK_PROCESSED, handleAttackProcessed);
+    eventScopeManager.setAllScopeDetails(
+      GAME_EVENTS.PLAYER_END_TURN_REQUESTED,
+      handlePlayerRequestedEndTurn
+    );
   };
 
   const initializePlayer = (playerSettings, boardSettings, isAI = false) => {
@@ -63,16 +63,15 @@ export const GameController = (startGameTrigger) => {
         boardSettings,
         shipData: DEFAULT_FLEET
       });
-      const gameModelObj = {
+      const playerGameModel = {
         id: player.getID(),
         name: player.getName(),
         isAllShipsSunk: player.isAllShipsSunk,
         isAllShipsPlaced: player.isAllShipsPlaced
       };
-      model.addPlayer(gameModelObj);
       eventScopeManager.addScopeToRegistry(player.getID());
       player.initializeStateManagement();
-      return player;
+      return { player, playerGameModel };
     }
     const playerModel = PlayerModel({
       playerName: playerSettings.username,
@@ -86,16 +85,15 @@ export const GameController = (startGameTrigger) => {
       shipData: DEFAULT_FLEET
     });
     player.controllers.board.set.displayContainer(gameContainer);
-    const gameModelObj = {
+    const playerGameModel = {
       id: player.playerModel.getID(),
       name: player.playerModel.getName(),
       isAllShipsSunk: player.controllers.fleet.isAllShipsSunk,
       isAllShipsPlaced: player.controllers.fleet.isAllShipsPlaced
     };
-    model.addPlayer(gameModelObj);
     eventScopeManager.addScopeToRegistry(player.playerModel.getID());
 
-    return player;
+    return { player, playerGameModel };
   };
 
   const initializeHvH = (p1, p2) => {
@@ -103,10 +101,13 @@ export const GameController = (startGameTrigger) => {
     p1.controllers.board.set.trackingFleet(p2.controllers.fleet.getTrackingFleet());
     p2.controllers.board.view.setOpponentPlayerName(p1.playerModel.getName());
     p2.controllers.board.set.trackingFleet(p1.controllers.fleet.getTrackingFleet());
+    p1.controllers.board.set.opponentScope(p2.playerModel.getID());
+    p2.controllers.board.set.opponentScope(p1.playerModel.getID());
   };
 
   const initializeHvA = (p1, p2) => {
     p1.controllers.board.view.aiView.setView(p2.getView());
+    p1.controllers.board.set.opponentScope(p2.getID());
   };
 
   const startGame = ({ data }) => {
@@ -114,9 +115,16 @@ export const GameController = (startGameTrigger) => {
     const isP2AI = p2Settings.type === PLAYERS.TYPES.AI;
     const gameMode = isP2AI ? GAME_MODES.HvA : GAME_MODES.HvH;
     model.setGameMode(gameMode);
-    const p1 = initializePlayer(p1Settings, boardSettings);
-    const p2 = initializePlayer(p2Settings, boardSettings, isP2AI);
-    model.setPlayerOrder();
+    const { player: p1, playerGameModel: p1GameModel } = initializePlayer(
+      p1Settings,
+      boardSettings
+    );
+    const { player: p2, playerGameModel: p2GameModel } = initializePlayer(
+      p2Settings,
+      boardSettings,
+      isP2AI
+    );
+    model.setPlayers(p1GameModel, p2GameModel);
     if (isP2AI) initializeHvA(p1, p2);
     else initializeHvH(p1, p2);
     gameStateController.initialize(); // None -> Start
