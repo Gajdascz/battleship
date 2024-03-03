@@ -40,12 +40,15 @@ export const BoardController = ({
   const current = { state: null };
 
   const placement = () => {
-    controllers.fleet.placement.setFleetPlacementContainer(controllers.mainGrid.getGridElement());
-    controllers.mainGrid.placement.initialize();
-    controllers.fleet.placement.subscribeSelect(controllers.mainGrid.placement.updatePreviewEntity);
-    controllers.fleet.placement.subscribeOrientationToggled(
-      controllers.mainGrid.placement.updatePreviewOrientation
+    controllers.mainGrid.placement.requestInitialize();
+    controllers.fleet.placement.requestInitialize(controllers.mainGrid.getGridElement());
+    controllers.fleet.placement.onSelected(
+      controllers.mainGrid.placement.requestSelectedEntityUpdate
     );
+    controllers.fleet.placement.onOrientationToggled(
+      controllers.mainGrid.placement.requestOrientationUpdate
+    );
+
     view.display();
   };
   const view =

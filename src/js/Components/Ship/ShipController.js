@@ -29,31 +29,30 @@ export const ShipController = (scope, shipData) => {
       isSelected: () => model.isSelected()
     },
     placement: {
-      initialize: (container) =>
+      requestInitialize: ({ data }) => {
         componentEmitter.publish(SHIP_EVENTS.SELECTION_PLACEMENT.INITIALIZE_REQUESTED, {
-          container
-        }),
-      end: () => componentEmitter.publish(SHIP_EVENTS.SELECTION_PLACEMENT.END_REQUESTED),
-      select: () => {
-        console.log(model.getID());
-        componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECT_REQUEST_RECEIVED);
+          container: data
+        });
       },
-      deselect: () => componentEmitter.publish(SHIP_EVENTS.SELECTION.DESELECT_REQUEST_RECEIVED),
-      setCoordinates: (coordinates) =>
-        componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED, {
-          coordinates
+      requestEnd: () => componentEmitter.publish(SHIP_EVENTS.SELECTION_PLACEMENT.END_REQUESTED),
+      requestSelect: () => componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.SELECT),
+      requestDeselect: () => componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.DESELECT),
+      requestSetCoordinates: ({ data }) =>
+        componentEmitter.publish(SHIP_EVENTS.PLACEMENT.REQUEST.SET_COORDINATES, {
+          coordinates: data
         }),
-      subscribe: {
-        select: (callback) => componentEmitter.subscribe(SHIP_EVENTS.SELECTION.SELECTED, callback),
-        orientationToggled: (callback) =>
-          componentEmitter.subscribe(SHIP_EVENTS.SELECTION.ORIENTATION_TOGGLED, callback)
-      },
-      unsubscribe: {
-        select: (callback) =>
-          componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.SELECTED, callback),
-        orientationToggled: (callback) =>
-          componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.ORIENTATION_TOGGLED, callback)
-      }
+      onSelected: ({ data }) =>
+        componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.SUB_SELECTED, { callback: data }),
+      onOrientationToggled: ({ data }) =>
+        componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.SUB_ORIENTATION_TOGGLED, {
+          callback: data
+        }),
+      offSelected: ({ data }) =>
+        componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.UNSUB_SELECTED, { callback: data }),
+      offOrientationToggled: ({ data }) =>
+        componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.UNSUB_ORIENTATION_TOGGLED, {
+          callback: data
+        })
     },
     combat: {
       initialize: () => combatManager.initialize(),

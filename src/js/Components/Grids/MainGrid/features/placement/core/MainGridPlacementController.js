@@ -2,7 +2,6 @@ import { MainGridPlacementView } from './MainGridPlacementView';
 import { convertToInternalFormat } from '../../../../../../Utility/utils/coordinatesUtils';
 export const MainGridPlacementController = ({ model, view }) => {
   let isInitialized = false;
-  let isPlacementFinalized = false;
   const previewConfig = {
     gridElement: view.elements.getWrapper(),
     getCell: view.getCell,
@@ -15,9 +14,10 @@ export const MainGridPlacementController = ({ model, view }) => {
     submitPlacementsButtonElement: view.elements.getSubmitPlacementsButton(),
     previewConfig
   });
-  const initialize = () => {
+  const initialize = (onEnd) => {
     if (isInitialized) return;
-    placementView.initialize(end);
+    placementView.initialize(onEnd);
+    end();
     isInitialized = true;
   };
   const requestPlacement = (id, length) => {
@@ -43,7 +43,6 @@ export const MainGridPlacementController = ({ model, view }) => {
     if (!isInitialized) return;
     placementView.end();
     isInitialized = false;
-    isPlacementFinalized = true;
   };
 
   return {
@@ -53,8 +52,7 @@ export const MainGridPlacementController = ({ model, view }) => {
     disableSubmission,
     updateOrientation,
     updateSelectedEntity,
-    requestPlacement,
-    isPlacementFinalized
+    requestPlacement
   };
 };
 // const subscriptions = [

@@ -4,32 +4,41 @@ export const SHIP_EVENTS = {
     END_REQUESTED: 'shipSelectionAndPlacementEndRequested'
   },
   SELECTION: {
-    ENABLED: 'shipSelectionEnableRequested',
-    DISABLED: 'shipSelectionDisableRequested',
-    INITIALIZE_REQUESTED: 'shipSelectionInitializeRequested',
-    SELECTION_REQUESTED: 'shipSelectionRequested',
-    SELECT_REQUEST_RECEIVED: 'shipSelectionRequestReceived',
-    SELECTED: 'shipSelected',
-    DESELECT_REQUESTED: 'shipDeselectRequested',
-    DESELECT_REQUEST_RECEIVED: 'shipDeselectRequestReceived',
-    DESELECTED: 'shipDeselected',
-    ORIENTATION_TOGGLED: 'shipOrientationToggled',
-    END_REQUESTED: 'shipSelectionEnded'
+    REQUEST: {
+      INITIALIZE: 'shipSelectionInitializeRequested',
+      ENABLE: 'shipSelectionEnableRequested',
+      DISABLE: 'shipSelectionDisableRequested',
+      SELECT: 'shipSelectionRequested',
+      DESELECT: 'shipDeselectRequested',
+      SUB_SELECTED: 'shipSelectedSubscribe',
+      UNSUB_SELECTED: 'shipSelectedUnsubscribe',
+      SUB_ORIENTATION_TOGGLED: 'shipOrientationToggledSubscribe',
+      UNSUB_ORIENTATION_TOGGLED: 'shipOrientationToggledUnsubscribe',
+      END: 'shipSelectionEnded'
+    },
+    DECLARE: {
+      SELECT_REQUEST_RECEIVED: 'shipSelectionRequestReceived',
+      SELECTED: 'shipSelected',
+      DESELECT_REQUEST_RECEIVED: 'shipDeselectRequestReceived',
+      DESELECTED: 'shipDeselected',
+      ORIENTATION_TOGGLED: 'shipOrientationToggled'
+    }
   },
   PLACEMENT: {
-    INITIALIZE_REQUESTED: 'shipPlacementInitializeRequested',
-    CONTAINER_RECEIVED: 'shipPlacementContainerReceived',
-    ENABLE_PLACEMENT_REQUEST_REQUESTED: 'shipEnablePlacementRequestRequested',
-    DISABLE_PLACEMENT_REQUEST_REQUESTED: 'shipDisablePlacementRequestRequested',
-    PLACEMENT_COORDINATES_RECEIVED: 'shipPlacementCoordinatesReceived',
-    REQUESTED: 'shipPlacementRequested',
-    READY: 'shipReadyForPlacement', // Ship selection and placement settings are initialized and ready for placement.
-    SET: 'shipPlacementSet', // Ship received and stored placement details
-    PICKUP_REQUESTED: 'shipPickupRequested', // Placed ship is selected and requires pick-up
-    ENABLE_PLACEMENT_REQUESTED: 'shipPlacementEnableRequested',
-    DISABLE_PLACEMENT_REQUESTED: 'shipPlacementDisableRequested,',
-    END_REQUESTED: 'shipPlacementEndRequested',
-    END: 'shipPlacementEnded'
+    REQUEST: {
+      INITIALIZE_REQUESTED: 'shipPlacementInitializeRequested',
+      ENABLE_PLACEMENT_REQUEST_REQUESTED: 'shipEnablePlacementRequestRequested',
+      DISABLE_PLACEMENT_REQUEST_REQUESTED: 'shipDisablePlacementRequestRequested',
+      END: 'shipPlacementEnded',
+      SET_COORDINATES: 'setShipPlacementCoordinatesRequested',
+      PICKUP_REQUESTED: 'shipPickupRequested' // Placed ship is selected and requires pick-up
+    },
+    DECLARE: {
+      CONTAINER_RECEIVED: 'shipPlacementContainerReceived',
+      PLACEMENT_COORDINATES_RECEIVED: 'shipPlacementCoordinatesReceived',
+      READY: 'shipReadyForPlacement', // Ship selection and placement settings are initialized and ready for placement.
+      SET: 'shipPlacementSet' // Ship received and stored placement details
+    }
   },
   COMBAT: {
     HIT_REQUEST_RECEIVED: 'shipHitRequestReceived',

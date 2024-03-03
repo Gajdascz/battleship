@@ -1,57 +1,47 @@
 import { MainGridModel } from './main/model/MainGridModel';
 import { MainGridView } from './main/view/MainGridView';
-import { MainGridPlacementController } from './features/placement/core/MainGridPlacementController';
 import { MainGridCombatManager } from './features/combat/MainGridCombatManager';
 import { MAIN_GRID_EVENTS } from './common/mainGridEvents';
 import { EventEmitter } from '../../../Events/core/EventEmitter';
+import { MainGridPlacementManager } from './features/placement/MainGridPlacementManager';
 
 export const MainGridController = (scope, boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;
   const model = MainGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
   const view = MainGridView({ numberOfRows, numberOfCols, letterAxis });
   const componentEmitter = EventEmitter();
-
-  MainGridPlacementController({ model, view, componentEmitter });
+  MainGridPlacementManager(model, view, componentEmitter);
   const combatManager = MainGridCombatManager({ model, view, componentEmitter });
 
   return {
     placement: {
-      initialize: () => componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.INITIALIZE_REQUESTED),
-      updatePreviewOrientation: ({ data }) => {
-        const { orientation } = data;
-        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_ORIENTATION_UPDATED, {
-          orientation
-        });
+      requestInitialize: () =>
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.REQUEST.INITIALIZE),
+      requestOrientationUpdate: (data) =>
+        componentEmitter.publish(
+          MAIN_GRID_EVENTS.PLACEMENT.REQUEST.ENTITY_ORIENTATION_UPDATE,
+          data
+        ),
+      requestPlacement: ({ data }) =>
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.REQUEST.ENTITY_PLACEMENT, data),
+      requestSelectedEntityUpdate: ({ data }) => {
+        console.log(data);
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.REQUEST.ENTITY_SELECT, data);
       },
-      requestPlacement: ({ data }) => {
-        const { id, length } = data;
-        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_REQUESTED, {
-          id,
-          length
-        });
-      },
-      updatePreviewEntity: ({ data }) => {
-        const { id, length, orientation } = data;
-        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.ENTITY_SELECTED, {
-          id,
-          length,
-          orientation
-        });
-      },
-      subscribe: {
-        placementProcessed: (callback) =>
-          componentEmitter.subscribe(
-            MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED,
-            callback
-          )
-      },
-      unsubscribe: {
-        placementProcessed: (callback) =>
-          componentEmitter.unsubscribe(
-            MAIN_GRID_EVENTS.PLACEMENT.ENTITY_PLACEMENT_PROCESSED,
-            callback
-          )
-      }
+      requestEnableSubmission: () =>
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.REQUEST.ENABLE_PLACEMENT_SUBMISSION),
+      requestDisableSubmission: () =>
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.REQUEST.DISABLE_PLACEMENT_SUBMISSION),
+      requestEnd: () => componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.REQUEST.END),
+      onPlacementProcessed: ({ data }) =>
+        componentEmitter.publish(MAIN_GRID_EVENTS.PLACEMENT.REQUEST.SUB_PLACEMENT_PROCESSED, {
+          callback: data
+        }),
+      offPlacementProcessed: (callback) =>
+        componentEmitter.publish(
+          MAIN_GRID_EVENTS.PLACEMENT.REQUEST.UNSUB_PLACEMENT_PROCESSED,
+          callback
+        )
     },
     getGridElement: () => view.elements.getGrid(),
     getDimensions: () => model.getDimensions(),
