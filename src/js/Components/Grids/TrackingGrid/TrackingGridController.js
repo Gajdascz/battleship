@@ -25,20 +25,30 @@ export const TrackingGridController = (scope, { numberOfRows, numberOfCols, lett
       view.show();
     }
   };
-  const combatManager = TrackingGridCombatManager({ view, publisher, subscriptionManager });
+  // const combatManager = TrackingGridCombatManager({ view, publisher, subscriptionManager });
 
-  stateManager.setFunctions.placement({
-    enterFns: placementManager.initialize,
-    exitFns: placementManager.end
-  });
-  stateManager.setFunctions.progress({
-    enterFns: combatManager.initialize,
-    exitFns: combatManager.end
-  });
+  // stateManager.setFunctions.placement({
+  //   enterFns: placementManager.initialize,
+  //   exitFns: placementManager.end
+  // });
+  // stateManager.setFunctions.progress({
+  //   enterFns: combatManager.initialize,
+  //   exitFns: combatManager.end
+  // });
 
   return {
     getModel: () => model,
     getView: () => view,
-    initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager)
+    initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager),
+    view: {
+      attachTo: (container) => view.attachTo(container),
+      attachWithinWrapper: (element) => view.attachWithinWrapper(element),
+      getGrid: () => view.elements.getGrid(),
+      getWrapper: () => view.elements.getWrapper(),
+      hide: () => view.hide(),
+      show: () => view.show(),
+      enable: () => view.enable(),
+      disable: () => view.disable()
+    }
   };
 };

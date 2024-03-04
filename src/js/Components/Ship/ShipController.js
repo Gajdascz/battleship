@@ -1,7 +1,7 @@
 // Ship Component
 import { ShipModel } from './main/model/ShipModel';
 import { ShipView } from './main/view/ShipView';
-import { SHIP_EVENTS } from './common/shipEvents';
+import { SHIP_SELECTION_EVENTS, SHIP_PLACEMENT_EVENTS } from './common/shipEvents';
 import { ShipSelectionAndPlacementManager } from './features/selectionAndPlacement/SelectionAndPlacementManager';
 import { ShipCombatManager } from './features/combat/ShipCombatManager';
 // External
@@ -13,6 +13,7 @@ export const ShipController = (scope, shipData) => {
   const view = ShipView({ name, length });
 
   const componentEmitter = EventEmitter();
+  const { publish } = componentEmitter;
 
   ShipSelectionAndPlacementManager({
     model,
@@ -22,41 +23,30 @@ export const ShipController = (scope, shipData) => {
   const combatManager = ShipCombatManager({ model, view, componentEmitter });
 
   return {
+    placement: {
+      initialize: () => {
+        publish(SHIP_PLACEMENT_EVENTS.INITIALIZE);
+      },
+      select: () => publish(SHIP_SELECTION_EVENTS.SELECT),
+      deselect: () => publish(SHIP_SELECTION_EVENTS.DESELECT),
+      setCoordinates: (coordinates) => publish(SHIP_PLACEMENT_EVENTS.SET_COORDINATES, coordinates),
+      onSelected: (callback) => publish(SHIP_SELECTION_EVENTS.SUB_SELECTED, callback),
+      onOrientationToggled: (callback) =>
+        publish(SHIP_SELECTION_EVENTS.SUB_ORIENTATION_TOGGLED, callback),
+      offSelected: (callback) => publish(SHIP_SELECTION_EVENTS.UNSUB_SELECTED, callback),
+      offOrientationToggled: (callback) =>
+        publish(SHIP_SELECTION_EVENTS.UNSUB_ORIENTATION_TOGGLED, callback),
+      end: () => publish(SHIP_PLACEMENT_EVENTS.END)
+    },
+    combat: {
+      initialize: () => combatManager.initialize()
+      // hit: () => publish()
+    },
     properties: {
       getScoped: () => model.getScope(),
       getID: () => model.getID(),
       getScopedID: () => model.getScopedID(),
       isSelected: () => model.isSelected()
-    },
-    placement: {
-      requestInitialize: ({ data }) => {
-        componentEmitter.publish(SHIP_EVENTS.SELECTION_PLACEMENT.INITIALIZE_REQUESTED, {
-          container: data
-        });
-      },
-      requestEnd: () => componentEmitter.publish(SHIP_EVENTS.SELECTION_PLACEMENT.END_REQUESTED),
-      requestSelect: () => componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.SELECT),
-      requestDeselect: () => componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.DESELECT),
-      requestSetCoordinates: ({ data }) =>
-        componentEmitter.publish(SHIP_EVENTS.PLACEMENT.REQUEST.SET_COORDINATES, {
-          coordinates: data
-        }),
-      onSelected: ({ data }) =>
-        componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.SUB_SELECTED, { callback: data }),
-      onOrientationToggled: ({ data }) =>
-        componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.SUB_ORIENTATION_TOGGLED, {
-          callback: data
-        }),
-      offSelected: ({ data }) =>
-        componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.UNSUB_SELECTED, { callback: data }),
-      offOrientationToggled: ({ data }) =>
-        componentEmitter.publish(SHIP_EVENTS.SELECTION.REQUEST.UNSUB_ORIENTATION_TOGGLED, {
-          callback: data
-        })
-    },
-    combat: {
-      initialize: () => combatManager.initialize(),
-      hit: () => componentEmitter.publish(SHIP_EVENTS.COMBAT.HIT_REQUEST_RECEIVED)
     },
     getModel: () => model,
     getView: () => view

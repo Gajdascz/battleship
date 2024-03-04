@@ -15,7 +15,7 @@ const AI_DISPLAY = {
 
 const buildAIDisplay = (boardSettings, aiName) => {
   const trackingGridView = TrackingGridView(boardSettings);
-  const trackingGridElement = trackingGridView.getGridElement();
+  const trackingGridElement = trackingGridView.elements.getGrid().element;
   trackingGridElement.classList.add(AI_DISPLAY.CLASSES.GRID);
   const header = trackingGridElement.querySelector('.tracking-grid-header');
   const headerText = trackingGridElement.querySelector('.tracking-grid-header > p');

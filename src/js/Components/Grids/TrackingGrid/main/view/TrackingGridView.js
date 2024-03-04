@@ -5,6 +5,11 @@ import { buildTrackingGridUIObj } from './buildTrackingGridUIObj';
 
 import './tracking-grid-styles.css';
 
+const ELEMENT_IDS = {
+  WRAPPER: 'trackingGridWrapper',
+  GRID: 'trackingGrid'
+};
+
 export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const { wrappedTrackingGridElement } = buildTrackingGridUIObj({
     numberOfRows,
@@ -22,7 +27,7 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
       if (isCellUnexplored(cell)) cell.disabled = false;
     });
   const disable = () => [...cells].forEach((cell) => (cell.disabled = true));
-  const attachToWrapper = (element) => wrappedTrackingGridElement.append(element);
+  const attachWithinWrapper = (element) => wrappedTrackingGridElement.append(element);
   const hide = () => (wrappedTrackingGridElement.style.display = 'none');
   const show = () => wrappedTrackingGridElement.removeAttribute('style');
   const getCell = (coordinates) =>
@@ -32,13 +37,16 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
 
   return {
     attachTo: (container) => container.append(wrappedTrackingGridElement),
-    attachToWrapper,
-    getGridElement: () => trackingGridElement,
+    attachWithinWrapper,
     getCell,
     setCellStatus,
     hide,
     show,
     enable,
-    disable
+    disable,
+    elements: {
+      getWrapper: () => ({ id: ELEMENT_IDS.WRAPPER, element: wrappedTrackingGridElement }),
+      getGrid: () => ({ id: ELEMENT_IDS.GRID, element: trackingGridElement })
+    }
   };
 };

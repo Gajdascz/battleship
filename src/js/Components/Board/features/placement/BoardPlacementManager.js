@@ -3,11 +3,11 @@ import { SHIP_EVENTS, MAIN_GRID_EVENTS, GAME_EVENTS } from '../../../../Events/e
 export const BoardPlacementManager = ({ view, model, publisher, subscriptionManager }) => {
   const emit = {
     shipSelected: () =>
-      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
+      publisher.scoped.noFulfill(MAIN_GRID_PLACEMENT_EVENTS.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
         isReady: false
       }),
     shipPlaced: () =>
-      publisher.scoped.noFulfill(MAIN_GRID_EVENTS.PLACEMENT.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
+      publisher.scoped.noFulfill(MAIN_GRID_PLACEMENT_EVENTS.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
         isReady: model.isAllShipsPlaced()
       }),
     placementFinalized: () => publisher.scoped.noFulfill(GAME_EVENTS.PLAYER_FINALIZED_PLACEMENT)
@@ -39,7 +39,7 @@ export const BoardPlacementManager = ({ view, model, publisher, subscriptionMana
     { event: GAME_EVENTS.PLAYER_TURN, callback: onTurnStart },
     { event: SHIP_EVENTS.PLACEMENT.SET, callback: onShipPlaced },
     { event: SHIP_EVENTS.SELECTION.SELECTED, callback: onShipSelected },
-    { event: MAIN_GRID_EVENTS.PLACEMENT.FINALIZED, callback: onPlacementsFinalized }
+    { event: MAIN_GRID_PLACEMENT_EVENTS.FINALIZED, callback: onPlacementsFinalized }
   ];
   return {
     initialize: () => onInitialize(),

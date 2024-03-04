@@ -35,7 +35,7 @@ export const MAIN_GRID = {
   PLACED_ENTITY_SELECTOR: (id) =>
     createAttributeSelector({
       elementType: MAIN_GRID.PROPERTIES.CELL_ELEMENT,
-      attribute: MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_SHIP_NAME,
+      attribute: MAIN_GRID.PROPERTIES.ATTRIBUTES.PLACED_ENTITY_NAME,
       value: id
     })
 };

@@ -1,7 +1,7 @@
-import { BaseBoardView } from './BaseBoardView';
+import { BaseBoardView } from './BoardView';
 import './board-style.css';
 
-export const HvABoardView = ({
+export const HvAStrategy = ({
   scopedID,
   playerName,
   mainGridView,
@@ -10,6 +10,10 @@ export const HvABoardView = ({
 }) => {
   const base = BaseBoardView(scopedID, playerName, { mainGridView, trackingGridView, fleetView });
   let aiView = null;
+  const stragey = {
+    setAiView: (view) => (aiView = view)
+  };
+
   base.aiView = {
     setView: (newView) => (aiView = newView),
     display: () => {

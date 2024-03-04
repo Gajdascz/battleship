@@ -7,7 +7,8 @@ import { PreviewManager } from './PreviewManager';
 import { MOUSE_EVENTS } from '../../../../../../Utility/constants/dom/domEvents';
 
 const LISTENER_MANAGER_KEYS = {
-  SUBMIT_PLACEMENTS: 'submitPlacements'
+  SUBMIT_PLACEMENTS: 'submitPlacements',
+  REQUEST_PLACEMENT: 'entityRequestPlacement'
 };
 
 export const MainGridPlacementView = ({
@@ -47,24 +48,30 @@ export const MainGridPlacementView = ({
     });
   };
 
-  const processPlacementRequest = ({ id, length }) => {
+  const processPlacementRequest = (id) => {
     if (!isValidPlacement()) return;
     const placementCells = [
       ...mainGridElement.querySelectorAll(MAIN_GRID.VALID_PLACEMENT_SELECTOR)
     ];
-    if (placementCells.length !== length) return;
     displayPlacedEntity(placementCells, id);
     const placedCoordinates = placementCells.map((cell) => cell.dataset.coordinates);
     return placedCoordinates;
   };
 
-  const initialize = (submitPlacementsCallback) => {
+  const initialize = (submitPlacementsCallback, requestPlacementCallback) => {
     if (isInitialized) return;
     listenerManager.addController({
       key: LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS,
       element: submitPlacementsButtonElement,
       event: MOUSE_EVENTS.CLICK,
       callback: submitPlacementsCallback,
+      enable: false
+    });
+    listenerManager.addController({
+      element: mainGridElement,
+      event: MOUSE_EVENTS.CLICK,
+      callback: requestPlacementCallback,
+      key: LISTENER_MANAGER_KEYS.REQUEST_PLACEMENT,
       enable: false
     });
     previewManager.enable();
@@ -76,22 +83,31 @@ export const MainGridPlacementView = ({
   const disableSubmitPlacements = () =>
     listenerManager.disableListener(LISTENER_MANAGER_KEYS.SUBMIT_PLACEMENTS);
 
+  const enableRequestPlacements = () => {
+    previewManager.enable();
+    listenerManager.enableListener(LISTENER_MANAGER_KEYS.REQUEST_PLACEMENT);
+  };
+  const disableRequestPlacements = () => {
+    previewManager.disable();
+    listenerManager.disableListener(LISTENER_MANAGER_KEYS.REQUEST_PLACEMENT);
+  };
+
   return {
     initialize,
     processPlacementRequest,
     enable: {
-      preview: () => previewManager.enable(),
+      placementRequest: () => enableRequestPlacements(),
       submitPlacements: () => enableSubmitPlacements(),
       all: () => {
-        previewManager.enable();
+        enableRequestPlacements();
         enableSubmitPlacements();
       }
     },
     disable: {
-      preview: () => previewManager.disable(),
+      placementRequest: () => disableRequestPlacements(),
       submitPlacements: () => disableSubmitPlacements(),
       all: () => {
-        previewManager.disable();
+        disableRequestPlacements();
         disableSubmitPlacements();
       }
     },

@@ -1,4 +1,4 @@
-import { BaseBoardView } from './BaseBoardView';
+import { BaseBoardView } from './BoardView';
 import { AlternatePlayerDialogView } from '../../../Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
 import { MOUSE_EVENTS } from '../../../../Utility/constants/dom/domEvents';
 import { buildUIElement } from '../../../../Utility/uiBuilderUtils/uiBuilders';

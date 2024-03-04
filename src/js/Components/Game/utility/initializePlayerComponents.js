@@ -4,7 +4,13 @@ import { MainGridController } from '../../Grids/MainGrid/MainGridController';
 import { TrackingGridController } from '../../Grids/TrackingGrid/TrackingGridController';
 import { BoardController } from '../../Board/BoardController';
 
-export const initializePlayerComponents = ({ playerModel, boardSettings, gameMode, shipData }) => {
+export const initializePlayerComponents = ({
+  playerModel,
+  boardSettings,
+  boardDisplayContainer,
+  gameMode,
+  shipData
+}) => {
   const scope = playerModel.getID();
   const fleetController = FleetController(scope);
   shipData.forEach((ship) => {
@@ -19,7 +25,8 @@ export const initializePlayerComponents = ({ playerModel, boardSettings, gameMod
     fleetController,
     mainGridController,
     trackingGridController,
-    gameMode
+    gameMode,
+    displayContainer: boardDisplayContainer
   });
   const controllers = {
     board: boardController,

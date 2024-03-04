@@ -1,4 +1,4 @@
-import { SHIP_EVENTS } from '../../common/shipEvents';
+import { SHIP_SELECTION_EVENTS, SHIP_PLACEMENT_EVENTS } from '../../common/shipEvents';
 import { ShipSelectionController } from './selection/ShipSelectionController';
 import { ShipPlacementController } from './placement/ShipPlacementController';
 import { EventEmitter } from '../../../../Events/core/EventEmitter';
@@ -13,138 +13,61 @@ export const ShipSelectionAndPlacementManager = ({ model, view, componentEmitter
     view
   });
 
-  const handleInitialize = ({ data }) => {
-    console.log(data);
-    const { container } = data;
-    console.log(container);
-    componentEmitter.unsubscribe(
-      SHIP_EVENTS.SELECTION_PLACEMENT.INITIALIZE_REQUESTED,
-      handleInitialize
-    );
+  const handleInitialize = () => {
+    componentEmitter.unsubscribe(SHIP_SELECTION_EVENTS.INITIALIZE, handleInitialize);
     componentEmitter.subscribeMany(COMPONENT_SUBSCRIPTIONS);
-    selectionController.initialize(handleSelect);
-    placementController.initialize(container);
+    selectionController.initialize(handleSelect, handleOrientationToggle);
   };
 
   const handlePlace = ({ data }) => {
-    const { coordinates } = data;
-    placementController.place(coordinates);
+    placementController.place(data);
     handleDeselect();
   };
 
   const handleSelect = () => {
     if (model.isPlaced()) placementController.pickup();
     selectionController.select();
-    placementController.enable();
-    emitter.publish(SHIP_EVENTS.SELECTION.DECLARE.SELECTED, {
+    emitter.publish(SHIP_SELECTION_EVENTS.SELECTED, {
       id: model.getID(),
-      length: model.getLength()
+      length: model.getLength(),
+      orientation: model.getOrientation()
     });
   };
-  const handleDeselect = () => {
-    selectionController.deselect();
-    placementController.disable();
+  const handleOrientationToggle = () => {
+    emitter.publish(SHIP_SELECTION_EVENTS.ORIENTATION_TOGGLED, model.getOrientation());
   };
+  const handleDeselect = () => selectionController.deselect();
 
   const handleEnd = () => {
     selectionController.end();
-    placementController.end();
     emitter.reset();
     componentEmitter.unsubscribeMany(COMPONENT_SUBSCRIPTIONS);
   };
 
-  const onSelect = ({ data }) => {
-    const { callback } = data;
-    emitter.subscribe(SHIP_EVENTS.SELECTION.DECLARE.SELECTED, callback);
-  };
-  const offSelect = ({ data }) => {
-    const { callback } = data;
-    emitter.unsubscribe(SHIP_EVENTS.SELECTION.DECLARE.DESELECTED, callback);
-  };
-  const onOrientationToggled = ({ data }) => {
-    const { callback } = data;
-    emitter.subscribe(SHIP_EVENTS.SELECTION.DECLARE.ORIENTATION_TOGGLED, callback);
-  };
-  const offOrientationToggled = ({ data }) => {
-    const { callback } = data;
-    emitter.unsubscribe(SHIP_EVENTS.SELECTION.DECLARE.ORIENTATION_TOGGLED, callback);
-  };
+  const onSelect = ({ data }) => emitter.subscribe(SHIP_SELECTION_EVENTS.SELECTED, data);
+
+  const offSelect = ({ data }) => emitter.unsubscribe(SHIP_SELECTION_EVENTS.DESELECTED, data);
+  const onOrientationToggled = ({ data }) =>
+    emitter.subscribe(SHIP_SELECTION_EVENTS.ORIENTATION_TOGGLED, data);
+  const offOrientationToggled = ({ data }) =>
+    emitter.unsubscribe(SHIP_SELECTION_EVENTS.ORIENTATION_TOGGLED, data);
 
   const COMPONENT_SUBSCRIPTIONS = [
-    { event: SHIP_EVENTS.SELECTION.REQUEST.DESELECT, callback: handleDeselect },
-    { event: SHIP_EVENTS.PLACEMENT.REQUEST.SET_COORDINATES, callback: handlePlace },
-    { event: SHIP_EVENTS.SELECTION.REQUEST.SUB_SELECTED, callback: onSelect },
-    { event: SHIP_EVENTS.SELECTION.REQUEST.UNSUB_SELECTED, callback: offSelect },
+    { event: SHIP_SELECTION_EVENTS.DESELECT, callback: handleDeselect },
+    { event: SHIP_PLACEMENT_EVENTS.SET_COORDINATES, callback: handlePlace },
+    { event: SHIP_SELECTION_EVENTS.SUB_SELECTED, callback: onSelect },
+    { event: SHIP_SELECTION_EVENTS.UNSUB_SELECTED, callback: offSelect },
     {
-      event: SHIP_EVENTS.SELECTION.REQUEST.SUB_ORIENTATION_TOGGLED,
+      event: SHIP_SELECTION_EVENTS.SUB_ORIENTATION_TOGGLED,
       callback: onOrientationToggled
     },
     {
-      event: SHIP_EVENTS.SELECTION.REQUEST.UNSUB_ORIENTATION_TOGGLED,
+      event: SHIP_SELECTION_EVENTS.UNSUB_ORIENTATION_TOGGLED,
       callback: offOrientationToggled
     },
 
-    { event: SHIP_EVENTS.SELECTION_PLACEMENT.END_REQUESTED, callback: handleEnd }
+    { event: SHIP_PLACEMENT_EVENTS.END, callback: handleEnd }
   ];
 
-  componentEmitter.subscribe(
-    SHIP_EVENTS.SELECTION_PLACEMENT.INITIALIZE_REQUESTED,
-    handleInitialize
-  );
+  componentEmitter.subscribe(SHIP_PLACEMENT_EVENTS.INITIALIZE, handleInitialize);
 };
-// const emit = {
-//   initializeRequest: (container) => {
-//     componentEmitter.publish(SHIP_EVENTS.SELECTION.INITIALIZE_REQUESTED);
-//     componentEmitter.publish(SHIP_EVENTS.PLACEMENT.INITIALIZE_REQUESTED, { container });
-//   },
-//   placementCoordinatesReceived: ({ data }) =>
-//     componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED, { data }),
-//   selectRequest: () => {
-//     componentEmitter.publish(SHIP_EVENTS.SELECTION.SELECTION_REQUESTED);
-//     componentEmitter.publish(SHIP_EVENTS.PLACEMENT.ENABLE_PLACEMENT_REQUESTED);
-//     if (model.isPlaced()) componentEmitter.publish(SHIP_EVENTS.PLACEMENT.PICKUP_REQUESTED);
-//   },
-//   deselectRequest: () => {
-//     componentEmitter.publish(SHIP_EVENTS.SELECTION.DESELECT_REQUESTED);
-//     componentEmitter.publish(SHIP_EVENTS.PLACEMENT.DISABLE_PLACEMENT_REQUESTED);
-//   },
-//   end: () => {
-//     componentEmitter.publish(SHIP_EVENTS.SELECTION.END_REQUESTED);
-//     componentEmitter.publish(SHIP_EVENTS.PLACEMENT.END_REQUESTED);
-//   }
-// };
-// const onInitialize = ({ data }) => {
-//   const { container } = data;
-//   console.log(container);
-//   emit.initializeRequest(container);
-//   componentEmitter.subscribe(SHIP_EVENTS.SELECTION.SELECT_REQUEST_RECEIVED, onSelect);
-//   componentEmitter.subscribe(SHIP_EVENTS.SELECTION.DESELECT_REQUEST_RECEIVED, onDeselect);
-//   componentEmitter.subscribe(SHIP_EVENTS.SELECTION_PLACEMENT.END_REQUESTED, onEnd);
-// };
-
-// const onPlacementCoordinatesReceived = ({ data }) => {
-//   emit.placementCoordinatesReceived({ data });
-//   onDeselect();
-// };
-// const onSelect = () => {
-//   emit.selectRequest();
-//   componentEmitter.subscribe(
-//     SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED,
-//     onPlacementCoordinatesReceived
-//   );
-// };
-// const onDeselect = () => {
-//   emit.deselectRequest();
-//   componentEmitter.unsubscribe(
-//     SHIP_EVENTS.PLACEMENT.PLACEMENT_COORDINATES_RECEIVED,
-//     onPlacementCoordinatesReceived
-//   );
-// };
-
-// const onEnd = () => {
-//   onDeselect();
-//   componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.SELECT_REQUEST_RECEIVED, onSelect);
-//   componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION.DESELECT_REQUEST_RECEIVED, onDeselect);
-//   componentEmitter.unsubscribe(SHIP_EVENTS.SELECTION_PLACEMENT.END_REQUESTED, onEnd);
-//   emit.end();
-// };

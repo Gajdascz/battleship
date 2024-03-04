@@ -81,6 +81,7 @@ export const GameController = (startGameTrigger) => {
     const player = initializePlayerComponents({
       playerModel,
       boardSettings,
+      boardDisplayContainer: gameContainer,
       gameMode: model.getGameMode(),
       shipData: DEFAULT_FLEET
     });
@@ -96,19 +97,19 @@ export const GameController = (startGameTrigger) => {
     return { player, playerGameModel };
   };
 
-  const initializeHvH = (p1, p2) => {
-    p1.controllers.board.view.setOpponentPlayerName(p2.playerModel.getName());
-    p1.controllers.board.set.trackingFleet(p2.controllers.fleet.getTrackingFleet());
-    p2.controllers.board.view.setOpponentPlayerName(p1.playerModel.getName());
-    p2.controllers.board.set.trackingFleet(p1.controllers.fleet.getTrackingFleet());
-    p1.controllers.board.set.opponentScope(p2.playerModel.getID());
-    p2.controllers.board.set.opponentScope(p1.playerModel.getID());
-  };
+  // const initializeHvH = (p1, p2) => {
+  //   p1.controllers.board.view.setOpponentPlayerName(p2.playerModel.getName());
+  //   p1.controllers.board.set.trackingFleet(p2.controllers.fleet.getTrackingFleet());
+  //   p2.controllers.board.view.setOpponentPlayerName(p1.playerModel.getName());
+  //   p2.controllers.board.set.trackingFleet(p1.controllers.fleet.getTrackingFleet());
+  //   p1.controllers.board.set.opponentScope(p2.playerModel.getID());
+  //   p2.controllers.board.set.opponentScope(p1.playerModel.getID());
+  // };
 
-  const initializeHvA = (p1, p2) => {
-    p1.controllers.board.view.aiView.setView(p2.getView());
-    p1.controllers.board.set.opponentScope(p2.getID());
-  };
+  // const initializeHvA = (p1, p2) => {
+  //   p1.controllers.board.view.aiView.setView(p2.getView());
+  //   p1.controllers.board.set.opponentScope(p2.getID());
+  // };
 
   const startGame = ({ data }) => {
     const { p1Settings, p2Settings, boardSettings } = data;
@@ -125,8 +126,8 @@ export const GameController = (startGameTrigger) => {
       isP2AI
     );
     model.setPlayers(p1GameModel, p2GameModel);
-    if (isP2AI) initializeHvA(p1, p2);
-    else initializeHvH(p1, p2);
+    // if (isP2AI) initializeHvA(p1, p2);
+    // else initializeHvH(p1, p2);
     gameStateController.initialize(); // None -> Start
     startPlacementState();
   };

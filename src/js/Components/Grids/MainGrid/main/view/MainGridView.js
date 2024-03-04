@@ -2,6 +2,12 @@ import { MAIN_GRID } from '../../common/mainGridConstants';
 import { buildMainGridUIObj } from './buildMainGridUIObj';
 import './main-grid-styles.css';
 
+const ELEMENT_IDS = {
+  GRID: 'mainGrid',
+  WRAPPER: 'mainGridWrapper',
+  SUBMIT_PLACEMENTS_BUTTON: 'submitPlacementsButton'
+};
+
 export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const { wrappedMainGridElement, submitPlacementsButtonElement } = buildMainGridUIObj({
     numberOfRows,
@@ -14,18 +20,17 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const getCell = (coordinates) =>
     mainGridElement.querySelector(MAIN_GRID.CELL_SELECTOR(coordinates));
 
-  const displayShipHit = (coordinates) =>
-    getCell(coordinates).classList.add(MAIN_GRID.CLASSES.HIT_MARKER);
-
   return {
     getCell,
     attachTo: (container) => container.append(wrappedMainGridElement),
-    attachToWrapper: (element) => wrappedMainGridElement.append(element),
-    displayShipHit,
+    attachWithinWrapper: (element) => wrappedMainGridElement.append(element),
     elements: {
-      getWrapper: () => wrappedMainGridElement,
-      getGrid: () => mainGridElement,
-      getSubmitPlacementsButton: () => submitPlacementsButtonElement
+      getWrapper: () => ({ id: ELEMENT_IDS.WRAPPER, element: wrappedMainGridElement }),
+      getGrid: () => ({ id: ELEMENT_IDS.GRID, element: mainGridElement }),
+      getSubmitPlacementsButton: () => ({
+        id: ELEMENT_IDS.SUBMIT_PLACEMENTS_BUTTON,
+        element: submitPlacementsButtonElement
+      })
     }
   };
 };
