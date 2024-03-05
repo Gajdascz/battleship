@@ -45,8 +45,8 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
     enable,
     disable,
     elements: {
-      getWrapper: () => ({ id: ELEMENT_IDS.WRAPPER, element: wrappedTrackingGridElement }),
-      getGrid: () => ({ id: ELEMENT_IDS.GRID, element: trackingGridElement })
+      getWrapper: () => wrappedTrackingGridElement,
+      getGrid: () => trackingGridElement
     }
   };
 };

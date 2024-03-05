@@ -10,7 +10,7 @@ const LISTENER_MANAGER_KEYS = {
   SEND_ATTACK: 'sendAttack'
 };
 
-export const TrackingGridCombatView = ({ view }) => {
+export const TrackingGridCombatView = (view) => {
   const gridElement = view.getGridElement();
   let isInitialized = false;
   let lastCell = null;
@@ -40,14 +40,6 @@ export const TrackingGridCombatView = ({ view }) => {
     lastCell = null;
   };
 
-  const enable = () => {
-    view.enable();
-    listenerManager.enableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK);
-  };
-  const disable = () => {
-    view.disable();
-    listenerManager.disableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK);
-  };
   const end = () => {
     if (!isInitialized) return;
     listenerManager.reset();
@@ -56,8 +48,6 @@ export const TrackingGridCombatView = ({ view }) => {
   return {
     initialize,
     displayResult,
-    enable,
-    disable,
     end
   };
 };

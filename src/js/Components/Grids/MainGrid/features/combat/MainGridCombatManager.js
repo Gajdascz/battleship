@@ -1,31 +1,50 @@
-import { MAIN_GRID_EVENTS } from '../../../../../Events/events';
+import { MAIN_GRID_COMBAT_EVENTS } from '../../common/mainGridEvents';
 import { convertToDisplayFormat } from '../../../../../Utility/utils/coordinatesUtils';
 import { STATUSES } from '../../../../AI/common/constants';
+import { EventEmitter } from '../../../../../Events/core/EventEmitter';
 
-export const MainGridCombatManager = ({ model, view, publisher, subscriptionManager }) => {
+export const MainGridCombatManager = (model, view, componentEmitter) => {
+  const emitter = EventEmitter();
   const acceptAttackRequest = ({ data }) => {
-    const { coordinates } = data;
-    const cellData = model.processIncomingAttack(coordinates);
-    const [x, y] = coordinates;
+    const cellData = model.processIncomingAttack(data);
+    const [x, y] = data;
     const displayCoordinates = convertToDisplayFormat(x, y, model.getLetterAxis());
     if (cellData.status === STATUSES.HIT) view.displayShipHit(displayCoordinates);
-
-    publisher.scoped.noFulfill(MAIN_GRID_EVENTS.COMBAT.INCOMING_ATTACK_PROCESSED, { cellData });
+    emitter.publish(MAIN_GRID_COMBAT_EVENTS.ATTACK_PROCESSED, cellData);
   };
+
+  const handleInitialize = () => {
+    componentEmitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.INITIALIZE, handleInitialize);
+    componentEmitter.subscribe(MAIN_GRID_COMBAT_EVENTS.END, handleEnd);
+
+    emitter.subscribeMany(subscriptions);
+  };
+
+  const handleEnd = () => {
+    emitter.reset();
+    componentEmitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.END, handleEnd);
+  };
+
+  const onAttackProcessed = ({ data }) =>
+    emitter.subscribe(MAIN_GRID_COMBAT_EVENTS.ATTACK_PROCESSED, data);
+
+  const offAttackProcessed = ({ data }) =>
+    emitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.ATTACK_PROCESSED, data);
 
   const subscriptions = [
     {
-      event: MAIN_GRID_EVENTS.COMBAT.INCOMING_ATTACK_REQUESTED,
+      event: MAIN_GRID_COMBAT_EVENTS.PROCESS_INCOMING_ATTACK,
       callback: acceptAttackRequest
+    },
+    {
+      event: MAIN_GRID_COMBAT_EVENTS.SUB_ATTACK_PROCESSED,
+      callback: onAttackProcessed
+    },
+    {
+      event: MAIN_GRID_COMBAT_EVENTS.UNSUB_ATTACK_PROCESSED,
+      callback: offAttackProcessed
     }
   ];
 
-  return {
-    initialize: () => {
-      subscriptionManager.scoped.subscribeMany(subscriptions);
-    },
-    end: () => {
-      subscriptionManager.scoped.unsubscribeMany(subscriptions);
-    }
-  };
+  componentEmitter.subscribe(MAIN_GRID_COMBAT_EVENTS.INITIALIZE, handleInitialize);
 };

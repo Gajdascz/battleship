@@ -1,48 +1,35 @@
-import { SHIP_EVENTS, MAIN_GRID_EVENTS, GAME_EVENTS } from '../../../../Events/events';
+import { BOARD_PLACEMENT_EVENTS } from '../../common/boardEvents';
 
-export const BoardPlacementManager = ({ view, model, publisher, subscriptionManager }) => {
-  const emit = {
-    shipSelected: () =>
-      publisher.scoped.noFulfill(MAIN_GRID_PLACEMENT_EVENTS.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
-        isReady: false
-      }),
-    shipPlaced: () =>
-      publisher.scoped.noFulfill(MAIN_GRID_PLACEMENT_EVENTS.TOGGLE_PLACEMENT_SUBMISSION_REQUEST, {
-        isReady: model.isAllShipsPlaced()
-      }),
-    placementFinalized: () => publisher.scoped.noFulfill(GAME_EVENTS.PLAYER_FINALIZED_PLACEMENT)
-  };
+export const BoardPlacementManager = ({
+  placementView,
+  placementControllers,
+  componentEmitter
+}) => {
+  const { fleet, mainGrid } = placementControllers;
 
-  const onShipSelected = ({ data }) => {
-    emit.shipSelected();
-    view.buttons.rotateShip.update(data.id);
-  };
-  const onShipPlaced = () => {
-    emit.shipPlaced();
-    view.buttons.rotateShip.clearWrapper();
-  };
-  const onPlacementsFinalized = () => {
-    view.placement.end();
-    subscriptionManager.scoped.unsubscribeMany(subscriptions);
-    emit.placementFinalized();
-  };
   const onInitialize = () => {
-    view.placement.initialize();
-    subscriptionManager.scoped.subscribeMany(subscriptions);
+    const onShipSelected = (data) => {
+      updateRotateButton(data);
+      mainGrid.updateSelectedEntity(data);
+    };
+    const updateRotateButton = placementView.startTurn();
+    mainGrid.initialize();
+    fleet.initialize();
+    fleet.onSelected(onShipSelected);
+    fleet.onOrientationToggled(mainGrid.updateOrientation);
+    fleet.onAllShipsPlaced(mainGrid.enableSubmit);
+    fleet.onShipNoLongerPlaced(mainGrid.disableSubmit);
+    mainGrid.onPlacementProcessed(fleet.setCoordinates);
+    componentEmitter.unsubscribe(BOARD_PLACEMENT_EVENTS.START, onInitialize);
+    componentEmitter.subscribe(BOARD_PLACEMENT_EVENTS.END, onEnd);
   };
 
-  const onTurnStart = () => {
-    view.placement.onTurnStart();
+  const onEnd = () => {
+    fleet.end();
+    mainGrid.end();
+    placementView.endTurn();
+    componentEmitter.unsubscribe(BOARD_PLACEMENT_EVENTS.END, onEnd);
   };
 
-  const subscriptions = [
-    { event: GAME_EVENTS.PLAYER_TURN, callback: onTurnStart },
-    { event: SHIP_EVENTS.PLACEMENT.SET, callback: onShipPlaced },
-    { event: SHIP_EVENTS.SELECTION.SELECTED, callback: onShipSelected },
-    { event: MAIN_GRID_PLACEMENT_EVENTS.FINALIZED, callback: onPlacementsFinalized }
-  ];
-  return {
-    initialize: () => onInitialize(),
-    end: () => onPlacementsFinalized()
-  };
+  componentEmitter.subscribe(BOARD_PLACEMENT_EVENTS.START, onInitialize);
 };

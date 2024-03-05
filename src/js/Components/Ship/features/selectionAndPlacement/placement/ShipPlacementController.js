@@ -1,7 +1,7 @@
 import { BOOL } from '../../../../../Utility/constants/dom/attributes';
 
 export const ShipPlacementController = ({ model, view }) => {
-  const shipElement = view.elements.getMainShip().element;
+  const shipElement = view.elements.getMainShip();
   const place = (coordinates) => {
     model.setPlacedCoordinates(coordinates);
     model.setIsPlaced(true);

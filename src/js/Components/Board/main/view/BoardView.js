@@ -1,9 +1,21 @@
+import { GAME_MODES } from '../../../../Utility/constants/common';
 import { COMMON_ELEMENTS } from '../../../../Utility/constants/dom/elements';
 import { buildUIElement } from '../../../../Utility/uiBuilderUtils/uiBuilders';
 import './board-style.css';
+import { StrategyHvA } from './strategyHvA';
+import { StrategyHvH } from './strategyHvH';
 
-export const BoardView = ({ playerID, playerName, container = document.querySelector('body') }) => {
+export const BoardView = ({
+  playerID,
+  playerName,
+  container = document.querySelector('body'),
+  views,
+  gameMode
+}) => {
+  const { mainGrid, trackingGrid, fleet } = views;
+
   let displayContainer = container;
+
   const BOARD_CONTAINER_CLASS = 'board';
   const BOARD_BUTTONS_CONTAINER_CLASS = 'board-buttons-container';
   const PLAYER_NAME_DISPLAY = 'player-name-display';
@@ -17,6 +29,7 @@ export const BoardView = ({ playerID, playerName, container = document.querySele
     text: playerName,
     attributes: { class: PLAYER_NAME_DISPLAY }
   });
+  boardContainer.append(playerNameDisplay);
 
   const buildButtonContainer = (classAttr = null) => {
     let finalClass = BOARD_BUTTONS_CONTAINER_CLASS;
@@ -25,7 +38,6 @@ export const BoardView = ({ playerID, playerName, container = document.querySele
       attributes: { class: finalClass }
     });
   };
-  boardContainer.append(playerNameDisplay);
 
   const buildUtilityContainer = (classAttr) => {
     let finalClass = BOARD_UTILITY_CONTAINER_CLASS;
@@ -35,44 +47,12 @@ export const BoardView = ({ playerID, playerName, container = document.querySele
     });
   };
 
-  const buildButtonWrapper = (id) =>
-    buildUIElement(COMMON_ELEMENTS.DIV, {
-      attributes: { class: `${id}-${BOARD_BUTTON_WRAPPER_CLASS}` }
-    });
-
-  const boardElements = new Map();
-
-  const addToBoard = (id, element) => {
-    boardContainer.append(element);
-    boardElements.set(id, element);
-  };
-
-  const addUtilityContainerTo = (parentID, id, containerClass) => {
-    const element = boardElements.get(parentID);
-    if (!element) return;
-    const utilityContainer = buildUtilityContainer(containerClass);
-    element.append(utilityContainer);
-    boardElements.set(id, utilityContainer);
-  };
-  const addButtonContainerTo = (parentID, id, containerClass) => {
-    const element = boardElements.get(parentID);
-    if (!element) return;
-    const buttonContainer = buildButtonContainer(containerClass);
-    element.append(buttonContainer);
-    boardElements.set(id, {
-      container: buttonContainer,
-      manager: buildButtonContainerManager(buttonContainer)
-    });
-  };
-  const addToBoardElement = (parentID, id, element) => {
-    const boardElement = boardElements.get(parentID);
-    if (!boardElement) return;
-    boardElement.append(element);
-    boardElements.set(id, element);
-  };
-
   const buildButtonContainerManager = (container) => {
     const wrappers = {};
+    const buildButtonWrapper = (id) =>
+      buildUIElement(COMMON_ELEMENTS.DIV, {
+        attributes: { class: `${id}-${BOARD_BUTTON_WRAPPER_CLASS}` }
+      });
     const addWrapper = (id) => {
       const wrapper = buildButtonWrapper(id);
       container.append(wrapper);
@@ -116,53 +96,34 @@ export const BoardView = ({ playerID, playerName, container = document.querySele
   const display = () => displayContainer.append(boardContainer);
   const remove = () => boardContainer.remove();
 
+  const initialize = () => {
+    const CLASSES = {
+      MAIN_GRID_UTILITY_CONTAINER: 'main-grid-utility-container',
+      TRACKING_GRID_UTILITY_CONTAINER: 'tracking-grid-utility-container',
+      MAIN_GRID_BUTTON_CONTAINER: 'main-grid-button-container'
+    };
+    mainGrid.attachTo(boardContainer);
+    trackingGrid.attachTo(boardContainer);
+    const mainGridUtilityContainer = buildUtilityContainer(CLASSES.MAIN_GRID_UTILITY_CONTAINER);
+    mainGrid.attachWithinWrapper(mainGridUtilityContainer);
+    fleet.attachMainFleetTo(mainGridUtilityContainer);
+    const mainGridButtonContainer = buildButtonContainer(CLASSES.MAIN_GRID_BUTTON_CONTAINER);
+    mainGridUtilityContainer.append(mainGridButtonContainer);
+    const mainGridButtonManager = buildButtonContainerManager(mainGridButtonContainer);
+    const trackingGridUtilityContainer = buildUtilityContainer(
+      CLASSES.TRACKING_GRID_UTILITY_CONTAINER
+    );
+    trackingGrid.attachWithinWrapper(trackingGridUtilityContainer);
+    const setTrackingFleet = (opponentFleet) => trackingGridUtilityContainer.append(opponentFleet);
+    return { mainGridButtonManager, setTrackingFleet };
+  };
+
+  let strategy;
+  if (gameMode === GAME_MODES.HvA) strategy = StrategyHvA(initialize, views, display, remove);
+  else strategy = StrategyHvH(initialize, views, display, remove);
   return {
-    getButtonContainerManager: (containerID) => {
-      const obj = boardElements.get(containerID);
-      if (!obj) return;
-      const { manager } = obj;
-      return manager;
-    },
-    setContainer: (container) => {
-      remove();
-      displayContainer = container;
-      display();
-    },
-    addToBoard,
-    addToBoardElement,
-    addUtilityContainerTo,
-    addButtonContainerTo,
     display,
-    remove
+    remove,
+    ...strategy
   };
 };
-// const rotateShipButtonController = {
-//   update: (shipID) => {
-//     const btn = fleetView.getRotateShipButton(shipID);
-//     updateButton(`rotate-ship`, btn);
-//   },
-//   clearWrapper: () => (getWrapper(`rotate-ship`).textContent = '')
-// };
-
-// const submitPlacementsButtonController = {
-//   init: () =>
-//     updateButton(
-//       `submit-placements`,
-//       mainGridView.elements.getSubmitPlacementsButton()
-//     )
-// };
-
-// const trackingGrid = {
-//   setFleet: (opponentTrackingFleet) =>
-//     gridUtilityContainers.tracking.append(opponentTrackingFleet),
-//   hide: () => trackingGridView.hide(),
-//   show: () => trackingGridView.show(),
-//   enable: () => trackingGridView.enable(),
-//   disable: () => trackingGridView.disable(),
-//   attachToWrapper: (element) => trackingGridView.attachToWrapper(element)
-// };
-// mainGridView.attachTo(boardContainer);
-// fleetView.attachMainFleetTo(gridUtilityContainers.main);
-// mainGridView.attachToWrapper(gridUtilityContainers.main);
-// trackingGridView.attachToWrapper(gridUtilityContainers.tracking);
-// gridUtilityContainers.main.append(buttonsContainer);

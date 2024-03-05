@@ -2,7 +2,8 @@ import { FleetModel } from './main/model/FleetModel';
 import { FleetView } from './main/view/FleetView';
 import { FleetPlacementManager } from './features/placement/FleetPlacementManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
-import { FLEET_PLACEMENT_EVENTS } from './common/fleetEvents';
+import { FLEET_COMBAT_EVENTS, FLEET_PLACEMENT_EVENTS } from './common/fleetEvents';
+import { FleetCombatManager } from './features/combat/FleetCombatManager';
 
 export const FleetController = (scope) => {
   const model = FleetModel(scope);
@@ -10,8 +11,6 @@ export const FleetController = (scope) => {
   const shipControllers = new Map();
   const componentEmitter = EventEmitter();
   const { publish } = componentEmitter;
-
-  const placementManager = FleetPlacementManager({ model, shipControllers, componentEmitter });
 
   const assignShipToFleet = (shipController) => {
     const shipModel = shipController.getModel();
@@ -22,15 +21,16 @@ export const FleetController = (scope) => {
     view.populateFleetShipLists();
   };
 
-  const processShipHitRequest = ({ data }) => {
-    const { shipID } = data;
-    const ship = shipControllers.get(shipID);
-    if (ship) ship.combat.hit();
-  };
-
   return {
     placement: {
-      initialize: (container) => publish(FLEET_PLACEMENT_EVENTS.INITIALIZE, container),
+      initialize: (container) => {
+        const placementControllers = new Map();
+        [...shipControllers.entries()].forEach((controller) =>
+          placementControllers.set(controller[0], controller[1].placement)
+        );
+        FleetPlacementManager(placementControllers, componentEmitter, model.isAllShipsPlaced);
+        publish(FLEET_PLACEMENT_EVENTS.INITIALIZE, container);
+      },
       setCoordinates: (coordinates) => publish(FLEET_PLACEMENT_EVENTS.SET_COORDINATES, coordinates),
       onSelected: (callback) => publish(FLEET_PLACEMENT_EVENTS.SUB_SELECTED, callback),
       offSelected: (callback) => publish(FLEET_PLACEMENT_EVENTS.UNSUB_SELECTED, callback),
@@ -47,6 +47,24 @@ export const FleetController = (scope) => {
       offShipNoLongerPlaced: (callback) =>
         publish(FLEET_PLACEMENT_EVENTS.UNSUB_SHIP_NO_LONGER_PLACED, callback),
       end: () => publish(FLEET_PLACEMENT_EVENTS.END)
+    },
+    combat: {
+      initialize: () => {
+        const combatControllers = new Map();
+        [...shipControllers.entries()].forEach((controller) =>
+          combatControllers.set(controller[0], controller[1].combat)
+        );
+        FleetCombatManager(combatControllers, componentEmitter, model.isAllShipsSunk);
+        publish(FLEET_COMBAT_EVENTS.INITIALIZE);
+      },
+      hitShip: (shipId) => publish(FLEET_COMBAT_EVENTS.HIT_SHIP, shipId),
+      onShipHit: (callback) => publish(FLEET_COMBAT_EVENTS.SUB_SHIP_HIT, callback),
+      offShipHit: (callback) => publish(FLEET_COMBAT_EVENTS.UNSUB_SHIP_HIT, callback),
+      onShipSunk: (callback) => publish(FLEET_COMBAT_EVENTS.SUB_SHIP_SUNK, callback),
+      offShipSunk: (callback) => publish(FLEET_COMBAT_EVENTS.UNSUB_SHIP_SUNK, callback),
+      onAllShipsSunk: (callback) => publish(FLEET_COMBAT_EVENTS.SUB_ALL_SHIPS_SUNK, callback),
+      offAllShipsSunk: (callback) => publish(FLEET_COMBAT_EVENTS.UNSUB_ALL_SHIPS_SUNK, callback),
+      end: () => publish(FLEET_COMBAT_EVENTS.END)
     },
     view: {
       attachMainFleetTo: (container) => view.attachMainFleetTo(container),

@@ -42,7 +42,7 @@ export const MainGridModel = (
     if (cell.status === STATUSES.OCCUPIED) setCellStatus(coordinates, STATUSES.HIT);
     else setCellStatus(coordinates, STATUSES.MISS);
     console.log(valueAt(coordinates));
-    return valueAt(coordinates);
+    return { coordinates, value: valueAt(coordinates) };
   };
 
   return {

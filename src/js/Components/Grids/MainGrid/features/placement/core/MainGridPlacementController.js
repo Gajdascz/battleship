@@ -4,15 +4,15 @@ export const MainGridPlacementController = ({ model, view }) => {
   let isInitialized = false;
   let selectedEntityID = null;
   const previewConfig = {
-    gridElement: view.elements.getWrapper().element,
+    gridElement: view.elements.getWrapper(),
     getCell: view.getCell,
     maxVertical: model.getMaxVertical(),
     maxHorizontal: model.getMaxHorizontal(),
     letterAxis: model.getLetterAxis()
   };
   const placementView = MainGridPlacementView({
-    mainGridElement: view.elements.getGrid().element,
-    submitPlacementsButtonElement: view.elements.getSubmitPlacementsButton().element,
+    mainGridElement: view.elements.getGrid(),
+    submitPlacementsButtonElement: view.elements.getSubmitPlacementsButton(),
     previewConfig
   });
   const initialize = (submitPlacementsCallback, handleRequestCallback) => {

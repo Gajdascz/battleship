@@ -6,8 +6,8 @@ export const ShipSelectionController = ({ model, view }) => {
   let isEnabled = false;
 
   const selectionView = ShipSelectionView({
-    mainShipElement: view.elements.getMainShip().element,
-    rotateButtonElement: view.elements.getRotateButton().element
+    mainShipElement: view.elements.getMainShip(),
+    rotateButtonElement: view.elements.getRotateButton()
   });
 
   const select = () => {

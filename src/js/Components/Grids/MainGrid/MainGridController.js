@@ -1,7 +1,7 @@
 import { MainGridModel } from './main/model/MainGridModel';
 import { MainGridView } from './main/view/MainGridView';
 import { MainGridCombatManager } from './features/combat/MainGridCombatManager';
-import { MAIN_GRID_PLACEMENT_EVENTS } from './common/mainGridEvents';
+import { MAIN_GRID_COMBAT_EVENTS, MAIN_GRID_PLACEMENT_EVENTS } from './common/mainGridEvents';
 import { EventEmitter } from '../../../Events/core/EventEmitter';
 import { MainGridPlacementManager } from './features/placement/MainGridPlacementManager';
 
@@ -12,7 +12,7 @@ export const MainGridController = (scope, boardConfig) => {
   const componentEmitter = EventEmitter();
   const { publish } = componentEmitter;
   MainGridPlacementManager(model, view, componentEmitter);
-  // const combatManager = MainGridCombatManager({ model, view, componentEmitter });
+  MainGridCombatManager(model, view, componentEmitter);
 
   return {
     placement: {
@@ -27,7 +27,16 @@ export const MainGridController = (scope, boardConfig) => {
         publish(MAIN_GRID_PLACEMENT_EVENTS.UNSUB_PLACED, callback),
       end: () => publish(MAIN_GRID_PLACEMENT_EVENTS.END)
     },
-    //    getModel: () => model,
+    combat: {
+      initialize: () => publish(MAIN_GRID_COMBAT_EVENTS.INITIALIZE),
+      processIncomingAttack: (coordinates) =>
+        publish(MAIN_GRID_COMBAT_EVENTS.PROCESS_INCOMING_ATTACK, coordinates),
+      onAttackProcessed: (callback) =>
+        publish(MAIN_GRID_COMBAT_EVENTS.SUB_ATTACK_PROCESSED, callback),
+      offAttackProcessed: (callback) =>
+        publish(MAIN_GRID_COMBAT_EVENTS.UNSUB_ATTACK_PROCESSED, callback),
+      end: () => publish(MAIN_GRID_COMBAT_EVENTS.END)
+    },
     properties: {
       getDimensions: () => model.getDimensions()
     },

@@ -1,44 +1,47 @@
 import { EventEmitter } from '../../../../Events/core/EventEmitter';
 import { FLEET_PLACEMENT_EVENTS } from '../../common/fleetEvents';
 
-export const FleetPlacementManager = ({ model, shipControllers, componentEmitter }) => {
+export const FleetPlacementManager = (placementControllers, componentEmitter, isAllShipsPlaced) => {
   const emitter = EventEmitter();
   const selected = { ship: null };
 
+  console.log(placementControllers);
+
   const handleInitialize = () => {
     componentEmitter.subscribeMany(COMPONENT_SUBSCRIPTIONS);
-    shipControllers.forEach((controller) => controller.placement.initialize());
-    shipControllers.forEach((controller) => controller.placement.onSelected(handleSelectShip));
+    placementControllers.forEach((controller) => controller.initialize());
+    placementControllers.forEach((controller) => controller.onSelected(handleSelectShip));
     componentEmitter.unsubscribe(FLEET_PLACEMENT_EVENTS.INITIALIZE, handleInitialize);
   };
   const handleEnd = () => {
-    shipControllers.forEach((controller) => controller.placement.end());
+    placementControllers.forEach((controller) => controller.end());
     emitter.reset();
     componentEmitter.unsubscribeMany(COMPONENT_SUBSCRIPTIONS);
   };
 
   const onOrientationToggled = ({ data }) =>
-    shipControllers.forEach((controller) => controller.placement.onOrientationToggled(data));
+    placementControllers.forEach((controller) => controller.onOrientationToggled(data));
   const offOrientationToggled = ({ data }) =>
-    shipControllers.forEach((controller) => controller.placement.offOrientationToggled(data));
+    placementControllers.forEach((controller) => controller.offOrientationToggled(data));
 
   const handleSelectShip = ({ data }) => {
     const { id } = data;
-    shipControllers.forEach((controller) => {
-      if (controller.properties.getID() === id) {
+    placementControllers.forEach((controller, key) => {
+      if (key === id) {
+        data.rotateButton = controller.getRotateButton();
         emitter.publish(FLEET_PLACEMENT_EVENTS.SELECTED, data);
         emitter.publish(FLEET_PLACEMENT_EVENTS.SHIP_NO_LONGER_PLACED, data);
-        controller.placement.select();
+        controller.select();
         selected.ship = controller;
-      } else if (controller.properties.isSelected()) controller.placement.deselect();
+      } else if (controller.isSelected()) controller.deselect();
     });
   };
   const onSelect = ({ data }) => emitter.subscribe(FLEET_PLACEMENT_EVENTS.SELECTED, data);
   const offSelect = ({ data }) => emitter.unsubscribe(FLEET_PLACEMENT_EVENTS.SELECTED, data);
 
   const handleSetCoordinates = ({ data }) => {
-    selected.ship.placement.setCoordinates(data);
-    if (model.isAllShipsPlaced()) emitter.publish(FLEET_PLACEMENT_EVENTS.ALL_SHIPS_PLACED);
+    selected.ship.setCoordinates(data);
+    if (isAllShipsPlaced()) emitter.publish(FLEET_PLACEMENT_EVENTS.ALL_SHIPS_PLACED);
   };
   const onAllShipsPlaced = ({ data }) =>
     emitter.subscribe(FLEET_PLACEMENT_EVENTS.ALL_SHIPS_PLACED, data);

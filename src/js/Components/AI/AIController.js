@@ -8,11 +8,9 @@ import { AIFleetModel } from './components/Fleet/AIFleetModel';
 import { AIShipModel } from './components/Ship/AIShipModel';
 import { AI_NAMES, STATUSES } from './common/constants';
 
-import { PlacementManager } from './PlacementManager';
+import { PlacementCoordinatesGenerator } from './PlacementCoordinatesGenerator';
 import { AIView } from './AIView';
-import { EventManager } from '../../Events/management/EventManager';
 import { GameStateManager } from '../../State/GameStateManager';
-import { GAME_EVENTS } from '../Game/common/gameEvents';
 import stateManagerRegistry from '../../State/stateManagerRegistry';
 
 export const AIController = ({ difficulty, boardSettings, shipData }) => {
@@ -37,15 +35,14 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     trackingGridModel
   });
   const view = AIView(boardSettings, model.properties.getName(), shipNames);
-  const placementManager = PlacementManager(model.mainGrid.get());
-  const { publisher, subscriptionManager } = EventManager(model.properties.getID());
-  const stateManager = GameStateManager(model.properties.getID());
+  const placementGenerator = PlacementCoordinatesGenerator(model.mainGrid.get());
+  const stateManager = GameStateManager(model.properties.getId());
   /**
    * Randomly places the AI's fleet onto it's board's main grid.
    * @returns {void}
    */
   const placeShips = () => {
-    const placements = placementManager.calculateRandomShipPlacements(model.fleet.getData());
+    const placements = placementGenerator.calculateRandomShipPlacements(model.fleet.getData());
     placements.forEach(({ id, placement }) => {
       model.mainGrid.place(id, placement[0], placement[placement.length - 1]);
       model.fleet.setShipPlacementCoordinates(id, placement);
@@ -55,54 +52,21 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
 
   const sendAttack = getAttackStrategy();
 
-  const placement = {
-    onTurn: () => {
-      placeShips();
-      publisher.scoped.noFulfill(GAME_EVENTS.PLAYER_FINALIZED_PLACEMENT);
-    },
-    init: () => {
-      subscriptionManager.scoped.subscribe(GAME_EVENTS.PLAYER_TURN, placement.onTurn);
-    },
-    end: () => {
-      subscriptionManager.scoped.unsubscribe(GAME_EVENTS.PLAYER_TURN, placement.onTurn);
-    }
-  };
-
-  const combat = {
-    onTurn: () => {
-      const result = sendAttack();
-      console.log(result);
-      publisher.scoped.noFulfill(GAME_EVENTS.PLAYER_END_TURN_REQUESTED);
-    },
-    receiveAttack: ({ data }) => {
-      const {
-        coordinates: [x, y]
-      } = data;
-      const result = model.mainGrid.processIncomingAttack(x, y);
-      console.log(result);
-    },
-    init: () => {
-      subscriptionManager.scoped.subscribe(GAME_EVENTS.PLAYER_TURN, combat.onTurn);
-    },
-    end: () => {
-      subscriptionManager.scoped.unsubscribe(GAME_EVENTS.PLAYER_TURN, combat.onTurn);
-    }
-  };
-
-  stateManager.setFunctions.placement({ enterFns: placement.init, exitFns: placement.end });
-  stateManager.setFunctions.progress({ enterFns: combat.init, exitFns: combat.end });
-
   return {
-    get isAI() {
-      return model.properties.isAI();
+    getPlayerModel: () => model.properties,
+    getId: () => model.getId(),
+    placement: {
+      startTurn: () => placeShips(),
+      endTurn: () => {
+        if (!model.fleet.isAllShipsPlaced())
+          throw new Error('AI Error: Not all ships placed after placeShips()');
+      }
     },
-    getID: () => model.properties.getID(),
-    getName: () => model.properties.getName(),
-
-    getView: () => view,
-    isAllShipsPlaced: () => model.fleet.isAllShipsPlaced(),
     isAllShipsSunk: () => model.fleet.isAllShipsSunk(),
     sendAttack,
-    initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager)
+    view: {
+      getTrackingGrid: () => view.elements.getGrid(),
+      getTrackingFleet: () => view.getFleetElement()
+    }
   };
 };

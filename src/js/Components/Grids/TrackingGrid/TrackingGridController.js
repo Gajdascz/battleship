@@ -4,42 +4,34 @@ import { TrackingGridView } from './main/view/TrackingGridView';
 import { TrackingGridCombatManager } from './features/combat/TrackingGridCombatManager';
 
 // External
-import { EventManager } from '../../../Events/management/EventManager';
+import { EventEmitter } from '../../../Events/core/EventEmitter';
 import { GameStateManager } from '../../../State/GameStateManager';
 import stateManagerRegistry from '../../../State/stateManagerRegistry';
-import { TRACKING_GRID_EVENTS } from './common/trackingGridEvents';
+import { TRACKING_GRID_COMBAT_EVENTS } from './common/trackingGridEvents';
 
 export const TrackingGridController = (scope, { numberOfRows, numberOfCols, letterAxis }) => {
   const model = TrackingGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
   const view = TrackingGridView({ numberOfRows, numberOfCols, letterAxis });
   const stateManager = GameStateManager(model.getScopedID());
-  const { componentEmitter, publisher, subscriptionManager } = EventManager(scope);
-
-  const placementManager = {
-    initialize: () => {
-      view.disable();
-      view.hide();
-    },
-    end: () => {
-      view.enable();
-      view.show();
-    }
-  };
-  // const combatManager = TrackingGridCombatManager({ view, publisher, subscriptionManager });
-
-  // stateManager.setFunctions.placement({
-  //   enterFns: placementManager.initialize,
-  //   exitFns: placementManager.end
-  // });
-  // stateManager.setFunctions.progress({
-  //   enterFns: combatManager.initialize,
-  //   exitFns: combatManager.end
-  // });
-
+  const componentEmitter = EventEmitter();
+  const { publish } = componentEmitter;
   return {
-    getModel: () => model,
-    getView: () => view,
     initializeStateManagement: () => stateManagerRegistry.registerManager(stateManager),
+    combat: {
+      initialize: () => {
+        TrackingGridCombatManager(view, componentEmitter);
+        publish(TRACKING_GRID_COMBAT_EVENTS.INITIALIZE);
+      },
+      processAttackResult: (result) =>
+        publish(TRACKING_GRID_COMBAT_EVENTS.PROCESS_ATTACK_RESULT, result),
+      onAttackSent: (callback) => publish(TRACKING_GRID_COMBAT_EVENTS.SUB_ATTACK_SENT, callback),
+      offAttackSent: (callback) => publish(TRACKING_GRID_COMBAT_EVENTS.UNSUB_ATTACK_SENT, callback),
+      onAttackProcessed: (callback) =>
+        publish(TRACKING_GRID_COMBAT_EVENTS.SUB_ATTACK_PROCESSED, callback),
+      offAttackProcessed: (callback) =>
+        publish(TRACKING_GRID_COMBAT_EVENTS.UNSUB_ATTACK_PROCESSED, callback),
+      end: () => publish(TRACKING_GRID_COMBAT_EVENTS.END)
+    },
     view: {
       attachTo: (container) => view.attachTo(container),
       attachWithinWrapper: (element) => view.attachWithinWrapper(element),

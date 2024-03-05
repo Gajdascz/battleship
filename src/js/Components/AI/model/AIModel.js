@@ -12,7 +12,7 @@ export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackin
   return {
     properties: {
       getName: () => name,
-      getID: () => id,
+      getId: () => id,
       getType: () => type,
       isAI: () => true,
       getDifficulty: () => difficulty

@@ -31,11 +31,19 @@ export const SHIP_PLACEMENT_EVENTS = {
   END: 'shipPlacementEndRequested'
 };
 
-export const SHIP_EVENTS = {
-  COMBAT: {
-    HIT_REQUEST_RECEIVED: 'shipHitRequestReceived',
-    HIT_REQUESTED: 'shipHitRequested',
-    HIT_PROCESSED: 'shipHitProcessed',
-    SUNK: 'shipSunk'
-  }
+export const SHIP_COMBAT_EVENTS = {
+  // Requests
+  INITIALIZE: 'shipCombatInitializeRequested',
+  HIT: 'shipHitRequested',
+  END: 'shipCombatEndRequested',
+
+  // Subscription Requests
+  SUB_HIT_PROCESSED: 'shipHitProcessedSubscribe',
+  UNSUB_HIT_PROCESSED: 'shipHitProcessedUnsubscribe',
+  SUB_SUNK: 'shipSunkSubscribe',
+  UNSUB_SUNK: 'shipSunkUnsubscribe',
+
+  // Declare
+  HIT_PROCESSED: 'shipHitProcessed',
+  SUNK: 'shipSunk'
 };

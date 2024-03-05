@@ -1,23 +1,16 @@
 import { GameModel } from './GameModel';
-import { initializePlayerComponents } from './utility/initializePlayerComponents';
-import { GAME_MODES, PLAYERS } from '../../Utility/constants/common';
+import { initializeGame } from './utility/initializeGame';
 import { GameStateController } from './GameStateController';
 import { globalEmitter } from '../../Events/core/globalEventEmitter';
-import { AIController } from '../AI/AIController';
-import { DEFAULT_FLEET } from '../Fleet/common/fleetConstants';
-import { PlayerModel } from '../Player/PlayerModel';
 import { GAME_EVENTS } from './common/gameEvents';
 import { EventScopeManager } from '../../Events/management/EventScopeManager';
-
-const CLASSES = {
-  GAME_CONTAINER: 'game-container'
-};
+import { EventEmitter } from '../../Events/core/EventEmitter';
 
 export const GameController = (startGameTrigger) => {
   const model = GameModel();
   const gameStateController = GameStateController();
   const eventScopeManager = EventScopeManager();
-  const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
+  const gameEmitter = EventEmitter();
 
   const alternatePlayers = () => {
     eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.TURN_ENDED);
@@ -56,80 +49,10 @@ export const GameController = (startGameTrigger) => {
     );
   };
 
-  const initializePlayer = (playerSettings, boardSettings, isAI = false) => {
-    if (isAI) {
-      const player = AIController({
-        difficulty: playerSettings.difficulty,
-        boardSettings,
-        shipData: DEFAULT_FLEET
-      });
-      const playerGameModel = {
-        id: player.getID(),
-        name: player.getName(),
-        isAllShipsSunk: player.isAllShipsSunk,
-        isAllShipsPlaced: player.isAllShipsPlaced
-      };
-      eventScopeManager.addScopeToRegistry(player.getID());
-      player.initializeStateManagement();
-      return { player, playerGameModel };
-    }
-    const playerModel = PlayerModel({
-      playerName: playerSettings.username,
-      playerType: playerSettings.type,
-      playerID: playerSettings.id
-    });
-    const player = initializePlayerComponents({
-      playerModel,
-      boardSettings,
-      boardDisplayContainer: gameContainer,
-      gameMode: model.getGameMode(),
-      shipData: DEFAULT_FLEET
-    });
-    player.controllers.board.set.displayContainer(gameContainer);
-    const playerGameModel = {
-      id: player.playerModel.getID(),
-      name: player.playerModel.getName(),
-      isAllShipsSunk: player.controllers.fleet.isAllShipsSunk,
-      isAllShipsPlaced: player.controllers.fleet.isAllShipsPlaced
-    };
-    eventScopeManager.addScopeToRegistry(player.playerModel.getID());
-
-    return { player, playerGameModel };
-  };
-
-  // const initializeHvH = (p1, p2) => {
-  //   p1.controllers.board.view.setOpponentPlayerName(p2.playerModel.getName());
-  //   p1.controllers.board.set.trackingFleet(p2.controllers.fleet.getTrackingFleet());
-  //   p2.controllers.board.view.setOpponentPlayerName(p1.playerModel.getName());
-  //   p2.controllers.board.set.trackingFleet(p1.controllers.fleet.getTrackingFleet());
-  //   p1.controllers.board.set.opponentScope(p2.playerModel.getID());
-  //   p2.controllers.board.set.opponentScope(p1.playerModel.getID());
-  // };
-
-  // const initializeHvA = (p1, p2) => {
-  //   p1.controllers.board.view.aiView.setView(p2.getView());
-  //   p1.controllers.board.set.opponentScope(p2.getID());
-  // };
-
   const startGame = ({ data }) => {
     const { p1Settings, p2Settings, boardSettings } = data;
-    const isP2AI = p2Settings.type === PLAYERS.TYPES.AI;
-    const gameMode = isP2AI ? GAME_MODES.HvA : GAME_MODES.HvH;
-    model.setGameMode(gameMode);
-    const { player: p1, playerGameModel: p1GameModel } = initializePlayer(
-      p1Settings,
-      boardSettings
-    );
-    const { player: p2, playerGameModel: p2GameModel } = initializePlayer(
-      p2Settings,
-      boardSettings,
-      isP2AI
-    );
-    model.setPlayers(p1GameModel, p2GameModel);
-    // if (isP2AI) initializeHvA(p1, p2);
-    // else initializeHvH(p1, p2);
-    gameStateController.initialize(); // None -> Start
-    startPlacementState();
+    const { p1, p2 } = initializeGame({ p1Settings, p2Settings, boardSettings });
+    p1.controllers.board.placement.startTurn();
   };
   globalEmitter.subscribe(startGameTrigger, startGame);
 };

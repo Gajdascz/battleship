@@ -1,92 +1,54 @@
 // Tracking Grid Component
-import { TRACKING_GRID_EVENTS } from '../../common/trackingGridEvents';
+import { TRACKING_GRID_COMBAT_EVENTS } from '../../common/trackingGridEvents';
 import { TrackingGridCombatView } from './TrackingGridCombatView';
 // External
 import { convertToInternalFormat } from '../../../../../Utility/utils/coordinatesUtils';
+import { EventEmitter } from '../../../../../Events/core/EventEmitter';
 
-export const TrackingGridCombatManager = ({ view, publisher, subscriptionManager }) => {
-  const combatView = TrackingGridCombatView({ view });
+export const TrackingGridCombatManager = (view, componentEmitter) => {
+  const combatView = TrackingGridCombatView(view);
+  const emitter = EventEmitter();
 
-  /**
-   * Assigns the onSendAttack method to the view's event listener and listens for an enabling event.
-   * When an attack is sent from a click on the grid, the proceeding event chain is initiated.
-   */
-  const onInitialize = () => {
-    subscriptionManager.scoped.subscribe(
-      TRACKING_GRID_EVENTS.ATTACK.ENABLE_REQUESTED,
-      onEnableRequested
-    );
-    combatView.initialize(onSendAttack);
-  };
-  /**
-   * Enables attacking from the grid, stops listening for enable request, starts listening for disable request.
-   */
-  const onEnableRequested = () => {
-    subscriptionManager.scoped.unsubscribe(
-      TRACKING_GRID_EVENTS.ATTACK.ENABLE_REQUESTED,
-      onEnableRequested
-    );
-    subscriptionManager.scoped.subscribe(
-      TRACKING_GRID_EVENTS.ATTACK.DISABLE_REQUESTED,
-      onDisableRequested
-    );
-    combatView.enable();
-  };
-  /**
-   * Disables attacking from the grid, stops listening for disable request, starts listening for enable request.
-   */
-  const onDisableRequested = () => {
-    subscriptionManager.scoped.unsubscribe(
-      TRACKING_GRID_EVENTS.ATTACK.DISABLE_REQUESTED,
-      onDisableRequested
-    );
-    subscriptionManager.scoped.subscribe(
-      TRACKING_GRID_EVENTS.ATTACK.ENABLE_REQUESTED,
-      onEnableRequested
-    );
-    combatView.disable();
+  const handleSendAttack = (displayCoordinates) => {
+    const coordinates = convertToInternalFormat(displayCoordinates);
+    emitter.publish(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT, coordinates);
   };
 
-  /**
-   * When an attack is sent from the grid, enables listening for a result response and emits the attack coordinates
-   * @param {string} displayCoordinates Coordinates from cell attribute.
-   */
-  const onSendAttack = (displayCoordinates) => {
-    const coordinates = {
-      internal: convertToInternalFormat(displayCoordinates),
-      display: displayCoordinates
-    };
-    subscriptionManager.scoped.subscribe(
-      TRACKING_GRID_EVENTS.ATTACK.RESULT_RECEIVED,
-      onResultReceived
-    );
-    publisher.scoped.noFulfill(TRACKING_GRID_EVENTS.ATTACK.SENT, coordinates);
+  const handleResultReceived = ({ data }) => {
+    combatView.displayResult(data);
+    emitter.publish(TRACKING_GRID_COMBAT_EVENTS.ATTACK_PROCESSED);
   };
 
-  /**
-   * When a result is received, stops listening, displays the result, and emits that it's been processed.
-   * @param {*} data Result of attack object containing string.
-   */
-  const onResultReceived = ({ data }) => {
-    const { result } = data;
-    subscriptionManager.scoped.unsubscribe(
-      TRACKING_GRID_EVENTS.ATTACK.RESULT_RECEIVED,
-      onResultReceived
-    );
-    combatView.displayResult(result);
-    publisher.scoped.noFulfill(TRACKING_GRID_EVENTS.ATTACK.PROCESSED);
-  };
-
-  /**
-   * Cleans up internal DOM listeners and unsubscribes from any lingering combat subscriptions.
-   */
-  const onEndRequested = () => {
+  const handleEnd = () => {
+    componentEmitter.unsubscribeMany(subscriptions);
     combatView.end();
-    subscriptionManager.all.unsubscribe();
+    emitter.reset();
   };
 
-  return {
-    initialize: () => onInitialize(),
-    end: () => onEndRequested()
+  const handleInitialize = () => {
+    componentEmitter.unsubscribe(TRACKING_GRID_COMBAT_EVENTS.INITIALIZE, handleInitialize);
+    componentEmitter.subscribeMany(subscriptions);
+    combatView.initialize(handleSendAttack);
   };
+
+  const onAttackSent = ({ data }) =>
+    emitter.subscribe(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT, data);
+  const offAttackSent = ({ data }) =>
+    emitter.unsubscribe(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT, data);
+
+  const onAttackProcessed = ({ data }) =>
+    emitter.subscribe(TRACKING_GRID_COMBAT_EVENTS.ATTACK_PROCESSED, data);
+  const offAttackProcessed = ({ data }) =>
+    emitter.unsubscribe(TRACKING_GRID_COMBAT_EVENTS.ATTACK_PROCESSED, data);
+
+  const subscriptions = [
+    { event: TRACKING_GRID_COMBAT_EVENTS.PROCESS_ATTACK_RESULT, callback: handleResultReceived },
+    { event: TRACKING_GRID_COMBAT_EVENTS.SUB_ATTACK_SENT, callback: onAttackSent },
+    { event: TRACKING_GRID_COMBAT_EVENTS.UNSUB_ATTACK_SENT, callback: offAttackSent },
+    { event: TRACKING_GRID_COMBAT_EVENTS.SUB_ATTACK_PROCESSED, callback: onAttackProcessed },
+    { event: TRACKING_GRID_COMBAT_EVENTS.UNSUB_ATTACK_SENT, callback: offAttackProcessed },
+    { event: TRACKING_GRID_COMBAT_EVENTS.END, callback: handleEnd }
+  ];
+
+  componentEmitter.subscribe(TRACKING_GRID_COMBAT_EVENTS.INITIALIZE, handleInitialize);
 };

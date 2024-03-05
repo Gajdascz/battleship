@@ -25,12 +25,9 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
     attachTo: (container) => container.append(wrappedMainGridElement),
     attachWithinWrapper: (element) => wrappedMainGridElement.append(element),
     elements: {
-      getWrapper: () => ({ id: ELEMENT_IDS.WRAPPER, element: wrappedMainGridElement }),
-      getGrid: () => ({ id: ELEMENT_IDS.GRID, element: mainGridElement }),
-      getSubmitPlacementsButton: () => ({
-        id: ELEMENT_IDS.SUBMIT_PLACEMENTS_BUTTON,
-        element: submitPlacementsButtonElement
-      })
+      getWrapper: () => wrappedMainGridElement,
+      getGrid: () => mainGridElement,
+      getSubmitPlacementsButton: () => submitPlacementsButtonElement
     }
   };
 };
