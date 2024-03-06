@@ -1,6 +1,6 @@
-import { PlacementManager } from '../PlacementManager';
+import { PlacementManager } from './PlacementManager';
 import { it, vi, describe, beforeEach, afterEach, expect } from 'vitest';
-import { ORIENTATIONS, STATUSES } from '../../Utility/constants/common';
+import { STATUSES } from '../../common/constants';
 
 const MockShip = (shipID, shipLength) => {
   const id = shipID;

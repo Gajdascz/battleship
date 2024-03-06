@@ -74,14 +74,12 @@ export const BoardView = ({
       wrapper.append(button);
     };
     const removeButton = (id) => {
-      if (wrappers[id]) wrappers[id].remove();
+      if (wrappers[id]) wrappers[id].textContent = '';
     };
     const removeWrapper = (id) => {
-      const wrapper = wrappers.get(id);
-      if (wrapper) {
-        wrapper.textContent = '';
-        wrappers.delete(id);
-      }
+      if (!wrappers[id]) return;
+      removeButton(id);
+      delete wrappers[id];
     };
     return {
       addWrapper,

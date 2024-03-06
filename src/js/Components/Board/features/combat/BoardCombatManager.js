@@ -1,9 +1,25 @@
-export const BoardCombatManager = (view, combatControllers, componentEmitter) => {
+import { BOARD_COMBAT_EVENTS } from '../../common/boardEvents';
+export const BoardCombatManager = ({
+  combatView,
+  combatControllers,
+  componentEmitter,
+  opponentProcessIncomingAttack,
+  opponentOnIncomingAttackProcessed,
+  opponentOnAttackSent
+}) => {
   const { trackingGrid, mainGrid, fleet } = combatControllers;
-  const handleInitialize = (opponentProcessIncomingAttack) => {
-    opponentProcessIncomingAttack(trackingGrid.onAttackSent);
-    trackingGrid.onAttackProcessed(mainGrid.onAttackProcessed);
+
+  mainGrid.initialize();
+  trackingGrid.initialize();
+  // fleet.initialize();
+  trackingGrid.onAttackSent(opponentProcessIncomingAttack);
+  console.log(trackingGrid.onAttackSent);
+  console.log(opponentProcessIncomingAttack);
+  trackingGrid.onSentAttackProcessed(opponentOnIncomingAttackProcessed);
+  const startTurn = () => {
+    trackingGrid.enable();
+    combatView.startTurn();
   };
 
-  const startTurn = () => {};
+  componentEmitter.subscribe(BOARD_COMBAT_EVENTS.START, startTurn);
 };

@@ -26,9 +26,10 @@ export const MainGridModel = (
   const valueAt = (coordinates) => getValueAt(mainGrid, coordinates);
 
   const setCellStatus = (coordinates, status) => {
-    if (!isInBounds(coordinates)) return;
-    mainGrid[coordinates[0]][coordinates[1]].status = status;
+    const [row, col] = coordinates;
+    mainGrid[row][col].status = status;
   };
+
   const entityPlacementManager = EntityPlacementManager({
     mainGrid,
     valueAt,
@@ -37,11 +38,9 @@ export const MainGridModel = (
   });
 
   const processIncomingAttack = (coordinates) => {
-    if (!isInBounds(coordinates)) return false;
     const cell = valueAt(coordinates);
     if (cell.status === STATUSES.OCCUPIED) setCellStatus(coordinates, STATUSES.HIT);
     else setCellStatus(coordinates, STATUSES.MISS);
-    console.log(valueAt(coordinates));
     return { coordinates, value: valueAt(coordinates) };
   };
 

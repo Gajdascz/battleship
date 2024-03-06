@@ -31,6 +31,7 @@ export const FleetController = (scope) => {
         FleetPlacementManager(placementControllers, componentEmitter, model.isAllShipsPlaced);
         publish(FLEET_PLACEMENT_EVENTS.INITIALIZE, container);
       },
+      isAllShipsPlaced: () => model.isAllShipsPlaced(),
       setCoordinates: (coordinates) => publish(FLEET_PLACEMENT_EVENTS.SET_COORDINATES, coordinates),
       onSelected: (callback) => publish(FLEET_PLACEMENT_EVENTS.SUB_SELECTED, callback),
       offSelected: (callback) => publish(FLEET_PLACEMENT_EVENTS.UNSUB_SELECTED, callback),

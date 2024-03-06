@@ -2,6 +2,7 @@ import { MOUSE_EVENTS } from '../../Utility/constants/dom/domEvents';
 import { TrackingGridView } from '../Grids/TrackingGrid/main/view/TrackingGridView';
 import { AIShipView } from './components/Ship/AIShipView';
 import { AIFleetView } from './components/Fleet/AIFleetView';
+import { AITrackingGridView } from './components/TrackingGrid/AITrackingGridView';
 
 const AI_DISPLAY = {
   CLASSES: {
@@ -11,21 +12,6 @@ const AI_DISPLAY = {
   TEXTS: {
     HEADER: (aiName) => `${aiName}'s Attacks`
   }
-};
-
-const buildAIDisplay = (boardSettings, aiName) => {
-  const trackingGridView = TrackingGridView(boardSettings);
-  const trackingGridElement = trackingGridView.elements.getGrid();
-  trackingGridElement.classList.add(AI_DISPLAY.CLASSES.GRID);
-  const header = trackingGridElement.querySelector('.tracking-grid-header');
-  const headerText = trackingGridElement.querySelector('.tracking-grid-header > p');
-  header.classList.add(AI_DISPLAY.CLASSES.HEADER);
-  headerText.textContent = AI_DISPLAY.TEXTS.HEADER(aiName);
-  trackingGridElement.querySelectorAll('button.grid-cell').forEach((cell) => {
-    cell.setAttribute('disabled', true);
-    cell.addEventListener(MOUSE_EVENTS.CLICK, () => window.alert(`NO!`));
-  });
-  return trackingGridView;
 };
 
 const buildAIFleet = (shipNames) => {
@@ -38,12 +24,8 @@ const buildAIFleet = (shipNames) => {
   fleetView.populateFleetShipLists();
   return fleetView;
 };
-
 export const AIView = (boardSettings, aiName, shipNames) => {
-  const trackingGridView = buildAIDisplay(boardSettings, aiName);
-  const fleetView = buildAIFleet(shipNames);
-  return {
-    ...trackingGridView,
-    getFleetElement: () => fleetView.getTrackingFleet()
-  };
+  const trackingGrid = AITrackingGridView(boardSettings, aiName);
+  const fleet = buildAIFleet(shipNames);
+  return { trackingGrid, fleet };
 };

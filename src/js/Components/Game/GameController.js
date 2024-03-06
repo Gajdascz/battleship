@@ -1,58 +1,47 @@
 import { GameModel } from './GameModel';
-import { initializeGame } from './utility/initializeGame';
+import { GameManager } from './utility/GameManager';
 import { GameStateController } from './GameStateController';
 import { globalEmitter } from '../../Events/core/globalEventEmitter';
 import { GAME_EVENTS } from './common/gameEvents';
 import { EventScopeManager } from '../../Events/management/EventScopeManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
+import { STATES } from '../../Utility/constants/common';
 
-export const GameController = (startGameTrigger) => {
-  const model = GameModel();
-  const gameStateController = GameStateController();
-  const eventScopeManager = EventScopeManager();
-  const gameEmitter = EventEmitter();
-
-  const alternatePlayers = () => {
-    eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.TURN_ENDED);
-    model.alternatePlayers();
-    eventScopeManager.setActiveScope(model.getCurrentPlayerID());
-    console.log(model.getCurrentPlayerID());
-    eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.PLAYER_TURN);
+export const GameController = () => {
+  let gameManager = null;
+  const startGame = (data) => {
+    const { p1Settings, p2Settings, boardSettings } = data;
+    gameManager = GameManager({ p1Settings, p2Settings, boardSettings });
+    startPlacementState();
+    startProgressState();
   };
 
   const startPlacementState = () => {
-    const handleTransition = () => {
-      gameStateController.transition(); // Placement -> Progress
+    const numberOfPlayers = gameManager.getNumberOfPlayers();
+    const { alternatePlayers, getCurrentPlacementController } = gameManager;
+    let playerPlacementsFinalized = 0;
+    let currentController = null;
+    const onPlacementEnd = () => {
+      playerPlacementsFinalized += 1;
+      currentController.offEnd(onPlacementEnd);
       alternatePlayers();
-      startProgressState();
+      if (playerPlacementsFinalized === numberOfPlayers) startProgressState();
+      else executeCurrentPlayerPlacement();
     };
-    const handlePlacementFinalized = () => {
-      if (model.isAllPlayerShipsPlaced()) handleTransition();
-      else alternatePlayers();
+    const executeCurrentPlayerPlacement = () => {
+      currentController = getCurrentPlacementController();
+      currentController.onEnd(onPlacementEnd);
+      currentController.startTurn();
     };
-    eventScopeManager.setAllScopeDetails(
-      GAME_EVENTS.PLAYER_FINALIZED_PLACEMENT,
-      handlePlacementFinalized
-    );
-    eventScopeManager.setActiveScope(model.getCurrentPlayerID());
-    gameStateController.transition(); // Start -> Placement.
-    eventScopeManager.publishActiveScopeEvent(GAME_EVENTS.PLAYER_TURN);
+    executeCurrentPlayerPlacement();
   };
 
   const startProgressState = () => {
-    const handlePlayerRequestedEndTurn = () => {
-      if (!model.hasPlayerLost()) alternatePlayers();
-    };
-    eventScopeManager.setAllScopeDetails(
-      GAME_EVENTS.PLAYER_END_TURN_REQUESTED,
-      handlePlayerRequestedEndTurn
-    );
+    let currentController = null;
+    const { alternatePlayers, getCurrentCombatController } = gameManager;
+    currentController = getCurrentCombatController();
+    currentController.startTurn();
   };
 
-  const startGame = ({ data }) => {
-    const { p1Settings, p2Settings, boardSettings } = data;
-    const { p1, p2 } = initializeGame({ p1Settings, p2Settings, boardSettings });
-    p1.controllers.board.placement.startTurn();
-  };
-  globalEmitter.subscribe(startGameTrigger, startGame);
+  return { startGame };
 };

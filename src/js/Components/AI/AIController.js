@@ -8,10 +8,13 @@ import { AIFleetModel } from './components/Fleet/AIFleetModel';
 import { AIShipModel } from './components/Ship/AIShipModel';
 import { AI_NAMES, STATUSES } from './common/constants';
 
-import { PlacementCoordinatesGenerator } from './PlacementCoordinatesGenerator';
+import { PlacementCoordinatesGenerator } from './features/placement/PlacementCoordinatesGenerator';
 import { AIView } from './AIView';
 import { GameStateManager } from '../../State/GameStateManager';
-import stateManagerRegistry from '../../State/stateManagerRegistry';
+import { EventEmitter } from '../../Events/core/EventEmitter';
+import { AI_COMBAT_EVENTS, AI_PLACEMENT_EVENTS } from './common/aiEvents';
+import { PlacementManager } from './features/placement/PlacementManager';
+import { CombatManager } from './features/combat/CombatManager';
 
 export const AIController = ({ difficulty, boardSettings, shipData }) => {
   const mainGridModel = AIMainGridModel(boardSettings.numberOfRows, boardSettings.numberOfCols);
@@ -35,8 +38,8 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     trackingGridModel
   });
   const view = AIView(boardSettings, model.properties.getName(), shipNames);
+  const componentEmitter = EventEmitter();
   const placementGenerator = PlacementCoordinatesGenerator(model.mainGrid.get());
-  const stateManager = GameStateManager(model.properties.getId());
   /**
    * Randomly places the AI's fleet onto it's board's main grid.
    * @returns {void}
@@ -52,21 +55,55 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
 
   const sendAttack = getAttackStrategy();
 
+  const { publish, subscribe, unsubscribe } = componentEmitter;
+
   return {
     getPlayerModel: () => model.properties,
     getId: () => model.getId(),
-    placement: {
-      startTurn: () => placeShips(),
-      endTurn: () => {
-        if (!model.fleet.isAllShipsPlaced())
-          throw new Error('AI Error: Not all ships placed after placeShips()');
+    board: {
+      placement: {
+        onEnd: (callback) => subscribe(AI_PLACEMENT_EVENTS.SHIPS_PLACED, callback),
+        offEnd: (callback) => unsubscribe(AI_PLACEMENT_EVENTS.SHIPS_PLACED, callback),
+        startTurn: () => {
+          PlacementManager(model, componentEmitter);
+          publish(AI_PLACEMENT_EVENTS.PLACE_SHIPS);
+        }
+      },
+      combat: {
+        initialize: ({
+          opponentProcessIncomingAttack,
+          opponentOnIncomingAttackProcessed,
+          opponentOnAttackSent
+        }) => {
+          CombatManager({
+            model,
+            componentEmitter,
+            opponentProcessIncomingAttack,
+            opponentOnIncomingAttackProcessed,
+            opponentOnAttackSent
+          });
+          publish(AI_COMBAT_EVENTS.INITIALIZE);
+        },
+        onEnd: (callback) => {},
+        offEnd: (callback) => {},
+        sendAttack: () => publish(AI_COMBAT_EVENTS.SEND_ATTACK),
+        processSentAttackResult: (result) =>
+          publish(AI_COMBAT_EVENTS.PROCESS_SENT_ATTACK_RESULT, result),
+        processIncomingAttack: (coordinates) =>
+          publish(AI_COMBAT_EVENTS.INCOMING_ATTACK, coordinates),
+        onAttackSent: (callback) => publish(AI_COMBAT_EVENTS.SUB_ATTACK_SENT, callback),
+        offAttackSent: (callback) => publish(AI_COMBAT_EVENTS.UNSUB_ATTACK_SENT, callback),
+        onIncomingAttackProcessed: (callback) =>
+          publish(AI_COMBAT_EVENTS.SUB_INCOMING_ATTACK_PROCESSED, callback),
+        offIncomingAttackProcessed: (callback) =>
+          publish(AI_COMBAT_EVENTS.UNSUB_INCOMING_ATTACK_PROCESSED, callback)
       }
     },
     isAllShipsSunk: () => model.fleet.isAllShipsSunk(),
     sendAttack,
     view: {
-      getTrackingGrid: () => view.elements.getGrid(),
-      getTrackingFleet: () => view.getFleetElement()
+      getTrackingGrid: () => view.trackingGrid.elements.getGrid(),
+      getTrackingFleet: () => view.fleet.getTrackingFleet()
     }
   };
 };

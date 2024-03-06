@@ -10,7 +10,7 @@ export const MainGridCombatManager = (model, view, componentEmitter) => {
     const [x, y] = data;
     const displayCoordinates = convertToDisplayFormat(x, y, model.getLetterAxis());
     if (cellData.status === STATUSES.HIT) view.displayShipHit(displayCoordinates);
-    emitter.publish(MAIN_GRID_COMBAT_EVENTS.ATTACK_PROCESSED, cellData);
+    emitter.publish(MAIN_GRID_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, cellData);
   };
 
   const handleInitialize = () => {
@@ -25,11 +25,11 @@ export const MainGridCombatManager = (model, view, componentEmitter) => {
     componentEmitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.END, handleEnd);
   };
 
-  const onAttackProcessed = ({ data }) =>
-    emitter.subscribe(MAIN_GRID_COMBAT_EVENTS.ATTACK_PROCESSED, data);
+  const onIncomingAttackProcessed = ({ data }) =>
+    emitter.subscribe(MAIN_GRID_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, data);
 
-  const offAttackProcessed = ({ data }) =>
-    emitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.ATTACK_PROCESSED, data);
+  const offIncomingAttackProcessed = ({ data }) =>
+    emitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, data);
 
   const subscriptions = [
     {
@@ -37,12 +37,12 @@ export const MainGridCombatManager = (model, view, componentEmitter) => {
       callback: acceptAttackRequest
     },
     {
-      event: MAIN_GRID_COMBAT_EVENTS.SUB_ATTACK_PROCESSED,
-      callback: onAttackProcessed
+      event: MAIN_GRID_COMBAT_EVENTS.SUB_INCOMING_ATTACK_PROCESSED,
+      callback: onIncomingAttackProcessed
     },
     {
-      event: MAIN_GRID_COMBAT_EVENTS.UNSUB_ATTACK_PROCESSED,
-      callback: offAttackProcessed
+      event: MAIN_GRID_COMBAT_EVENTS.UNSUB_INCOMING_ATTACK_PROCESSED,
+      callback: offIncomingAttackProcessed
     }
   ];
 

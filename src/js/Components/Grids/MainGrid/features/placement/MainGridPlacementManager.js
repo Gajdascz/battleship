@@ -9,7 +9,7 @@ export const MainGridPlacementManager = (model, view, componentEmitter) => {
   const handleInitialize = () => {
     componentEmitter.unsubscribe(MAIN_GRID_PLACEMENT_EVENTS.INITIALIZE, handleInitialize);
     componentEmitter.subscribeMany(COMPONENT_SUBSCRIPTIONS);
-    controller.initialize(handleEnd, handlePlacement);
+    controller.initialize(handlePlacementsSubmitted, handlePlacement);
   };
 
   const handleUpdateOrientation = ({ data }) => {
@@ -24,6 +24,13 @@ export const MainGridPlacementManager = (model, view, componentEmitter) => {
   const handleEnableSubmission = () => controller.enableSubmission();
   const handleDisableSubmission = () => controller.disableSubmission();
 
+  const handlePlacementsSubmitted = () => {
+    emitter.publish(MAIN_GRID_PLACEMENT_EVENTS.SUBMITTED);
+    emitter.reset();
+    controller.end();
+    componentEmitter.unsubscribeMany(COMPONENT_SUBSCRIPTIONS);
+  };
+
   const handlePlacement = (coordinates) => {
     if (!coordinates) return;
     emitter.publish(MAIN_GRID_PLACEMENT_EVENTS.PROCESSED_PLACED, coordinates);
@@ -35,39 +42,21 @@ export const MainGridPlacementManager = (model, view, componentEmitter) => {
     emitter.unsubscribe(MAIN_GRID_PLACEMENT_EVENTS.PROCESSED_PLACED, data);
   };
 
-  const handleEnd = () => {
-    emitter.reset();
-    controller.end();
-    componentEmitter.unsubscribeMany(COMPONENT_SUBSCRIPTIONS);
-  };
+  const onPlacementsSubmitted = ({ data }) =>
+    emitter.subscribe(MAIN_GRID_PLACEMENT_EVENTS.SUBMITTED, data);
+  const offPlacementsSubmitted = ({ data }) =>
+    emitter.unsubscribe(MAIN_GRID_PLACEMENT_EVENTS.SUBMITTED, data);
 
   const COMPONENT_SUBSCRIPTIONS = [
-    {
-      event: MAIN_GRID_PLACEMENT_EVENTS.UPDATE_ORIENTATION,
-      callback: handleUpdateOrientation
-    },
+    { event: MAIN_GRID_PLACEMENT_EVENTS.UPDATE_ORIENTATION, callback: handleUpdateOrientation },
     { event: MAIN_GRID_PLACEMENT_EVENTS.PLACE, callback: handlePlacement },
-    {
-      event: MAIN_GRID_PLACEMENT_EVENTS.SELECT,
-      callback: handleUpdateSelectedEntity
-    },
-    {
-      event: MAIN_GRID_PLACEMENT_EVENTS.ENABLE_SUBMIT,
-      callback: handleEnableSubmission
-    },
-    {
-      event: MAIN_GRID_PLACEMENT_EVENTS.DISABLE_SUBMIT,
-      callback: handleDisableSubmission
-    },
-    { event: MAIN_GRID_PLACEMENT_EVENTS.END, callback: handleEnd },
-    {
-      event: MAIN_GRID_PLACEMENT_EVENTS.SUB_PLACED,
-      callback: onPlacementProcessed
-    },
-    {
-      event: MAIN_GRID_PLACEMENT_EVENTS.UNSUB_PLACED,
-      callback: offPlacementProcessed
-    }
+    { event: MAIN_GRID_PLACEMENT_EVENTS.SELECT, callback: handleUpdateSelectedEntity },
+    { event: MAIN_GRID_PLACEMENT_EVENTS.ENABLE_SUBMIT, callback: handleEnableSubmission },
+    { event: MAIN_GRID_PLACEMENT_EVENTS.DISABLE_SUBMIT, callback: handleDisableSubmission },
+    { event: MAIN_GRID_PLACEMENT_EVENTS.SUB_PLACED, callback: onPlacementProcessed },
+    { event: MAIN_GRID_PLACEMENT_EVENTS.UNSUB_PLACED, callback: offPlacementProcessed },
+    { event: MAIN_GRID_PLACEMENT_EVENTS.SUB_SUBMITTED, callback: onPlacementsSubmitted },
+    { event: MAIN_GRID_PLACEMENT_EVENTS.UNSUB_SUBMITTED, callback: offPlacementsSubmitted }
   ];
 
   componentEmitter.subscribe(MAIN_GRID_PLACEMENT_EVENTS.INITIALIZE, handleInitialize);

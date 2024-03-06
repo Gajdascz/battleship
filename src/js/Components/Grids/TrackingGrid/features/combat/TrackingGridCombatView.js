@@ -11,7 +11,7 @@ const LISTENER_MANAGER_KEYS = {
 };
 
 export const TrackingGridCombatView = (view) => {
-  const gridElement = view.getGridElement();
+  const gridElement = view.elements.getGrid();
   let isInitialized = false;
   let lastCell = null;
   const listenerManager = ListenerManager();
@@ -48,6 +48,8 @@ export const TrackingGridCombatView = (view) => {
   return {
     initialize,
     displayResult,
+    enable: () => listenerManager.enableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK),
+    disable: () => listenerManager.disableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK),
     end
   };
 };

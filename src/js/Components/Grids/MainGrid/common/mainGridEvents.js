@@ -25,9 +25,9 @@ export const MAIN_GRID_COMBAT_EVENTS = {
   END: 'endCombatRequested',
 
   // Subscription Requests
-  SUB_ATTACK_PROCESSED: 'incomingAttackProcessedSubscribe',
-  UNSUB_ATTACK_PROCESSED: 'incomingAttackProcessedUnsubscribe',
+  SUB_INCOMING_ATTACK_PROCESSED: 'incomingAttackProcessedSubscribe',
+  UNSUB_INCOMING_ATTACK_PROCESSED: 'incomingAttackProcessedUnsubscribe',
 
   // Declarations
-  ATTACK_PROCESSED: 'incomingAttackProcessed'
+  INCOMING_ATTACK_PROCESSED: 'incomingAttackProcessed'
 };

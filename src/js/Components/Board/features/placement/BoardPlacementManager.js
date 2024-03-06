@@ -20,15 +20,16 @@ export const BoardPlacementManager = ({
     fleet.onAllShipsPlaced(mainGrid.enableSubmit);
     fleet.onShipNoLongerPlaced(mainGrid.disableSubmit);
     mainGrid.onPlacementProcessed(fleet.setCoordinates);
+    mainGrid.onPlacementsSubmitted(onEnd);
     componentEmitter.unsubscribe(BOARD_PLACEMENT_EVENTS.START, onInitialize);
-    componentEmitter.subscribe(BOARD_PLACEMENT_EVENTS.END, onEnd);
   };
 
   const onEnd = () => {
-    fleet.end();
+    if (!fleet.isAllShipsPlaced()) throw new Error('Not all ships have been placed');
     mainGrid.end();
+    fleet.end();
     placementView.endTurn();
-    componentEmitter.unsubscribe(BOARD_PLACEMENT_EVENTS.END, onEnd);
+    componentEmitter.publish(BOARD_PLACEMENT_EVENTS.END);
   };
 
   componentEmitter.subscribe(BOARD_PLACEMENT_EVENTS.START, onInitialize);

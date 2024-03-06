@@ -4,9 +4,6 @@ import { FLEET_PLACEMENT_EVENTS } from '../../common/fleetEvents';
 export const FleetPlacementManager = (placementControllers, componentEmitter, isAllShipsPlaced) => {
   const emitter = EventEmitter();
   const selected = { ship: null };
-
-  console.log(placementControllers);
-
   const handleInitialize = () => {
     componentEmitter.subscribeMany(COMPONENT_SUBSCRIPTIONS);
     placementControllers.forEach((controller) => controller.initialize());
@@ -41,6 +38,7 @@ export const FleetPlacementManager = (placementControllers, componentEmitter, is
 
   const handleSetCoordinates = ({ data }) => {
     selected.ship.setCoordinates(data);
+    selected.ship = null;
     if (isAllShipsPlaced()) emitter.publish(FLEET_PLACEMENT_EVENTS.ALL_SHIPS_PLACED);
   };
   const onAllShipsPlaced = ({ data }) =>

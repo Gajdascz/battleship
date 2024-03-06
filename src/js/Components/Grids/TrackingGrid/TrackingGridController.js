@@ -22,14 +22,16 @@ export const TrackingGridController = (scope, { numberOfRows, numberOfCols, lett
         TrackingGridCombatManager(view, componentEmitter);
         publish(TRACKING_GRID_COMBAT_EVENTS.INITIALIZE);
       },
-      processAttackResult: (result) =>
-        publish(TRACKING_GRID_COMBAT_EVENTS.PROCESS_ATTACK_RESULT, result),
+      enable: () => publish(TRACKING_GRID_COMBAT_EVENTS.ENABLE),
+      disable: () => publish(TRACKING_GRID_COMBAT_EVENTS.DISABLE),
+      processSentAttackResult: (result) =>
+        publish(TRACKING_GRID_COMBAT_EVENTS.PROCESS_SENT_ATTACK_RESULT, result),
       onAttackSent: (callback) => publish(TRACKING_GRID_COMBAT_EVENTS.SUB_ATTACK_SENT, callback),
       offAttackSent: (callback) => publish(TRACKING_GRID_COMBAT_EVENTS.UNSUB_ATTACK_SENT, callback),
-      onAttackProcessed: (callback) =>
-        publish(TRACKING_GRID_COMBAT_EVENTS.SUB_ATTACK_PROCESSED, callback),
-      offAttackProcessed: (callback) =>
-        publish(TRACKING_GRID_COMBAT_EVENTS.UNSUB_ATTACK_PROCESSED, callback),
+      onSentAttackProcessed: (callback) =>
+        publish(TRACKING_GRID_COMBAT_EVENTS.SUB_SENT_ATTACK_PROCESSED, callback),
+      offSentAttackProcessed: (callback) =>
+        publish(TRACKING_GRID_COMBAT_EVENTS.UNSUB_SENT_ATTACK_PROCESSED, callback),
       end: () => publish(TRACKING_GRID_COMBAT_EVENTS.END)
     },
     view: {

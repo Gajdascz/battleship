@@ -26,10 +26,7 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
     getName: () => name,
     getHealth: () => health,
     getOrientation: () => orientation,
-    getPlacedCoordinates: () => ({
-      internal: placedCoordinates.internal.map((coordinates) => [...coordinates]),
-      display: [...placedCoordinates.display]
-    }),
+    getPlacedCoordinates: () => placedCoordinates.map((coordinates) => [...coordinates]),
     setIsPlaced: (value) => (isPlaced = value),
     setIsSelected: (value) => (isSelected = value),
     setPlacedCoordinates: (coordinates) => {

@@ -1,6 +1,6 @@
 import { STATUSES } from '../../../../../Utility/constants/common';
 
-export const EntityPlacementManager = ({ mainGrid, valueAt, setCellStatus, isInBounds }) => {
+export const EntityPlacementManager = ({ mainGrid, isInBounds }) => {
   const placedEntityCoordinates = new Map();
   const isEntityPlaced = (id) => placedEntityCoordinates.has(id);
 
@@ -16,7 +16,7 @@ export const EntityPlacementManager = ({ mainGrid, valueAt, setCellStatus, isInB
   const removePlacedEntity = (entityID) => {
     const coordinates = placedEntityCoordinates.get(entityID);
     if (coordinates) {
-      coordinates.forEach(([x, y]) => (mainGrid[x][y] = STATUSES.EMPTY));
+      coordinates.forEach(([row, col]) => (mainGrid[row][col] = STATUSES.EMPTY));
       placedEntityCoordinates.delete(entityID);
     }
   };

@@ -32,7 +32,7 @@ export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackin
       isAllShipsPlaced: () => fleet.isAllShipsPlaced()
     },
     moves: {
-      initialize: () => movesManager.initializeAvailableMoves(trackingGrid),
+      initialize: () => movesManager.initializeAvailableMoves(trackingGrid.getTrackingGrid()),
       getAllAvailable: () => movesManager.getAvailableMoves(),
       get: (coordinates) => movesManager.getMove(coordinates),
       getTotalAvailable: () => movesManager.getTotalAvailableMoves(),

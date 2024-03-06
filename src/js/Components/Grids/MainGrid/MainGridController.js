@@ -25,16 +25,20 @@ export const MainGridController = (scope, boardConfig) => {
       onPlacementProcessed: (callback) => publish(MAIN_GRID_PLACEMENT_EVENTS.SUB_PLACED, callback),
       offPlacementProcessed: (callback) =>
         publish(MAIN_GRID_PLACEMENT_EVENTS.UNSUB_PLACED, callback),
+      onPlacementsSubmitted: (callback) =>
+        publish(MAIN_GRID_PLACEMENT_EVENTS.SUB_SUBMITTED, callback),
+      offPlacementsSubmitted: (callback) =>
+        publish(MAIN_GRID_PLACEMENT_EVENTS.UNSUB_SUBMITTED, callback),
       end: () => publish(MAIN_GRID_PLACEMENT_EVENTS.END)
     },
     combat: {
       initialize: () => publish(MAIN_GRID_COMBAT_EVENTS.INITIALIZE),
       processIncomingAttack: (coordinates) =>
         publish(MAIN_GRID_COMBAT_EVENTS.PROCESS_INCOMING_ATTACK, coordinates),
-      onAttackProcessed: (callback) =>
-        publish(MAIN_GRID_COMBAT_EVENTS.SUB_ATTACK_PROCESSED, callback),
-      offAttackProcessed: (callback) =>
-        publish(MAIN_GRID_COMBAT_EVENTS.UNSUB_ATTACK_PROCESSED, callback),
+      onIncomingAttackProcessed: (callback) =>
+        publish(MAIN_GRID_COMBAT_EVENTS.SUB_INCOMING_ATTACK_PROCESSED, callback),
+      offIncomingAttackProcessed: (callback) =>
+        publish(MAIN_GRID_COMBAT_EVENTS.UNSUB_INCOMING_ATTACK_PROCESSED, callback),
       end: () => publish(MAIN_GRID_COMBAT_EVENTS.END)
     },
     properties: {

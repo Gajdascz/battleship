@@ -1,5 +1,4 @@
-import { ORIENTATIONS, STATUSES } from '../../Utility/constants/common';
-
+import { ORIENTATIONS, STATUSES } from '../../common/constants';
 export const PlacementCoordinatesGenerator = (gridArray) => {
   const copyGrid = (grid) =>
     grid.map((row) => Array.from({ length: row.length }).fill(STATUSES.EMPTY));

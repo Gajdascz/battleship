@@ -1,7 +1,7 @@
 import { STATUSES } from '../../../../Utility/constants/common';
 
 export const AIMainGridModel = (numberOfRows = 10, numberOfCols = 10) => {
-  const createGrid = (rows, cols, fill) =>
+  const createGrid = (rows, cols) =>
     Array.from({ length: rows }).map(() =>
       Array.from({ length: cols }).fill({ status: STATUSES.EMPTY })
     );
@@ -12,11 +12,7 @@ export const AIMainGridModel = (numberOfRows = 10, numberOfCols = 10) => {
 
   const getCell = (row, col) => (isInBounds(row, col) ? mainGrid[row][col] : null);
 
-  const setCellStatus = (row, col, status) => {
-    if (isInBounds(row, col)) {
-      mainGrid[row][col].status = status;
-    }
-  };
+  const setCellStatus = (row, col, status) => (mainGrid[row][col].status = status);
 
   const isPlacementValid = (start, end) => {
     for (let row = start[0]; row <= end[0]; ++row) {
@@ -30,7 +26,6 @@ export const AIMainGridModel = (numberOfRows = 10, numberOfCols = 10) => {
   };
 
   const placeShip = (id, start, end) => {
-    console.log(id, start, end);
     if (isPlacementValid(start, end)) {
       for (let row = start[0]; row <= end[0]; ++row) {
         for (let col = start[1]; col <= end[1]; ++col) {
@@ -42,16 +37,12 @@ export const AIMainGridModel = (numberOfRows = 10, numberOfCols = 10) => {
     return false;
   };
 
-  const processIncomingAttack = (row, col) => {
+  const processIncomingAttack = (coordinates) => {
+    const [row, col] = coordinates;
     const cell = getCell(row, col);
-    if (cell.status === STATUSES.OCCUPIED) {
-      setCellStatus(row, col, STATUSES.HIT);
-      return STATUSES.HIT;
-    } else if (cell.status === STATUSES.EMPTY) {
-      setCellStatus(row, col, STATUSES.MISS);
-      return cell;
-    }
-    return null;
+    if (cell.status === STATUSES.OCCUPIED) setCellStatus(row, col, STATUSES.HIT);
+    else if (cell.status === STATUSES.EMPTY) setCellStatus(row, col, STATUSES.MISS);
+    return { coordinates, cell: getCell(row, col) };
   };
 
   const resetGrid = () => {

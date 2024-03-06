@@ -9,9 +9,10 @@ import { InstructionsDialogView } from './js/Components/Dialogs/InstructionsDial
 import { AlternatePlayerDialogView } from './js/Components/Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
 import { GameOverDialogView } from './js/Components/Dialogs/GameOverDialog/GameOverDialogView';
 import { GAME_EVENTS } from './js/Events/events';
-GameController(GAME_EVENTS.SETTINGS_SUBMITTED);
+const controller = GameController();
 const test = () => console.log('Game Over');
 const settingsDialogController = SettingsDialogController();
+settingsDialogController.setOnSubmit(controller.startGame);
 const instructionsDialog = InstructionsDialogView();
 const alternatePlayerDialog = AlternatePlayerDialogView();
 const gameOverDialog = GameOverDialogView(test);

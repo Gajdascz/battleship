@@ -38,6 +38,7 @@ export const AIFleetView = () => {
   return {
     getTrackingFleet: () => trackingFleetElement,
     addShipView: (shipID, shipView) => shipViews.set(shipID, shipView),
+    setShipSunk: (shipID) => shipViews.get(shipID).setSunk(),
     populateFleetShipLists: () =>
       shipViews.forEach((shipView) => {
         shipListElement.append(shipView.getShipElement());

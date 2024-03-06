@@ -8,7 +8,6 @@ export const StrategyHvA = (init, views, display, remove) => {
   const strategy = {
     initialize: (aiGrid, aiFleet) => {
       const { mainGridButtonManager, setTrackingFleet } = init();
-      console.log(mainGridButtonManager, setTrackingFleet);
       aiTrackingGrid = aiGrid;
       aiTrackingFleet = aiFleet;
       trackingGrid.attachWithinWrapper(aiGrid);
