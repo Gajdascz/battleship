@@ -6,12 +6,13 @@ import { StrategyHvA } from './strategyHvA';
 import { StrategyHvH } from './strategyHvH';
 
 export const BoardView = ({
-  playerID,
+  playerId,
   playerName,
   container = document.querySelector('body'),
   views,
   gameMode
 }) => {
+  console.log(playerName);
   const { mainGrid, trackingGrid, fleet } = views;
 
   let displayContainer = container;
@@ -23,7 +24,7 @@ export const BoardView = ({
   const BOARD_UTILITY_CONTAINER_CLASS = `board-utility-container`;
 
   const boardContainer = buildUIElement(COMMON_ELEMENTS.DIV, {
-    attributes: { class: BOARD_CONTAINER_CLASS, id: `${playerID}-board` }
+    attributes: { class: BOARD_CONTAINER_CLASS, id: `${playerId}-board` }
   });
   const playerNameDisplay = buildUIElement(COMMON_ELEMENTS.DIV, {
     text: playerName,

@@ -57,46 +57,84 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
 
   const { publish, subscribe, unsubscribe } = componentEmitter;
 
+  const placement = {
+    isOver: false,
+    endCallbacks: [],
+    onOver: () => (placeShips.isOver = true),
+    onEnd: (callback) => subscribe(AI_PLACEMENT_EVENTS.SHIPS_PLACED, callback),
+    offEnd: () =>
+      placement.endCallbacks.forEach((callback) =>
+        unsubscribe(AI_PLACEMENT_EVENTS.SHIPS_PLACED, callback)
+      ),
+    startTurn: () => {
+      placement.isOver = false;
+      PlacementManager(model, componentEmitter);
+      publish(AI_PLACEMENT_EVENTS.PLACE_SHIPS);
+      placement.onEnd(placement.onOver);
+    }
+  };
+
+  const combat = {
+    initialize: () => {
+      CombatManager({
+        model,
+        componentEmitter
+      });
+      publish(AI_COMBAT_EVENTS.INITIALIZE);
+    },
+    endCallbacks: [],
+    onEnd: (callback) => {
+      combat.endCallbacks.push(callback);
+      subscribe(AI_COMBAT_EVENTS.END, callback);
+    },
+    offEnd: () => {
+      combat.endCallbacks.forEach((callback) => unsubscribe(AI_COMBAT_EVENTS.END, callback));
+      combat.endCallbacks = [];
+    },
+    sendAttack: () => publish(AI_COMBAT_EVENTS.SEND_ATTACK),
+    onAttackSent: (callback) => subscribe(AI_COMBAT_EVENTS.ATTACK_SENT, callback),
+    offAttackSent: (callback) => unsubscribe(AI_COMBAT_EVENTS.ATTACK_SENT, callback),
+    handleSentAttackResult: (result) =>
+      publish(AI_COMBAT_EVENTS.PROCESS_SENT_ATTACK_RESULT, result),
+    handleIncomingAttack: (coordinates) => publish(AI_COMBAT_EVENTS.INCOMING_ATTACK, coordinates),
+    onIncomingAttackProcessed: (callback) =>
+      subscribe(AI_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, callback),
+    offIncomingAttackProcessed: (callback) =>
+      unsubscribe(AI_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, callback)
+  };
+
   return {
     getPlayerModel: () => model.properties,
     getId: () => model.getId(),
     board: {
       placement: {
-        onEnd: (callback) => subscribe(AI_PLACEMENT_EVENTS.SHIPS_PLACED, callback),
-        offEnd: (callback) => unsubscribe(AI_PLACEMENT_EVENTS.SHIPS_PLACED, callback),
-        startTurn: () => {
-          PlacementManager(model, componentEmitter);
-          publish(AI_PLACEMENT_EVENTS.PLACE_SHIPS);
-        }
+        onEnd: (callback) => placement.onEnd(callback),
+        offEnd: () => placement.offEnd(),
+        startTurn: () => placement.startTurn,
+        isOver: () => placement.isOver
       },
       combat: {
-        initialize: ({
-          opponentProcessIncomingAttack,
-          opponentOnIncomingAttackProcessed,
-          opponentOnAttackSent
-        }) => {
+        initialize: () => {
           CombatManager({
             model,
-            componentEmitter,
-            opponentProcessIncomingAttack,
-            opponentOnIncomingAttackProcessed,
-            opponentOnAttackSent
+            componentEmitter
           });
           publish(AI_COMBAT_EVENTS.INITIALIZE);
         },
+        endCallbacks: [],
         onEnd: (callback) => {},
         offEnd: (callback) => {},
         sendAttack: () => publish(AI_COMBAT_EVENTS.SEND_ATTACK),
-        processSentAttackResult: (result) =>
+        onAttackSent: (callback) => subscribe(AI_COMBAT_EVENTS.ATTACK_SENT, callback),
+        offAttackSent: (callback) => unsubscribe(AI_COMBAT_EVENTS.ATTACK_SENT, callback),
+        handleSentAttackResult: (result) =>
           publish(AI_COMBAT_EVENTS.PROCESS_SENT_ATTACK_RESULT, result),
-        processIncomingAttack: (coordinates) =>
+        handleIncomingAttack: (coordinates) =>
           publish(AI_COMBAT_EVENTS.INCOMING_ATTACK, coordinates),
-        onAttackSent: (callback) => publish(AI_COMBAT_EVENTS.SUB_ATTACK_SENT, callback),
-        offAttackSent: (callback) => publish(AI_COMBAT_EVENTS.UNSUB_ATTACK_SENT, callback),
         onIncomingAttackProcessed: (callback) =>
-          publish(AI_COMBAT_EVENTS.SUB_INCOMING_ATTACK_PROCESSED, callback),
+          subscribe(AI_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, callback),
         offIncomingAttackProcessed: (callback) =>
-          publish(AI_COMBAT_EVENTS.UNSUB_INCOMING_ATTACK_PROCESSED, callback)
+          unsubscribe(AI_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, callback)
       }
     },
     isAllShipsSunk: () => model.fleet.isAllShipsSunk(),

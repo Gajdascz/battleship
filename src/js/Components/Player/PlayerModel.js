@@ -1,9 +1,9 @@
 import { PLAYERS } from '../../Utility/constants/common';
-export const PlayerModel = ({ playerName = '', playerType, playerID }) => {
-  if (!(playerID && typeof playerID === 'string')) throw new Error('Player ID not provided.');
+export const PlayerModel = ({ playerName = '', playerType, playerId }) => {
+  if (!(playerId && typeof playerId === 'string')) throw new Error('Player ID not provided.');
   let name = validateName(playerName);
   let type = playerType;
-  const id = playerID;
+  const id = playerId;
 
   // Prevents users from entering an empty name.
   function validateName(name) {
@@ -13,7 +13,7 @@ export const PlayerModel = ({ playerName = '', playerType, playerID }) => {
   return {
     isPlayer: () => true,
     getName: () => name,
-    getID: () => id,
+    getId: () => id,
     getType: () => type,
     setName: (value) => (name = validateName(value)),
     setType: (value) => (type = value)

@@ -16,9 +16,10 @@ const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
 const createPlayer = (playerSettings, boardSettings, shipData, gameMode) => {
   const initializeHumanPlayer = (settings) => {
     const { username, id, type } = settings;
+    const playerModel = PlayerModel({ playerName: username, playerType: type, playerId: id });
     return {
-      model: PlayerModel({ playerName: username, playerType: type, playerID: id }),
-      controllers: initializeControllers(username, id)
+      model: playerModel,
+      controllers: initializeControllers(playerModel.getName(), playerModel.getId())
     };
   };
   const initializeAIPlayer = (settings) => {
@@ -44,7 +45,7 @@ const createPlayer = (playerSettings, boardSettings, shipData, gameMode) => {
     const fleet = initializeFleetController();
     const { mainGrid, trackingGrid } = initializeGridControllers();
     const board = BoardController({
-      playerID: scope,
+      playerId: scope,
       playerName,
       displayContainer: gameContainer,
       gameMode,
@@ -57,40 +58,22 @@ const createPlayer = (playerSettings, boardSettings, shipData, gameMode) => {
 };
 
 const initializeView = (players, gameMode) => {
-  const { current: p1, waiting: p2 } = players;
+  const { p1, p2 } = players;
   if (gameMode === GAME_MODES.HvA) {
     p1.controllers.board.view.initialize(
       p2.controllers.view.getTrackingGrid(),
       p2.controllers.view.getTrackingFleet()
     );
   } else {
+    console.log(p2.model.getName());
     p1.controllers.board.view.initialize(
       p2.model.getName(),
-      p2.controllers.view.getTrackingFleet()
+      p2.controllers.fleet.view.getTrackingFleet()
     );
     p2.controllers.board.view.initialize(
       p1.model.getName(),
-      p1.controllers.view.getTrackingFleet()
+      p1.controllers.fleet.view.getTrackingFleet()
     );
-  }
-};
-
-const initializeCombat = (p1, p2, gameMode) => {
-  if (gameMode === GAME_MODES.HvA) {
-    const p1CombatController = p1.controllers.board.combat;
-    const p2CombatController = p2.controllers.board.combat;
-    p1CombatController.initialize({
-      opponentOnAttackSent: p2CombatController.onAttackSent,
-      opponentProcessIncomingAttack: p2CombatController.processIncomingAttack,
-      opponentOnIncomingAttackProcessed: p2CombatController.onIncomingAttackProcessed,
-      opponentProcessSentAttackResult: p2CombatController.processSentAttackResult
-    });
-    p2CombatController.initialize({
-      opponentOnAttackSent: p1.controllers.trackingGrid.combat.onAttackSent,
-      opponentProcessIncomingAttack: p1.controllers.mainGrid.combat.processIncomingAttack,
-      opponentOnIncomingAttackProcessed: p1.controllers.mainGrid.combat.onIncomingAttackProcessed,
-      opponentProcessSentAttackResult: p1.controller.trackingGrid.combat.processSentAttackResult
-    });
   }
 };
 
@@ -104,20 +87,36 @@ export const GameManager = ({
     p1Settings.type === PLAYERS.TYPES.HUMAN && p2Settings.type === PLAYERS.TYPES.AI
       ? GAME_MODES.HvA
       : GAME_MODES.HvH;
-  const players = {
-    current: createPlayer(p1Settings, boardSettings, shipData, gameMode),
-    waiting: createPlayer(p2Settings, boardSettings, shipData, gameMode)
+  const playersMain = {
+    p1: createPlayer(p1Settings, boardSettings, shipData, gameMode),
+    p2: createPlayer(p2Settings, boardSettings, shipData, gameMode)
   };
-  initializeView(players, gameMode);
+  const players = {
+    current: playersMain.p1.controllers.board,
+    waiting: playersMain.p2.controllers.board
+  };
+
+  initializeView(playersMain, gameMode);
 
   const alternatePlayers = () =>
     ([players.current, players.waiting] = [players.waiting, players.current]);
 
-  initializeCombat(players.current, players.waiting, gameMode);
+  const placement = {
+    getCurrent: () => players.current.placement,
+    isOver: () => Object.values(players).every((player) => player.placement.isOver()),
+    startCurrent: () => placement.getCurrent().startTurn(),
+    addOnEndToCurrent: (callback) => placement.getCurrent().onEnd(callback)
+  };
+
   return {
     alternatePlayers,
+    placement: {
+      isOver: () => placement.isOver(),
+      startCurrent: () => placement.startCurrent(),
+      addOnEndToCurrent: (callback) => placement.addOnEndToCurrent(callback)
+    },
+    getCurrentPlayerId: () => players.current.model.getId(),
     getCurrentPlacementController: () => players.current.controllers.board.placement,
-    getCurrentCombatController: () => players.current.controllers.board.combat,
-    getNumberOfPlayers: () => Object.values(players).length
+    getCurrentCombatController: () => players.current.controllers.board.combat
   };
 };

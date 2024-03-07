@@ -28,5 +28,36 @@ export const EventEmitter = () => {
 
   const reset = () => Object.keys(subscribers).forEach((event) => delete subscribers[event]);
 
-  return { subscribe, subscribeMany, unsubscribe, unsubscribeMany, publish, reset };
+  const createHandler = (eventName, preEmitCallback = () => null) => {
+    if (typeof preEmitCallback !== 'function')
+      throw new Error(`Function Required: ${preEmitCallback} is invalid`);
+    let callbacks = [];
+    let callback = preEmitCallback;
+    return {
+      emit: (args) => {
+        const payload = callback(args);
+        publish(eventName, payload);
+      },
+      on: (callback) => {
+        if (!callbacks.includes(callback)) {
+          callbacks.push(callback);
+          subscribe(eventName, callback);
+        }
+      },
+      off: (callback) => {
+        callbacks = callbacks.filter((fn) => fn !== callback);
+        unsubscribe(eventName, callback);
+      },
+      setPreEmitCallback: (newCallback) => {
+        if (typeof newCallback === 'function') callback = newCallback;
+      },
+      reset: () => {
+        callbacks.forEach((callback) => unsubscribe(eventName, callback));
+        callbacks = [];
+        callback = () => null;
+      }
+    };
+  };
+
+  return { subscribe, subscribeMany, unsubscribe, unsubscribeMany, publish, createHandler, reset };
 };

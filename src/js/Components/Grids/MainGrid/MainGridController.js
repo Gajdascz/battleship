@@ -9,28 +9,13 @@ export const MainGridController = (scope, boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;
   const model = MainGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
   const view = MainGridView({ numberOfRows, numberOfCols, letterAxis });
-  const componentEmitter = EventEmitter();
-  const { publish } = componentEmitter;
-  MainGridPlacementManager(model, view, componentEmitter);
-  MainGridCombatManager(model, view, componentEmitter);
+  const emitter = EventEmitter();
+  const { publish } = emitter;
+  const placementManager = MainGridPlacementManager({ model, view, emitter });
+  MainGridCombatManager(model, view, emitter);
 
   return {
-    placement: {
-      initialize: () => publish(MAIN_GRID_PLACEMENT_EVENTS.INITIALIZE),
-      updateOrientation: (orientation) =>
-        publish(MAIN_GRID_PLACEMENT_EVENTS.UPDATE_ORIENTATION, orientation),
-      updateSelectedEntity: (entityData) => publish(MAIN_GRID_PLACEMENT_EVENTS.SELECT, entityData),
-      enableSubmit: () => publish(MAIN_GRID_PLACEMENT_EVENTS.ENABLE_SUBMIT),
-      disableSubmit: () => publish(MAIN_GRID_PLACEMENT_EVENTS.DISABLE_SUBMIT),
-      onPlacementProcessed: (callback) => publish(MAIN_GRID_PLACEMENT_EVENTS.SUB_PLACED, callback),
-      offPlacementProcessed: (callback) =>
-        publish(MAIN_GRID_PLACEMENT_EVENTS.UNSUB_PLACED, callback),
-      onPlacementsSubmitted: (callback) =>
-        publish(MAIN_GRID_PLACEMENT_EVENTS.SUB_SUBMITTED, callback),
-      offPlacementsSubmitted: (callback) =>
-        publish(MAIN_GRID_PLACEMENT_EVENTS.UNSUB_SUBMITTED, callback),
-      end: () => publish(MAIN_GRID_PLACEMENT_EVENTS.END)
-    },
+    placementManager,
     combat: {
       initialize: () => publish(MAIN_GRID_COMBAT_EVENTS.INITIALIZE),
       processIncomingAttack: (coordinates) =>

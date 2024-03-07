@@ -2,17 +2,14 @@
 import { TRACKING_GRID_COMBAT_EVENTS } from '../../common/trackingGridEvents';
 import { TrackingGridCombatView } from './TrackingGridCombatView';
 // External
-import { convertToInternalFormat } from '../../../../../Utility/utils/coordinatesUtils';
 import { EventEmitter } from '../../../../../Events/core/EventEmitter';
 
 export const TrackingGridCombatManager = (view, componentEmitter) => {
   const combatView = TrackingGridCombatView(view);
   const emitter = EventEmitter();
 
-  const handleSendAttack = (displayCoordinates) => {
-    const coordinates = convertToInternalFormat(displayCoordinates);
+  const handleSendAttack = (coordinates) =>
     emitter.publish(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT, coordinates);
-  };
 
   const processSentAttackResult = ({ data }) => {
     combatView.displayResult(data);

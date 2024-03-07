@@ -19,7 +19,7 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
     isSunk: () => health <= 0,
     isSelected: () => isSelected,
     isPlaced: () => isPlaced,
-    getID: () => id,
+    getId: () => id,
     getScope: () => scope,
     getScopedID: () => scopedID,
     getLength: () => length,

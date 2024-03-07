@@ -15,7 +15,6 @@ export const StrategyHvH = (init, views, display, remove) => {
 
   let buttonManager = null;
   let opponentName = null;
-  const displayAlternatePlayerDialog = () => alternatePlayerDialog.display(opponentName);
   const strategy = {
     initialize: (opponentPlayerName, opponentFleet) => {
       const { mainGridButtonManager, setTrackingFleet } = init();
@@ -29,7 +28,7 @@ export const StrategyHvH = (init, views, display, remove) => {
       remove();
     },
     placement: {
-      start: () => {
+      startTurn: () => {
         trackingGrid.disable();
         trackingGrid.hide();
         buttonManager.addButton('submit-placements', mainGrid.getSubmitButton());
@@ -41,7 +40,7 @@ export const StrategyHvH = (init, views, display, remove) => {
         display();
         return updateRotateButton;
       },
-      end: () => {
+      endTurn: () => {
         buttonManager.removeWrapper('submit-placements');
         buttonManager.removeWrapper('rotate-ship');
         strategy.endTurn();

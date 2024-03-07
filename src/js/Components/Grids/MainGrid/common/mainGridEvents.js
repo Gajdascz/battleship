@@ -6,6 +6,7 @@ export const MAIN_GRID_PLACEMENT_EVENTS = {
   UPDATE_ORIENTATION: 'gridEntityOrientationUpdated', // Orientation of selected entity has changed
   ENABLE_SUBMIT: 'gridEnableSubmissionRequest',
   DISABLE_SUBMIT: 'gridDisableSubmissionRequest',
+  TOGGLE_SUBMIT: 'gridToggleSubmissionRequest',
   SUBMIT: 'gridPlacementsFinalizationRequested', // Player placement submission parsed for grid-placement
   END: 'gridPlacementEndRequested', // Grid placement state is over
   // Subscription Requests
