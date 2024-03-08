@@ -12,7 +12,6 @@ export const BoardView = ({
   views,
   gameMode
 }) => {
-  console.log(playerName);
   const { mainGrid, trackingGrid, fleet } = views;
 
   let displayContainer = container;
@@ -95,12 +94,17 @@ export const BoardView = ({
   const display = () => displayContainer.append(boardContainer);
   const remove = () => boardContainer.remove();
 
+  let trackingFleetContainer = null;
   const initialize = () => {
     const CLASSES = {
       MAIN_GRID_UTILITY_CONTAINER: 'main-grid-utility-container',
       TRACKING_GRID_UTILITY_CONTAINER: 'tracking-grid-utility-container',
-      MAIN_GRID_BUTTON_CONTAINER: 'main-grid-button-container'
+      MAIN_GRID_BUTTON_CONTAINER: 'main-grid-button-container',
+      TRACKING_FLEET_CONTAINER: 'tracking-fleet-container'
     };
+    trackingFleetContainer = buildUIElement(COMMON_ELEMENTS.DIV, {
+      attributes: { class: CLASSES.TRACKING_FLEET_CONTAINER }
+    });
     mainGrid.attachTo(boardContainer);
     trackingGrid.attachTo(boardContainer);
     const mainGridUtilityContainer = buildUtilityContainer(CLASSES.MAIN_GRID_UTILITY_CONTAINER);
@@ -113,16 +117,26 @@ export const BoardView = ({
       CLASSES.TRACKING_GRID_UTILITY_CONTAINER
     );
     trackingGrid.attachWithinWrapper(trackingGridUtilityContainer);
-    const setTrackingFleet = (opponentFleet) => trackingGridUtilityContainer.append(opponentFleet);
-    return { mainGridButtonManager, setTrackingFleet };
+    trackingGridUtilityContainer.append(trackingFleetContainer);
+    return { mainGridButtonManager };
+  };
+  const acceptTrackingFleet = (trackingFleet) => {
+    if (!trackingFleetContainer) {
+      throw new Error('Board must be initialized before accepting tracking fleet.');
+    }
+    trackingFleetContainer.textContent = '';
+    trackingFleetContainer.append(trackingFleet);
   };
 
   let strategy;
-  if (gameMode === GAME_MODES.HvA) strategy = StrategyHvA(initialize, views, display, remove);
+  if (gameMode === GAME_MODES.HvA)
+    strategy = StrategyHvA(initialize, views, display, remove, acceptTrackingFleet);
   else strategy = StrategyHvH(initialize, views, display, remove);
   return {
     display,
     remove,
+    acceptTrackingFleet,
+    provideTrackingFleet: () => fleet.elements.getTrackingFleet(),
     ...strategy
   };
 };

@@ -1,4 +1,3 @@
-import { globalEmitter } from '../core/globalEventEmitter';
 import { createEventKeyGenerator } from '../../Utility/utils/createEventKeyGenerator';
 
 /**
@@ -8,7 +7,7 @@ import { createEventKeyGenerator } from '../../Utility/utils/createEventKeyGener
  * @param {string[]} scopes Initial list of scopes to manage.
  * @returns {Object} An interface for managing scope-specific event subscriptions.
  */
-export const EventScopeManager = (scopes = []) => {
+export const EventScopeManager = (emitter, scopes = []) => {
   let active = null;
   const eventScopeRegistry = {};
 
@@ -27,7 +26,7 @@ export const EventScopeManager = (scopes = []) => {
    * @param {Object} manager The scope's event and callback management object.
    */
   const unsubscribeScopeEvent = (manager) =>
-    globalEmitter.unsubscribe(manager.getKey(manager.event), manager.callback);
+    emitter.unsubscribe(manager.getKey(manager.event), manager.callback);
 
   /**
    * Adds an event subscription for a given scope.
@@ -35,7 +34,7 @@ export const EventScopeManager = (scopes = []) => {
    * @param {Object} manager The scope's event and callback management object.
    */
   const subscribeScopeEvent = (manager) =>
-    globalEmitter.subscribe(manager.getKey(manager.event), manager.callback);
+    emitter.subscribe(manager.getKey(manager.event), manager.callback);
 
   /**
    * Publishes an event using the currently active scope.
@@ -44,7 +43,7 @@ export const EventScopeManager = (scopes = []) => {
    * @param {*} data Data to provide
    */
   const publishActiveScopeEvent = (event, data = null) => {
-    if (active) globalEmitter.publish(active.manager.getKey(event), data);
+    if (active) emitter.publish(active.manager.getKey(event), data);
   };
 
   /**

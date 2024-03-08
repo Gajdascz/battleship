@@ -1,64 +1,67 @@
 import { MainGridPlacementController } from './core/MainGridPlacementController';
 import { MAIN_GRID_PLACEMENT_EVENTS } from '../../common/mainGridEvents';
-
-export const MainGridPlacementManager = ({ model, view, emitter }) => {
+import { ManagerFactory } from '../../../../../Utility/ManagerFactory';
+const MainGridPlacementManager = ({ model, view, createHandler }) => {
   const controller = MainGridPlacementController({ model, view });
-
-  const start = () => controller.initialize(submitPlacements, place);
-
-  const updateOrientation = ({ data }) => controller.updateOrientation(data);
 
   const updateSelectedEntity = ({ data }) => {
     const { id, length, orientation } = data;
     controller.updateSelectedEntity(id, length, orientation);
   };
+  const updateOrientation = ({ data }) => controller.updateOrientation(data);
 
-  const orientationHandler = emitter.createHandler(
-    MAIN_GRID_PLACEMENT_EVENTS.UPDATE_ORIENTATION,
-    updateOrientation
-  );
-  const selectHandler = emitter.createHandler(
-    MAIN_GRID_PLACEMENT_EVENTS.SELECT,
-    updateSelectedEntity
-  );
-
-  const toggleSubmission = (isReady) => {
-    if (isReady) controller.enableSubmission();
-    else controller.disableSubmission();
+  const place = {
+    handler: null,
+    execute: (coordinates) => {
+      if (!coordinates) return;
+      place.handler.emit(coordinates);
+    },
+    on: (callback) => place.handler.on(callback),
+    off: (callback) => place.handler.off(callback),
+    start: () => (place.handler = createHandler(MAIN_GRID_PLACEMENT_EVENTS.PROCESSED_PLACED)),
+    end: () => place.handler.reset()
   };
-  const toggleSubmitHandler = emitter.createHandler(
-    MAIN_GRID_PLACEMENT_EVENTS.TOGGLE_SUBMIT,
-    toggleSubmission
-  );
 
-  const submitPlacements = () => {
-    emitter.publish(MAIN_GRID_PLACEMENT_EVENTS.SUBMITTED);
-    controller.end();
+  const submit = {
+    handler: null,
+    execute: () => {
+      controller.end();
+      submit.handler.emit();
+    },
+    toggle: ({ data }) => controller.toggleSubmission(data),
+    on: (callback) => submit.handler.on(callback),
+    off: (callback) => submit.handler.off(callback),
+    start: () => (submit.handler = createHandler(MAIN_GRID_PLACEMENT_EVENTS.SUBMIT)),
+    end: () => submit.handler.reset()
   };
-  const submitHandler = emitter.createHandler(MAIN_GRID_PLACEMENT_EVENTS.SUBMIT, submitPlacements);
 
-  const place = (coordinates) => {
-    if (!coordinates) return;
-    emitter.publish(MAIN_GRID_PLACEMENT_EVENTS.PROCESSED_PLACED, coordinates);
+  const start = () => {
+    place.start();
+    submit.start();
+    controller.initialize(submit.execute, place.execute);
   };
-  const placeHandler = emitter.createHandler(MAIN_GRID_PLACEMENT_EVENTS.PROCESSED_PLACED, place);
-
   const end = () => {
-    placeHandler.reset();
-    submitHandler.reset();
-    orientationHandler.reset();
-    selectHandler.reset();
+    submit.end();
+    place.end();
+    controller.end();
   };
 
   return {
     start,
     end,
-    toggleSubmission: (isReady) => toggleSubmitHandler.emit(isReady),
-    updateOrientation: (orientation) => orientationHandler.emit(orientation),
-    updateSelectedEntity: (entityData) => selectHandler.emit(entityData),
-    onPlace: (callback) => placeHandler.on(callback),
-    offPlace: (callback) => placeHandler.off(callback),
-    onSubmit: (callback) => submitHandler.on(callback),
-    offSubmit: (callback) => submitHandler.off(callback)
+    updateOrientation,
+    updateSelectedEntity,
+    toggleSubmit: (isReady) => submit.toggle(isReady),
+    onPlace: (callback) => place.on(callback),
+    offPlace: (callback) => place.off(callback),
+    onSubmit: (callback) => submit.on(callback),
+    offSubmit: (callback) => submit.off(callback)
   };
 };
+
+export const PlacementManagerFactory = ({ model, view, createHandler }) =>
+  ManagerFactory({
+    ManagerBuilder: MainGridPlacementManager,
+    initialDetails: { model, view, createHandler },
+    validateDetails: (details) => details.model && details.view && details.createHandler
+  });

@@ -1,69 +1,66 @@
 import { FleetModel } from './main/model/FleetModel';
 import { FleetView } from './main/view/FleetView';
-import { FleetPlacementManager } from './features/placement/FleetPlacementManager';
+import { PlacementManagerFactory } from './features/placement/FleetPlacementManager';
+import { CombatManagerFactory } from './features/combat/FleetCombatManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
-import { FLEET_COMBAT_EVENTS, FLEET_PLACEMENT_EVENTS } from './common/fleetEvents';
-import { FleetCombatManager } from './features/combat/FleetCombatManager';
-
+import { EventHandler } from '../../Events/management/EventHandler';
 export const FleetController = (scope) => {
   const model = FleetModel(scope);
   const view = FleetView();
   const shipControllers = new Map();
   const emitter = EventEmitter();
-  const { publish } = emitter;
+  const createHandler = (eventName, callback = (args) => args) =>
+    EventHandler(emitter, eventName, callback);
 
   const assignShipToFleet = (shipController) => {
     const shipModel = shipController.getModel();
-    const shipID = shipModel.getId();
-    model.addMainShip(shipID, shipModel);
-    shipControllers.set(shipID, shipController);
-    view.addShipView(shipID, shipController.getView());
+    const shipId = shipModel.getId();
+    model.addMainShip(shipId, shipModel);
+    shipControllers.set(shipId, shipController);
+    view.addShipView(shipId, shipController.getView());
     view.populateFleetShipLists();
-    console.log(shipControllers);
+    placement.addShipPlacementManager(shipId, shipController.getPlacementManager());
   };
+
   const placement = {
     manager: null,
-    getShipManagers: () => {
-      const placementManagers = new Map();
-      [...shipControllers.entries()].forEach((controller) =>
-        placementManagers.set(controller[0], controller[1].placementManager)
-      );
-      return placementManagers;
-    },
-    initialize: () => {
-      if (placement.manager) placement.manager.end();
-      placement.manager = FleetPlacementManager({
-        placementManagers: placement.getShipManagers(),
-        emitter,
+    shipPlacementManagers: new Map(),
+    addShipPlacementManager: (id, manager) => placement.shipPlacementManagers.set(id, manager),
+    setManager: () => {
+      if (placement.manager) placement.manager.getManager().end();
+      placement.manager = PlacementManagerFactory({
+        shipPlacementManagers: placement.shipPlacementManagers,
+        createHandler,
         isAllShipsPlaced: model.isAllShipsPlaced
       });
     },
-    getManager: () => {
-      if (!placement.manager) placement.initialize();
-      return placement.manager;
+    getPlacementManager: () => {
+      if (!placement.manager) placement.setManager();
+      return placement.manager.getManager();
+    }
+  };
+
+  const combat = {
+    manager: null,
+    shipCombatManagers: new Map(),
+    addShipCombatManager: (id, manager) => combat.shipCombatManagers.set(id, manager),
+    setManger: () => {
+      if (combat.manager) combat.manager.getManager().end();
+      combat.manager = CombatManagerFactory({
+        shipCombatManagers: combat.shipCombatManagers,
+        createHandler,
+        isAllShipsSunk: model.isAllShipsSunk
+      });
+    },
+    getCombatManager: () => {
+      if (!combat.manager) combat.setManger();
+      return combat.manager.getManager();
     }
   };
 
   return {
-    getPlacementManager: () => placement.getManager(),
-    combat: {
-      initialize: () => {
-        const combatControllers = new Map();
-        [...shipControllers.entries()].forEach((controller) =>
-          combatControllers.set(controller[0], controller[1].combat)
-        );
-        FleetCombatManager(combatControllers, componentEmitter, model.isAllShipsSunk);
-        publish(FLEET_COMBAT_EVENTS.INITIALIZE);
-      },
-      hitShip: (shipId) => publish(FLEET_COMBAT_EVENTS.HIT_SHIP, shipId),
-      onShipHit: (callback) => publish(FLEET_COMBAT_EVENTS.SUB_SHIP_HIT, callback),
-      offShipHit: (callback) => publish(FLEET_COMBAT_EVENTS.UNSUB_SHIP_HIT, callback),
-      onShipSunk: (callback) => publish(FLEET_COMBAT_EVENTS.SUB_SHIP_SUNK, callback),
-      offShipSunk: (callback) => publish(FLEET_COMBAT_EVENTS.UNSUB_SHIP_SUNK, callback),
-      onAllShipsSunk: (callback) => publish(FLEET_COMBAT_EVENTS.SUB_ALL_SHIPS_SUNK, callback),
-      offAllShipsSunk: (callback) => publish(FLEET_COMBAT_EVENTS.UNSUB_ALL_SHIPS_SUNK, callback),
-      end: () => publish(FLEET_COMBAT_EVENTS.END)
-    },
+    getPlacementManager: () => placement.getPlacementManager(),
+    getCombatManager: () => combat.getCombatManager(),
     view: {
       attachMainFleetTo: (container) => view.attachMainFleetTo(container),
       attachTrackingFleetTo: (container) => view.attachTrackingFleetTo(container),

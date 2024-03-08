@@ -48,8 +48,14 @@ export const TrackingGridCombatView = (view) => {
   return {
     initialize,
     displayResult,
-    enable: () => listenerManager.enableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK),
-    disable: () => listenerManager.disableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK),
+    enable: () => {
+      view.enable();
+      listenerManager.enableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK);
+    },
+    disable: () => {
+      view.disable();
+      listenerManager.disableListener(LISTENER_MANAGER_KEYS.SEND_ATTACK);
+    },
     end
   };
 };

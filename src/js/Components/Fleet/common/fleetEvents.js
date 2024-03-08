@@ -3,6 +3,7 @@ export const FLEET_PLACEMENT_EVENTS = {
   INITIALIZE: 'initializeFleetPlacementRequested',
   SELECT: 'selectShipFromFleetRequested',
   SET_COORDINATES: 'setShipPlacementCoordinates',
+  PLACE: 'placeShipRequested',
   END: 'fleetPlacementEndRequested',
 
   // Subscription Requests
@@ -17,6 +18,7 @@ export const FLEET_PLACEMENT_EVENTS = {
 
   // Declarations
   SELECTED: 'shipSelectedFromFleet',
+  SHIP_PLACED: 'shipPlaced',
   ALL_SHIPS_PLACED: 'allShipsInFleetPlaced',
   SHIP_NO_LONGER_PLACED: 'shipNoLongerPlaced'
 };

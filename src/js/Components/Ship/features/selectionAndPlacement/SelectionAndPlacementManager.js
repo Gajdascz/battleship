@@ -1,8 +1,9 @@
-import { SHIP_SELECTION_EVENTS } from '../../common/shipEvents';
+import { SHIP_PLACEMENT_EVENTS, SHIP_SELECTION_EVENTS } from '../../common/shipEvents';
 import { ShipSelectionController } from './selection/ShipSelectionController';
 import { ShipPlacementController } from './placement/ShipPlacementController';
+import { ManagerFactory } from '../../../../Utility/ManagerFactory';
 
-export const ShipSelectionAndPlacementManager = ({ model, view, emitter }) => {
+const ShipSelectionAndPlacementManager = ({ model, view, createHandler }) => {
   const selectionController = ShipSelectionController({
     model,
     view
@@ -11,45 +12,69 @@ export const ShipSelectionAndPlacementManager = ({ model, view, emitter }) => {
     model,
     view
   });
+
   const isSelected = () => model.isSelected();
   const isPlaced = () => model.isPlaced();
   const getRotateButton = () => view.elements.getRotateButton();
 
+  const place = {
+    handler: null,
+    execute: (coordinates) => {
+      placementController.place(coordinates);
+      select.deselect();
+      place.handler.emit();
+    },
+    on: (callback) => place.handler.on(callback),
+    off: (callback) => place.handler.off(callback),
+    start: () => (place.handler = createHandler(SHIP_PLACEMENT_EVENTS.PLACED)),
+    end: () => place.handler.reset()
+  };
+
+  const select = {
+    handler: null,
+    execute: () => {
+      if (isPlaced()) placementController.pickup();
+      selectionController.select();
+    },
+    request: () => select.handler.emit(),
+    deselect: () => selectionController.deselect(),
+    getData: () => ({
+      id: model.getId(),
+      length: model.getLength(),
+      orientation: model.getOrientation()
+    }),
+    on: (callback) => select.handler.on(callback),
+    off: (callback) => select.handler.off(callback),
+    start: () => (select.handler = createHandler(SHIP_SELECTION_EVENTS.SELECTED, select.getData)),
+    end: () => select.handler.reset()
+  };
+
+  const orientation = {
+    handler: null,
+    request: () => orientation.handler.emit(),
+    on: (callback) => orientation.handler.on(callback),
+    off: (callback) => orientation.handler.off(callback),
+    start: () =>
+      (orientation.handler = createHandler(
+        SHIP_SELECTION_EVENTS.ORIENTATION_TOGGLED,
+        model.getOrientation
+      )),
+    end: () => orientation.handler.reset()
+  };
+
   const start = () => {
-    console.log('shipStart');
-    selectionController.initialize(selectionHandler.emit, orientationHandler.emit);
+    select.start();
+    orientation.start();
+    place.start();
+    selectionController.initialize(select.request, orientation.request);
   };
-
-  const place = (coordinates) => {
-    placementController.place(coordinates);
-    deselect();
-  };
-
-  const deselect = () => selectionController.deselect();
 
   const end = () => {
+    select.end();
+    orientation.end();
+    place.end();
     selectionController.end();
-    orientationHandler.reset();
-    selectionHandler.reset();
   };
-
-  const select = () => {
-    console.log(model.getId());
-    if (isPlaced()) placementController.pickup();
-    selectionController.select();
-  };
-
-  const getSelectData = () => ({
-    id: model.getId(),
-    length: model.getLength(),
-    orientation: model.getOrientation()
-  });
-
-  const orientationHandler = emitter.createHandler(
-    SHIP_SELECTION_EVENTS.ORIENTATION_TOGGLED,
-    model.getOrientation
-  );
-  const selectionHandler = emitter.createHandler(SHIP_SELECTION_EVENTS.SELECTED, getSelectData);
 
   return {
     isSelected,
@@ -57,12 +82,21 @@ export const ShipSelectionAndPlacementManager = ({ model, view, emitter }) => {
     getRotateButton,
     start,
     end,
-    place,
-    select,
-    deselect: () => deselect(),
-    onSelect: (callback) => selectionHandler.on(callback),
-    offSelect: (callback) => selectionHandler.off(callback),
-    onOrientationToggle: (callback) => orientationHandler.on(callback),
-    offOrientationToggle: (callback) => orientationHandler.off(callback)
+    place: (coordinates) => place.execute(coordinates),
+    select: () => select.execute(),
+    deselect: () => select.deselect(),
+    onSelected: (callback) => select.on(callback),
+    offSelected: (callback) => select.off(callback),
+    onPlaced: (callback) => place.on(callback),
+    offPlaced: (callback) => place.off(callback),
+    onOrientationToggled: (callback) => orientation.on(callback),
+    offOrientationToggled: (callback) => orientation.off(callback)
   };
 };
+
+export const SelectionAndPlacementManagerFactory = ({ model, view, createHandler }) =>
+  ManagerFactory({
+    ManagerBuilder: ShipSelectionAndPlacementManager,
+    initialDetails: { model, view, createHandler },
+    validateDetails: (details) => details.model && details.view && details.createHandler
+  });

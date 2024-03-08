@@ -1,63 +1,49 @@
 // Tracking Grid Component
 import { TRACKING_GRID_COMBAT_EVENTS } from '../../common/trackingGridEvents';
 import { TrackingGridCombatView } from './TrackingGridCombatView';
-// External
-import { EventEmitter } from '../../../../../Events/core/EventEmitter';
-
-export const TrackingGridCombatManager = (view, componentEmitter) => {
+import { ManagerFactory } from '../../../../../Utility/ManagerFactory';
+import { convertToInternalFormat } from '../../../../../Utility/utils/coordinatesUtils';
+const TrackingGridCombatManager = ({ view, createHandler }) => {
   const combatView = TrackingGridCombatView(view);
-  const emitter = EventEmitter();
 
-  const handleSendAttack = (coordinates) =>
-    emitter.publish(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT, coordinates);
-
-  const processSentAttackResult = ({ data }) => {
-    combatView.displayResult(data);
-    emitter.publish(TRACKING_GRID_COMBAT_EVENTS.SENT_ATTACK_PROCESSED);
+  const outgoingAttack = {
+    handler: null,
+    send: (displayCoordinates) => {
+      const coordinates = convertToInternalFormat(displayCoordinates);
+      outgoingAttack.handler.emit(coordinates);
+    },
+    acceptResult: (result) => combatView.displayResult(result),
+    enable: () => combatView.enable(),
+    disable: () => combatView.disable(),
+    on: (callback) => outgoingAttack.handler.on(callback),
+    off: (callback) => outgoingAttack.handler.off(callback),
+    start: () => (outgoingAttack.handler = createHandler(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT)),
+    end: () => outgoingAttack.handler.reset()
   };
 
-  const handleEnable = () => combatView.enable();
-  const handleDisable = () => combatView.disable();
-
-  const handleEnd = () => {
-    componentEmitter.unsubscribeMany(subscriptions);
+  const start = () => {
+    outgoingAttack.start();
+    combatView.initialize(outgoingAttack.send);
+  };
+  const end = () => {
+    outgoingAttack.end();
     combatView.end();
-    emitter.reset();
   };
 
-  const handleInitialize = () => {
-    componentEmitter.unsubscribe(TRACKING_GRID_COMBAT_EVENTS.INITIALIZE, handleInitialize);
-    componentEmitter.subscribeMany(subscriptions);
-    combatView.initialize(handleSendAttack);
+  return {
+    start,
+    end,
+    enable: () => outgoingAttack.enable(),
+    disable: () => outgoingAttack.disable(),
+    acceptResult: (result) => outgoingAttack.acceptResult(result),
+    onSendAttack: (callback) => outgoingAttack.on(callback),
+    offSendAttack: (callback) => outgoingAttack.off(callback)
   };
-
-  const onAttackSent = ({ data }) =>
-    emitter.subscribe(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT, data);
-  const offAttackSent = ({ data }) =>
-    emitter.unsubscribe(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT, data);
-
-  const onSentAttackProcessed = ({ data }) =>
-    emitter.subscribe(TRACKING_GRID_COMBAT_EVENTS.SENT_ATTACK_PROCESSED, data);
-  const offSentAttackProcessed = ({ data }) =>
-    emitter.unsubscribe(TRACKING_GRID_COMBAT_EVENTS.SENT_ATTACK_PROCESSED, data);
-
-  const subscriptions = [
-    {
-      event: TRACKING_GRID_COMBAT_EVENTS.PROCESS_SENT_ATTACK_RESULT,
-      callback: processSentAttackResult
-    },
-    { event: TRACKING_GRID_COMBAT_EVENTS.SUB_ATTACK_SENT, callback: onAttackSent },
-    { event: TRACKING_GRID_COMBAT_EVENTS.UNSUB_ATTACK_SENT, callback: offAttackSent },
-    {
-      event: TRACKING_GRID_COMBAT_EVENTS.SUB_SENT_ATTACK_PROCESSED,
-      callback: onSentAttackProcessed
-    },
-    { event: TRACKING_GRID_COMBAT_EVENTS.UNSUB_ATTACK_SENT, callback: offSentAttackProcessed },
-    { event: TRACKING_GRID_COMBAT_EVENTS.ENABLE, callback: handleEnable },
-    { event: TRACKING_GRID_COMBAT_EVENTS.DISABLE, callback: handleDisable },
-
-    { event: TRACKING_GRID_COMBAT_EVENTS.END, callback: handleEnd }
-  ];
-
-  componentEmitter.subscribe(TRACKING_GRID_COMBAT_EVENTS.INITIALIZE, handleInitialize);
 };
+
+export const CombatManagerFactory = ({ view, createHandler }) =>
+  ManagerFactory({
+    ManagerBuilder: TrackingGridCombatManager,
+    initialDetails: { view, createHandler },
+    validateDetails: (details) => details.view && details.createHandler
+  });

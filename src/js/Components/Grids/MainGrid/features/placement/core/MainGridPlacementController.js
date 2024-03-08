@@ -45,9 +45,10 @@ export const MainGridPlacementController = ({ model, view }) => {
   };
   const updateOrientation = (orientation) => placementView.update.preview.orientation(orientation);
 
-  const enableSubmission = () => placementView.enable.submitPlacements();
-
-  const disableSubmission = () => placementView.disable.submitPlacements();
+  const toggleSubmission = (isReady) => {
+    if (isReady) placementView.enable.submitPlacements();
+    else placementView.disable.submitPlacements();
+  };
 
   const end = () => {
     if (!isInitialized) return;
@@ -58,35 +59,8 @@ export const MainGridPlacementController = ({ model, view }) => {
   return {
     initialize,
     end,
-    enableSubmission,
-    disableSubmission,
+    toggleSubmission,
     updateOrientation,
     updateSelectedEntity
   };
 };
-// const subscriptions = [
-//   {
-//     event: MAIN_GRID_PLACEMENT_EVENTS.ENABLE_PLACEMENT_SUBMISSION_REQUEST,
-//     callback: onEnableSubmissionRequest
-//   },
-//   {
-//     event: MAIN_GRID_PLACEMENT_EVENTS.DISABLE_PLACEMENT_SUBMISSION_REQUEST,
-//     callback: onDisableSubmissionRequest
-//   },
-//   { event: MAIN_GRID_PLACEMENT_EVENTS.ENTITY_SELECTED, callback: onEntitySelection },
-//   {
-//     event: MAIN_GRID_PLACEMENT_EVENTS.ENTITY_ORIENTATION_UPDATED,
-//     callback: onOrientationUpdated
-//   },
-//   {
-//     event: MAIN_GRID_PLACEMENT_EVENTS.ENTITY_PLACEMENT_REQUESTED,
-//     callback: onPlacementRequest
-//   },
-//   {
-//     event: MAIN_GRID_PLACEMENT_EVENTS.END_REQUESTED,
-//     callback: end
-//   }
-// ];
-
-// emitter.subscribe(MAIN_GRID_PLACEMENT_EVENTS.INITIALIZE_REQUESTED, initialize);
-// emitter.unsubscribeMany(subscriptions);

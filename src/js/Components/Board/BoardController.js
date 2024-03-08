@@ -1,22 +1,20 @@
 // Board Component
-import { BoardModel } from './main/model/BoardModel';
 import { BoardPlacementManager } from './features/placement/BoardPlacementManager';
 import { BoardCombatManager } from './features/combat/BoardCombatManager';
 import { BoardView } from './main/view/BoardView';
 import { BOARD_COMBAT_EVENTS, BOARD_PLACEMENT_EVENTS } from './common/boardEvents';
-// External
-import { EventEmitter } from '../../Events/core/EventEmitter';
+import { createEventKeyGenerator } from '../../Utility/utils/createEventKeyGenerator';
 
 export const BoardController = ({
   playerId,
   playerName,
   controllers,
   gameMode,
-  displayContainer
+  displayContainer,
+  gameEmitter
 }) => {
   const { fleet, mainGrid, trackingGrid } = controllers;
-  const componentEmitter = EventEmitter();
-  const { subscribe, publish, unsubscribe } = componentEmitter;
+  const { getKey } = createEventKeyGenerator(playerId);
   const viewParameters = {
     playerId,
     playerName,
@@ -33,18 +31,23 @@ export const BoardController = ({
   const placement = {
     isOver: false,
     endCallbacks: [],
+    manager: null,
+    hasStarted: false,
     onEnd: (callback) => placement.endCallbacks.push(callback),
+
     startTurn: () => {
-      BoardPlacementManager({
+      if (placement.hasStarted) return;
+      placement.manager = BoardPlacementManager({
         placementView: view.placement,
         placementManagers: {
           fleet: fleet.getPlacementManager(),
-          mainGrid: mainGrid.placementManager
+          mainGrid: mainGrid.getPlacementManager()
         },
-        componentEmitter
+        gameEmitter
       });
+      placement.hasStarted = true;
       placement.isOver = false;
-      publish(BOARD_PLACEMENT_EVENTS.START);
+      placement.manager.start();
       subscribe(BOARD_PLACEMENT_EVENTS.END, placement.end);
     },
     end: () => {
@@ -55,10 +58,10 @@ export const BoardController = ({
   };
 
   const combat = {
-    initialize: () => {
+    start: () => {
       BoardCombatManager({
         combatView: view.combat,
-        componentEmitter,
+        componentEmitter: emitter,
         combatControllers: {
           fleet: fleet.combat,
           mainGrid: mainGrid.combat,
@@ -89,7 +92,10 @@ export const BoardController = ({
   };
 
   return {
-    getId: () => playerId(),
+    getId: () => playerId,
+    getPlayerName: () => playerName,
+    acceptTrackingFleet: (fleet) => view.acceptTrackingFleet(fleet),
+    provideTrackingFleet: () => view.provideTrackingFleet(),
     placement: {
       onEnd: (callback) => placement.onEnd(callback),
       startTurn: () => placement.startTurn(),

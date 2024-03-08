@@ -8,10 +8,13 @@ import { EventEmitter } from '../../Events/core/EventEmitter';
 import { STATES } from '../../Utility/constants/common';
 
 export const GameController = () => {
+  const emitter = EventEmitter();
   let manager = null;
   const startGame = (data) => {
     const { p1Settings, p2Settings, boardSettings } = data;
-    manager = GameManager({ p1Settings, p2Settings, boardSettings });
+    manager = GameManager({ p1Settings, p2Settings, boardSettings, emitter });
+    const { players } = manager;
+    console.log(players);
     startPlacementState();
   };
 
@@ -27,6 +30,7 @@ export const GameController = () => {
       startCurrent();
       addOnEndToCurrent(onPlacementEnd);
     };
+
     executeCurrentPlayerPlacement();
   };
 

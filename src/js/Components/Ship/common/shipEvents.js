@@ -28,7 +28,8 @@ export const SHIP_PLACEMENT_EVENTS = {
   DISABLE_PLACEMENT: 'shipDisablePlacementRequestRequested',
   SET_COORDINATES: 'setShipPlacementCoordinatesRequested',
   PICKUP: 'shipPickupRequested', // Placed ship is selected and requires pick-up
-  END: 'shipPlacementEndRequested'
+  END: 'shipPlacementEndRequested',
+  PLACED: 'shipPlaced'
 };
 
 export const SHIP_COMBAT_EVENTS = {

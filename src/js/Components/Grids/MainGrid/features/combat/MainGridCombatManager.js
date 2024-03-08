@@ -1,50 +1,43 @@
 import { MAIN_GRID_COMBAT_EVENTS } from '../../common/mainGridEvents';
 import { convertToDisplayFormat } from '../../../../../Utility/utils/coordinatesUtils';
 import { STATUSES } from '../../../../AI/common/constants';
-import { EventEmitter } from '../../../../../Events/core/EventEmitter';
+import { ManagerFactory } from '../../../../../Utility/ManagerFactory';
 
-export const MainGridCombatManager = (model, view, componentEmitter) => {
-  const emitter = EventEmitter();
-  const acceptAttackRequest = ({ data }) => {
-    const cellData = model.processIncomingAttack(data);
-    const [x, y] = data;
-    const displayCoordinates = convertToDisplayFormat(x, y, model.getLetterAxis());
-    if (cellData.status === STATUSES.HIT) view.displayShipHit(displayCoordinates);
-    emitter.publish(MAIN_GRID_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, cellData);
-  };
-
-  const handleInitialize = () => {
-    componentEmitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.INITIALIZE, handleInitialize);
-    componentEmitter.subscribe(MAIN_GRID_COMBAT_EVENTS.END, handleEnd);
-
-    emitter.subscribeMany(subscriptions);
-  };
-
-  const handleEnd = () => {
-    emitter.reset();
-    componentEmitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.END, handleEnd);
-  };
-
-  const onIncomingAttackProcessed = ({ data }) =>
-    emitter.subscribe(MAIN_GRID_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, data);
-
-  const offIncomingAttackProcessed = ({ data }) =>
-    emitter.unsubscribe(MAIN_GRID_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, data);
-
-  const subscriptions = [
-    {
-      event: MAIN_GRID_COMBAT_EVENTS.PROCESS_INCOMING_ATTACK,
-      callback: acceptAttackRequest
+const MainGridCombatManager = ({ model, view, createHandler }) => {
+  const incomingAttack = {
+    handler: null,
+    process: ({ data }) => {
+      const cellData = model.processIncomingAttack(data);
+      const [x, y] = data;
+      const displayCoordinates = convertToDisplayFormat(x, y, model.getLetterAxis());
+      if (cellData.status === STATUSES.HIT) view.displayShipHit(displayCoordinates);
+      incomingAttack.handler.emit(cellData);
     },
-    {
-      event: MAIN_GRID_COMBAT_EVENTS.SUB_INCOMING_ATTACK_PROCESSED,
-      callback: onIncomingAttackProcessed
-    },
-    {
-      event: MAIN_GRID_COMBAT_EVENTS.UNSUB_INCOMING_ATTACK_PROCESSED,
-      callback: offIncomingAttackProcessed
-    }
-  ];
+    on: (callback) => incomingAttack.handler.on(callback),
+    off: (callback) => incomingAttack.handler.off(callback),
+    start: () =>
+      (incomingAttack.handler = createHandler(
+        MAIN_GRID_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED,
+        incomingAttack.process
+      )),
+    end: () => incomingAttack.handler.reset()
+  };
 
-  componentEmitter.subscribe(MAIN_GRID_COMBAT_EVENTS.INITIALIZE, handleInitialize);
+  const start = () => incomingAttack.start();
+  const end = () => incomingAttack.end();
+
+  return {
+    start,
+    end,
+    processIncomingAttack: (coordinates) => incomingAttack.process(coordinates),
+    onIncomingAttackProcessed: (callback) => incomingAttack.on(callback),
+    offIncomingAttackProcessed: (callback) => incomingAttack.off(callback)
+  };
 };
+
+export const CombatManagerFactory = ({ model, view, createHandler }) =>
+  ManagerFactory({
+    ManagerBuilder: MainGridCombatManager,
+    initialDetails: { model, view, createHandler },
+    validateDetails: (details) => details.model && details.view && details.createHandler
+  });

@@ -1,37 +1,55 @@
-import { convertToInternalFormat } from '../../../../Utility/utils/coordinatesUtils';
 import { BOARD_COMBAT_EVENTS } from '../../common/boardEvents';
-export const BoardCombatManager = ({ combatView, combatControllers, componentEmitter }) => {
+
+export const BoardCombatManager = ({ combatView, combatControllers, emitter }) => {
   const { trackingGrid, mainGrid, fleet } = combatControllers;
 
-  mainGrid.initialize();
-  trackingGrid.initialize();
-  // fleet.initialize();
+  const start = () => {
+    mainGrid.start();
+    trackingGrid.start();
+    fleet.start();
+    combatView.setEndTurnFn(endTurn);
+  };
+  const end = () => {
+    mainGrid.end();
+    trackingGrid.end();
+    fleet.end();
+    combatView.endTurn();
+  };
 
   const startTurn = () => {
     trackingGrid.enable();
     combatView.startTurn();
   };
 
-  const endTurn = () => {
+  const handleEndOfTurn = (attackResult) => {
     trackingGrid.disable();
     combatView.endTurn();
+    trackingGrid.acceptResult(attackResult);
+    emitter.publish(BOARD_COMBAT_EVENTS.SENT_ATTACK_PROCESSED);
   };
 
-  const handleSentAttack = ({ data }) => {
-    const coordinates = convertToInternalFormat(data);
-    componentEmitter.publish(BOARD_COMBAT_EVENTS.ATTACK_SENT, coordinates);
+  const endTurn = () => emitter.publish(BOARD_COMBAT_EVENTS.TURN_ENDED);
+
+  const attacks = {
+    outgoing: {
+      acceptResult: (result) => handleEndOfTurn(result),
+      enable: () => trackingGrid.enable(),
+      disable: () => trackingGrid.disable(),
+      onSendAttack: (callback) => trackingGrid.onSendAttack(callback),
+      offSendAttack: (callback) => trackingGrid.offSendAttack(callback)
+    },
+    incoming: {
+      process: (coordinates) => mainGrid.processIncomingAttack(coordinates),
+      onProcessed: (callback) => mainGrid.onIncomingAttackProcessed(callback),
+      offProcessed: (callback) => mainGrid.offIncomingAttackProcessed(callback)
+    }
   };
-  trackingGrid.onAttackSent(handleSentAttack);
 
-  const handleIncomingAttack = ({ data }) => mainGrid.processIncomingAttack(data);
-  const sendIncomingAttackResult = ({ data }) =>
-    componentEmitter.publish(BOARD_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, data);
-
-  mainGrid.onIncomingAttackProcessed(sendIncomingAttackResult);
-
-  const handleSentAttackResult = ({ data }) => trackingGrid.processSentAttackResult(data);
-
-  componentEmitter.subscribe(BOARD_COMBAT_EVENTS.INCOMING_ATTACK, handleIncomingAttack);
-  componentEmitter.subscribe(BOARD_COMBAT_EVENTS.SENT_ATTACK_PROCESSED, handleSentAttackResult);
-  componentEmitter.subscribe(BOARD_COMBAT_EVENTS.START, startTurn);
+  return {
+    start,
+    end,
+    startTurn,
+    endTurn,
+    attacks
+  };
 };

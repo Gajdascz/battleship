@@ -1,67 +1,95 @@
+import { ManagerFactory } from '../../../../Utility/ManagerFactory';
 import { FLEET_PLACEMENT_EVENTS } from '../../common/fleetEvents';
 
-export const FleetPlacementManager = ({ placementManagers, emitter, isAllShipsPlaced }) => {
-  const selected = { ship: null };
+const FleetPlacementManager = ({ shipPlacementManagers, createHandler, isAllShipsPlaced }) => {
+  const selected = { ship: null, data: null };
+  const orientation = {
+    on: (callback) =>
+      shipPlacementManagers.forEach((manager) => manager.onOrientationToggled(callback)),
+    off: (callback) =>
+      shipPlacementManagers.forEach((manager) => manager.offOrientationToggled(callback))
+  };
+
+  const select = {
+    handler: null,
+    getData: () => ({
+      ...selected.data,
+      rotateButton: selected.ship.getRotateButton()
+    }),
+    emitData: () => select.handler.emit(select.getData()),
+    execute: ({ data }) => {
+      allShipsPlaced.emitFalse();
+      const { id } = data;
+      shipPlacementManagers.forEach((manager, key) => {
+        if (key === id) {
+          manager.select();
+          selected.ship = manager;
+          selected.data = data;
+        } else if (manager.isSelected()) manager.deselect();
+      });
+      select.emitData();
+    },
+    on: (callback) => select.handler.on(callback),
+    off: (callback) => select.handler.off(callback),
+    start: () => (select.handler = createHandler(FLEET_PLACEMENT_EVENTS.SELECTED)),
+    end: () => select.handler.reset()
+  };
+
+  const place = ({ data }) => {
+    if (!selected.ship) throw new Error('Cannot placed unselected ship.');
+    selected.ship.place(data);
+    selected.ship = null;
+    selected.data = null;
+    if (isAllShipsPlaced()) allShipsPlaced.emitTrue();
+  };
+
+  const allShipsPlaced = {
+    handler: null,
+    emitTrue: () => allShipsPlaced.handler.emit(true),
+    emitFalse: () => allShipsPlaced.handler.emit(false),
+    start: () => (allShipsPlaced.handler = createHandler(FLEET_PLACEMENT_EVENTS.ALL_SHIPS_PLACED)),
+    on: (callback) => allShipsPlaced.handler.on(callback),
+    off: (callback) => allShipsPlaced.handler.off(callback),
+    end: () => allShipsPlaced.handler.reset()
+  };
 
   const start = () => {
-    console.log(placementManagers);
-    placementManagers.forEach((manager) => {
-      console.log(manager);
+    shipPlacementManagers.forEach((manager) => {
       manager.start();
+      manager.onSelected(select.execute);
     });
-    placementManagers.forEach((manager) => manager.onSelect(select));
+    select.start();
+    allShipsPlaced.start();
   };
 
-  const onOrientationToggle = (callback) =>
-    placementManagers.forEach((manager) => manager.onOrientationToggle(callback));
-
-  const offOrientationToggle = (callback) =>
-    placementManagers.forEach((manager) => manager.offOrientationToggle(callback));
-
-  const select = ({ data }) => {
-    console.log(data);
-    const { id } = data;
-    placementManagers.forEach((manager, key) => {
-      if (key === id) {
-        data.rotateButton = manager.getRotateButton();
-        manager.select();
-        selected.ship = manager;
-      } else if (manager.isSelected()) manager.deselect();
-    });
-    return data;
-  };
-
-  const selectHandler = emitter.createHandler(FLEET_PLACEMENT_EVENTS.SELECT, select);
-
-  const setCoordinates = ({ data }) => {
-    if (!selected.ship) throw new Error(`Cannot place unselected ship.`);
-    selected.ship.setCoordinates(data);
-    selected.ship = null;
-    if (isAllShipsPlaced()) allShipsPlacedHandler.emit();
-  };
-
-  const placeHandler = emitter.createHandler(
-    FLEET_PLACEMENT_EVENTS.SET_COORDINATES,
-    setCoordinates
-  );
-  const allShipsPlacedHandler = emitter.createHandler(FLEET_PLACEMENT_EVENTS.ALL_SHIPS_PLACED);
   const end = () => {
-    placementManagers.forEach((manager) => manager.end());
-    selectHandler.reset();
-    placeHandler.reset();
-    allShipsPlacedHandler.reset();
+    shipPlacementManagers.forEach((manager) => manager.end());
+    select.end();
+    allShipsPlaced.end();
   };
   return {
     isAllShipsPlaced,
     start,
     end,
-    onOrientationToggle,
-    offOrientationToggle,
-    select: () => selectHandler.emit(),
-    onSelect: (callback) => selectHandler.on(callback),
-    offSelect: (callback) => selectHandler.off(callback),
-    onAllShipsPlaced: (callback) => allShipsPlacedHandler.on(callback),
-    offAllShipsPlaced: (callback) => allShipsPlacedHandler.off(callback),
-    place: (coordinates) => placeHandler.emit(coordinates)
+    select: () => select.execute(),
+    place: (coordinates) => place(coordinates),
+    onOrientationToggled: (callback) => orientation.on(callback),
+    offOrientationToggled: (callback) => orientation.off(callback),
+    onSelected: (callback) => select.on(callback),
+    offSelected: (callback) => select.off(callback),
+    onAllShipsPlaced: (callback) => allShipsPlaced.on(callback),
+    offAllShipsPlaced: (callback) => allShipsPlaced.off(callback)
   };
 };
+
+export const PlacementManagerFactory = ({
+  shipPlacementManagers,
+  createHandler,
+  isAllShipsPlaced
+}) =>
+  ManagerFactory({
+    ManagerBuilder: FleetPlacementManager,
+    initialDetails: { shipPlacementManagers, createHandler, isAllShipsPlaced },
+    validateDetails: (details) =>
+      details.shipPlacementManagers && details.createHandler && details.isAllShipsPlaced
+  });

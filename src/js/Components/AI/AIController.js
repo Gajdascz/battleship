@@ -105,8 +105,11 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
 
   return {
     getPlayerModel: () => model.properties,
-    getId: () => model.getId(),
     board: {
+      getId: () => model.properties.getId(),
+      getPlayerName: () => model.properties.getName(),
+      provideTrackingGrid: () => view.trackingGrid.elements.getGrid(),
+      provideTrackingFleet: () => view.fleet.getTrackingFleet(),
       placement: {
         onEnd: (callback) => placement.onEnd(callback),
         offEnd: () => placement.offEnd(),

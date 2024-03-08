@@ -7,28 +7,29 @@ import { DEFAULT_FLEET } from '../../Fleet/common/fleetConstants';
 import { PlayerModel } from '../../Player/PlayerModel';
 import { GAME_MODES, PLAYERS } from '../../../Utility/constants/common';
 import { AIController } from '../../AI/AIController';
-
+import { createEventKeyGenerator } from '../../../Utility/utils/createEventKeyGenerator';
 const CLASSES = {
   GAME_CONTAINER: 'game-container'
 };
 const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
 
 const createPlayer = (playerSettings, boardSettings, shipData, gameMode) => {
+  const getEmitterBundles = (emitter, p1Id, p2Id) => {
+    const p1KeyGenerator = createEventKeyGenerator(p1Id);
+    const p2KeyGenerator = createEventKeyGenerator(p2Id);
+    return {
+      [p1Id]: { emitter, getPlayerKey: p1KeyGenerator, getOpponentKey: p2KeyGenerator },
+      [p2Id]: { emitter, getPlayerKey: p2KeyGenerator, getOpponentKey: p1KeyGenerator }
+    };
+  };
   const initializeHumanPlayer = (settings) => {
     const { username, id, type } = settings;
     const playerModel = PlayerModel({ playerName: username, playerType: type, playerId: id });
-    return {
-      model: playerModel,
-      controllers: initializeControllers(playerModel.getName(), playerModel.getId())
-    };
+    return initializeControllers(playerModel.getName(), playerModel.getId()).board;
   };
   const initializeAIPlayer = (settings) => {
     const { difficulty } = settings;
-    const aiController = AIController({ difficulty, boardSettings, shipData });
-    return {
-      model: aiController.getPlayerModel(),
-      controllers: aiController
-    };
+    return AIController({ difficulty, boardSettings, shipData }).board;
   };
   const initializeControllers = (playerName, playerID) => {
     const scope = playerID;
@@ -57,49 +58,43 @@ const createPlayer = (playerSettings, boardSettings, shipData, gameMode) => {
   else return initializeHumanPlayer(playerSettings);
 };
 
+const initializeHvAView = (human, ai) => {
+  human.view.initialize(ai.provideTrackingGrid(), ai.provideTrackingFleet());
+};
+
+const initializeHvHView = (p1, p2) => {
+  p1.view.initialize(p2.getPlayerName(), p2.provideTrackingFleet());
+  p2.view.initialize(p1.getPlayerName(), p1.provideTrackingFleet());
+};
+
 const initializeView = (players, gameMode) => {
   const { p1, p2 } = players;
-  if (gameMode === GAME_MODES.HvA) {
-    p1.controllers.board.view.initialize(
-      p2.controllers.view.getTrackingGrid(),
-      p2.controllers.view.getTrackingFleet()
-    );
-  } else {
-    console.log(p2.model.getName());
-    p1.controllers.board.view.initialize(
-      p2.model.getName(),
-      p2.controllers.fleet.view.getTrackingFleet()
-    );
-    p2.controllers.board.view.initialize(
-      p1.model.getName(),
-      p1.controllers.fleet.view.getTrackingFleet()
-    );
-  }
+  if (gameMode === GAME_MODES.HvA) initializeHvAView(p1, p2);
+  else initializeHvHView(p1, p2);
 };
 
 export const GameManager = ({
   p1Settings,
   p2Settings,
   boardSettings,
-  shipData = DEFAULT_FLEET
+  shipData = DEFAULT_FLEET,
+  emitter
 }) => {
   const gameMode =
     p1Settings.type === PLAYERS.TYPES.HUMAN && p2Settings.type === PLAYERS.TYPES.AI
       ? GAME_MODES.HvA
       : GAME_MODES.HvH;
-  const playersMain = {
-    p1: createPlayer(p1Settings, boardSettings, shipData, gameMode),
-    p2: createPlayer(p2Settings, boardSettings, shipData, gameMode)
-  };
-  const players = {
-    current: playersMain.p1.controllers.board,
-    waiting: playersMain.p2.controllers.board
-  };
 
-  initializeView(playersMain, gameMode);
+  const playerControllers = {
+    p1: createPlayer(p1Settings, boardSettings, shipData, gameMode, emitter),
+    p2: createPlayer(p2Settings, boardSettings, shipData, gameMode, emitter)
+  };
+  initializeView(playerControllers, gameMode);
 
-  const alternatePlayers = () =>
-    ([players.current, players.waiting] = [players.waiting, players.current]);
+  const players = { current: playerControllers.p1, waiting: playerControllers.p2 };
+  const alternatePlayers = () => {
+    [players.current, players.waiting] = [players.waiting, players.current];
+  };
 
   const placement = {
     getCurrent: () => players.current.placement,
@@ -109,6 +104,7 @@ export const GameManager = ({
   };
 
   return {
+    players,
     alternatePlayers,
     placement: {
       isOver: () => placement.isOver(),

@@ -1,10 +1,11 @@
 // Ship Component
 import { ShipModel } from './main/model/ShipModel';
 import { ShipView } from './main/view/ShipView';
-import { ShipSelectionAndPlacementManager } from './features/selectionAndPlacement/SelectionAndPlacementManager';
-import { ShipCombatManager } from './features/combat/ShipCombatManager';
+import { SelectionAndPlacementManagerFactory } from './features/selectionAndPlacement/SelectionAndPlacementManager';
+import { CombatManagerFactory } from './features/combat/ShipCombatManager';
 // External
 import { EventEmitter } from '../../Events/core/EventEmitter';
+import { EventHandler } from '../../Events/management/EventHandler';
 
 export const ShipController = (scope, shipData) => {
   const { name, length } = shipData;
@@ -12,9 +13,8 @@ export const ShipController = (scope, shipData) => {
   const view = ShipView({ name, length });
 
   const emitter = EventEmitter();
-
-  const placementManager = ShipSelectionAndPlacementManager({ model, view, emitter });
-  const combatManager = ShipCombatManager({ model, view, emitter });
+  const createHandler = (eventName, callback = (args) => args) =>
+    EventHandler(emitter, eventName, callback);
 
   const getId = () => model.getId();
   const getName = () => model.getName();
@@ -23,9 +23,15 @@ export const ShipController = (scope, shipData) => {
   const getMainShipElement = () => view.elements.getMainShip();
   const getTrackingShipElement = () => view.elements.getTrackingShip();
 
+  const placementManager = SelectionAndPlacementManagerFactory({ model, view, createHandler });
+  const getPlacementManager = () => placementManager.getManager();
+
+  const combatManager = CombatManagerFactory({ model, view, createHandler });
+  const getCombatManager = () => combatManager.getManager();
+
   return {
-    placementManager,
-    combatManager,
+    getPlacementManager,
+    getCombatManager,
     properties: {
       getId,
       getName,
