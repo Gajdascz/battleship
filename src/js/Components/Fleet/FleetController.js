@@ -4,8 +4,9 @@ import { PlacementManagerFactory } from './features/placement/FleetPlacementMana
 import { CombatManagerFactory } from './features/combat/FleetCombatManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
 import { EventHandler } from '../../Events/management/EventHandler';
-export const FleetController = (scope) => {
-  const model = FleetModel(scope);
+
+export const FleetController = (fleetShipControllers) => {
+  const model = FleetModel();
   const view = FleetView();
   const shipControllers = new Map();
   const emitter = EventEmitter();
@@ -21,6 +22,8 @@ export const FleetController = (scope) => {
     view.populateFleetShipLists();
     placement.addShipPlacementManager(shipId, shipController.getPlacementManager());
   };
+
+  if (fleetShipControllers) fleetShipControllers.forEach(assignShipToFleet);
 
   const placement = {
     manager: null,

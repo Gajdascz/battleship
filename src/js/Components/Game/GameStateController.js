@@ -1,50 +1,80 @@
-import stateManagerRegistry from '../../State/stateManagerRegistry';
-import { globalEmitter } from '../../Events/core/globalEventEmitter';
-import { GAME_EVENTS } from './common/gameEvents';
 import { STATES } from '../../Utility/constants/common';
 
-export const GameStateController = () => {
-  const initialize = () => {
-    stateManagerRegistry.initialize({ data: STATES.START });
-    enable();
+const FN_TYPES = {
+  ENTER: 'onEnter',
+  EXIT: 'onExit'
+};
+export const GameStateController = (emitter, transitionTriggers) => {
+  const { subscribe, unsubscribe } = emitter;
+  const { startTrigger, placementTrigger, progressTrigger } = transitionTriggers;
+
+  const states = {
+    current: null,
+    [STATES.START]: {
+      subTransitionTrigger: () => subscribe(startTrigger, transition),
+      unsubTransitionTrigger: () => unsubscribe(startTrigger, transition),
+      onEnter: [],
+      onExit: []
+    },
+    [STATES.PLACEMENT]: {
+      subTransitionTrigger: () => subscribe(placementTrigger, transition),
+      unsubTransitionTrigger: () => unsubscribe(placementTrigger, transition),
+      onEnter: [],
+      onExit: []
+    },
+    [STATES.PROGRESS]: {
+      subTransitionTrigger: () => subscribe(progressTrigger, transition),
+      unsubTransitionTrigger: () => unsubscribe(progressTrigger, transition),
+      onEnter: [],
+      onExit: []
+    }
+  };
+  const setCurrentState = (state) => (states.current = state);
+  const subCurrentTransitionTrigger = () => states[states.current].subTransitionTrigger();
+  const unsubCurrentTransitionTrigger = () => states[states.current].unsubTransitionTrigger();
+
+  const startGame = () => {
+    setCurrentState(STATES.START);
+    subCurrentTransitionTrigger();
   };
 
-  const enable = () =>
-    globalEmitter.subscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
+  const execute = (callbacks) => callbacks.forEach((fn) => fn());
+  const executeCurrentExit = () => execute(states[states.current][FN_TYPES.EXIT]);
+  const executeCurrentEnter = () => execute(states[states.current][FN_TYPES.ENTER]);
 
-  const disable = () =>
-    globalEmitter.unsubscribe(GAME_EVENTS.STATE_CHANGED, stateManagerRegistry.transition);
-
-  const publishStateTransition = (state) => {
-    globalEmitter.publish(GAME_EVENTS.STATE_CHANGED, state);
-  };
-  const publishPlayerSwitched = () => globalEmitter.publish(GAME_EVENTS.PLAYER_SWITCHED);
-
-  const transition = () => {
-    const state = stateManagerRegistry.getCurrentState();
-    switch (state) {
+  const getNextState = () => {
+    switch (states.current) {
       case null:
-        publishStateTransition(STATES.START);
-        break;
+        return STATES.START;
       case STATES.START:
-        publishStateTransition(STATES.PLACEMENT);
-        break;
+        return STATES.PLACEMENT;
       case STATES.PLACEMENT:
-        publishStateTransition(STATES.PROGRESS);
-        break;
+        return STATES.PROGRESS;
       case STATES.PROGRESS:
-        publishStateTransition(STATES.OVER);
-        break;
+        return STATES.OVER;
       case STATES.OVER:
-        break;
+        return null;
     }
   };
 
+  const transition = () => {
+    unsubCurrentTransitionTrigger();
+    executeCurrentExit();
+    setCurrentState(getNextState());
+    subCurrentTransitionTrigger();
+    executeCurrentEnter();
+  };
+
+  const resetGame = () => {
+    unsubCurrentTransitionTrigger();
+    executeCurrentEnter();
+    setCurrentState(null);
+  };
+
   return {
-    initialize,
-    transition,
-    enable,
-    disable,
-    publishPlayerSwitched
+    addOnStateEnter: (state, fn) => states[state].onEnter.push(fn),
+    addOnStateExit: (state, fn) => states[state].onExit.push(fn),
+    startGame,
+    resetGame
   };
 };

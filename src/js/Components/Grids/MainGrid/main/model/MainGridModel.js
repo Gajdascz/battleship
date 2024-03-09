@@ -8,16 +8,13 @@ import {
 import { LETTER_AXES, STATUSES } from '../../../../../Utility/constants/common';
 import { EntityPlacementManager } from './EntityPlacementManager';
 
-export const MainGridModel = (
-  gridScope,
-  { numberOfRows = 10, numberOfCols = 10, letterAxis = LETTER_AXES.ROW } = {}
-) => {
+export const MainGridModel = ({
+  numberOfRows = 10,
+  numberOfCols = 10,
+  letterAxis = LETTER_AXES.ROW
+} = {}) => {
   if (numberOfRows > 26 || numberOfCols > 26)
     throw new Error('Board cannot have more than 26 rows or columns.');
-  const { scope, id, scopedID } = createIdentity({
-    scope: gridScope,
-    name: 'mainGrid'
-  });
   const mainGrid = createGrid(numberOfRows, numberOfCols, { status: STATUSES.EMPTY, id: null });
   const maxVertical = mainGrid.length - 1;
   const maxHorizontal = mainGrid[0].length - 1;
@@ -57,9 +54,6 @@ export const MainGridModel = (
     getMaxVertical: () => maxVertical,
     getMaxHorizontal: () => maxHorizontal,
     getDimensions: () => ({ width: mainGrid[0].length, height: mainGrid.length }),
-    getID: () => id,
-    getScope: () => scope,
-    getScopedID: () => scopedID,
     reset() {
       mainGrid.length = 0;
       entityPlacementManager.reset();

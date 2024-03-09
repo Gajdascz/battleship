@@ -1,14 +1,8 @@
 import { ORIENTATIONS, STATUSES } from '../../../../Utility/constants/common';
-import { createIdentity } from '../../../../Utility/utils/createIdentity';
-
-export const ShipModel = (shipScope, { shipLength, shipName }) => {
-  const { scope, id, scopedID, name } = createIdentity({
-    scope: shipScope,
-    name: shipName
-  });
-
+export const ShipModel = ({ shipLength, shipName }) => {
   const length = shipLength;
   const placedCoordinates = [];
+  const name = shipName;
   let isPlaced = false;
   let isSelected = false;
   let health = length;
@@ -19,9 +13,6 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
     isSunk: () => health <= 0,
     isSelected: () => isSelected,
     isPlaced: () => isPlaced,
-    getId: () => id,
-    getScope: () => scope,
-    getScopedID: () => scopedID,
     getLength: () => length,
     getName: () => name,
     getHealth: () => health,
@@ -44,7 +35,6 @@ export const ShipModel = (shipScope, { shipLength, shipName }) => {
     reset: () => {
       placedCoordinates.length = 0;
       health = length;
-      shipName = shipScope;
       isSelected = false;
     }
   };

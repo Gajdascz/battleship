@@ -7,8 +7,8 @@ import { CombatManagerFactory } from './features/combat/TrackingGridCombatManage
 import { EventEmitter } from '../../../Events/core/EventEmitter';
 import { EventHandler } from '../../../Events/management/EventHandler';
 
-export const TrackingGridController = (scope, { numberOfRows, numberOfCols, letterAxis }) => {
-  const model = TrackingGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
+export const TrackingGridController = ({ numberOfRows, numberOfCols, letterAxis }) => {
+  const model = TrackingGridModel({ numberOfRows, numberOfCols, letterAxis });
   const view = TrackingGridView({ numberOfRows, numberOfCols, letterAxis });
 
   const emitter = EventEmitter();

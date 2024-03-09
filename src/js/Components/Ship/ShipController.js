@@ -7,9 +7,9 @@ import { CombatManagerFactory } from './features/combat/ShipCombatManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
 import { EventHandler } from '../../Events/management/EventHandler';
 
-export const ShipController = (scope, shipData) => {
+export const ShipController = (shipData) => {
   const { name, length } = shipData;
-  const model = ShipModel(scope, { shipName: name, shipLength: length });
+  const model = ShipModel({ shipName: name, shipLength: length });
   const view = ShipView({ name, length });
 
   const emitter = EventEmitter();
@@ -18,7 +18,6 @@ export const ShipController = (scope, shipData) => {
 
   const getId = () => model.getId();
   const getName = () => model.getName();
-  const getScope = () => model.getScope();
 
   const getMainShipElement = () => view.elements.getMainShip();
   const getTrackingShipElement = () => view.elements.getTrackingShip();
@@ -34,8 +33,7 @@ export const ShipController = (scope, shipData) => {
     getCombatManager,
     properties: {
       getId,
-      getName,
-      getScope
+      getName
     },
     view: {
       getMainShipElement,

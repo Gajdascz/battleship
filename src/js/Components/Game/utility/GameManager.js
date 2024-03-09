@@ -12,47 +12,55 @@ const CLASSES = {
   GAME_CONTAINER: 'game-container'
 };
 const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
+const EVENTS = {
+  END_TURN: 'turnEnded',
+  START_TURN: 'turnStarted',
+  SEND_ATTACK: 'sendAttack',
+  INCOMING_ATTACK_PROCESSED: 'incomingAttackProcessed',
+  SENT_ATTACK_RESULT_RECEIVED: 'sentAttackResultReceived'
+};
+const configureBoardControllers = (emitter, p1, p2) => {
+  const getEmitterBundles = (emitter, p1Id, p2Id) => ({
+    [p1Id]: {
+      emitter,
+      getPlayerEventKey: createEventKeyGenerator(p1Id),
+      getOpponentEventKey: createEventKeyGenerator(p2Id)
+    },
+    [p2Id]: {
+      emitter,
+      getPlayerEventKey: createEventKeyGenerator(p2Id),
+      getOpponentEventKey: createEventKeyGenerator(p1Id)
+    }
+  });
+  const emitterBundles = getEmitterBundles(emitter, p1, p2);
+};
 
 const createPlayer = (playerSettings, boardSettings, shipData, gameMode) => {
-  const getEmitterBundles = (emitter, p1Id, p2Id) => {
-    const p1KeyGenerator = createEventKeyGenerator(p1Id);
-    const p2KeyGenerator = createEventKeyGenerator(p2Id);
-    return {
-      [p1Id]: { emitter, getPlayerKey: p1KeyGenerator, getOpponentKey: p2KeyGenerator },
-      [p2Id]: { emitter, getPlayerKey: p2KeyGenerator, getOpponentKey: p1KeyGenerator }
-    };
-  };
-  const initializeHumanPlayer = (settings) => {
-    const { username, id, type } = settings;
+  const initializeHumanPlayer = (playerSettings) => {
+    const { username, id, type } = playerSettings;
     const playerModel = PlayerModel({ playerName: username, playerType: type, playerId: id });
-    return initializeControllers(playerModel.getName(), playerModel.getId()).board;
+    const name = playerModel.getName();
+    const controllers = initializePlayerControllers(playerModel.getName(), playerModel.getId());
+    return { id, name, controllers };
   };
   const initializeAIPlayer = (settings) => {
     const { difficulty } = settings;
-    return AIController({ difficulty, boardSettings, shipData }).board;
+    return AIController({ difficulty, boardSettings, shipData });
   };
-  const initializeControllers = (playerName, playerID) => {
-    const scope = playerID;
-    const initializeFleetController = () => {
-      const controller = FleetController(scope);
-      shipData.forEach((ship) => controller.assignShipToFleet(ShipController(scope, ship)));
-      return controller;
+  const initializePlayerControllers = (playerName, playerId) => {
+    const controllers = {
+      fleet: FleetController(shipData.map((ship) => ShipController(ship))),
+      mainGrid: MainGridController(boardSettings),
+      trackingGrid: TrackingGridController(boardSettings)
     };
-    const initializeGridControllers = () => ({
-      mainGrid: MainGridController(scope, boardSettings),
-      trackingGrid: TrackingGridController(scope, boardSettings)
-    });
-
-    const fleet = initializeFleetController();
-    const { mainGrid, trackingGrid } = initializeGridControllers();
     const board = BoardController({
-      playerId: scope,
+      playerId,
       playerName,
       displayContainer: gameContainer,
       gameMode,
-      controllers: { fleet, mainGrid, trackingGrid }
+      controllers
     });
-    return { fleet, mainGrid, trackingGrid, board };
+    return controllers;
   };
   if (playerSettings.type === PLAYERS.TYPES.AI) return initializeAIPlayer(playerSettings);
   else return initializeHumanPlayer(playerSettings);

@@ -1,25 +1,27 @@
-import { AI_PLACEMENT_EVENTS } from '../../common/aiEvents';
 import { PlacementCoordinatesGenerator } from './PlacementCoordinatesGenerator';
 
-export const PlacementManager = (model, componentEmitter) => {
+export const PlacementManager = ({
+  mainGrid,
+  placeOnGrid,
+  fleetData,
+  placeShip,
+  isAllShipsPlaced,
+  onEnd
+}) => {
   /**
    * Randomly places the AI's fleet onto it's board's main grid.
    * @returns {void}
    */
   const placeShips = () => {
-    const placementGenerator = PlacementCoordinatesGenerator(model.mainGrid.get());
-    const placements = placementGenerator.calculateRandomShipPlacements(model.fleet.getData());
+    const placementGenerator = PlacementCoordinatesGenerator(mainGrid);
+    const placements = placementGenerator.calculateRandomShipPlacements(fleetData);
     placements.forEach(({ id, placement }) => {
-      model.mainGrid.place(id, placement[0], placement[placement.length - 1]);
-      model.fleet.setShipPlacementCoordinates(id, placement);
+      placeOnGrid(id, placement[0], placement[placement.length - 1]);
+      placeShip(id, placement);
     });
-    if (!model.fleet.isAllShipsPlaced())
-      throw new Error('AI Error: Not all ships placed after placeShips()');
-    else {
-      componentEmitter.unsubscribe(AI_PLACEMENT_EVENTS.PLACE_SHIPS, placeShips);
-      componentEmitter.publish(AI_PLACEMENT_EVENTS.SHIPS_PLACED);
-    }
+    if (!isAllShipsPlaced()) throw new Error('AI Error: Not all ships placed after placeShips()');
+    else onEnd();
   };
 
-  componentEmitter.subscribe(AI_PLACEMENT_EVENTS.PLACE_SHIPS, placeShips);
+  return { placeShips };
 };

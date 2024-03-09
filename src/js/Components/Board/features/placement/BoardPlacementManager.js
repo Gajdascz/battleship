@@ -1,5 +1,4 @@
-import { BOARD_PLACEMENT_EVENTS } from '../../common/boardEvents';
-export const BoardPlacementManager = ({ placementView, placementManagers, emitter }) => {
+export const BoardPlacementManager = ({ placementView, placementManagers, onEnd }) => {
   const { fleet, mainGrid } = placementManagers;
   console.log(fleet);
   let isInitialized = false;
@@ -29,7 +28,7 @@ export const BoardPlacementManager = ({ placementView, placementManagers, emitte
     fleet.end();
     placementView.endTurn();
     isInitialized = false;
-    emitter.publish(BOARD_PLACEMENT_EVENTS.END);
+    onEnd();
   };
 
   return {

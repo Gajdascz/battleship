@@ -5,9 +5,9 @@ import { EventEmitter } from '../../../Events/core/EventEmitter';
 import { PlacementManagerFactory } from './features/placement/MainGridPlacementManager';
 import { EventHandler } from '../../../Events/management/EventHandler';
 
-export const MainGridController = (scope, boardConfig) => {
+export const MainGridController = (boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;
-  const model = MainGridModel(scope, { numberOfRows, numberOfCols, letterAxis });
+  const model = MainGridModel({ numberOfRows, numberOfCols, letterAxis });
   const view = MainGridView({ numberOfRows, numberOfCols, letterAxis });
   const emitter = EventEmitter();
   const createHandler = (eventName, callback = (args) => args) =>
