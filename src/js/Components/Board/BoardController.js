@@ -2,7 +2,6 @@
 import { BoardPlacementManager } from './features/placement/BoardPlacementManager';
 import { BoardCombatManager } from './features/combat/BoardCombatManager';
 import { BoardView } from './main/view/BoardView';
-import { BOARD_COMBAT_EVENTS, BOARD_PLACEMENT_EVENTS } from './common/boardEvents';
 
 export const BoardController = ({
   playerId,
@@ -10,8 +9,7 @@ export const BoardController = ({
   controllers,
   gameMode,
   displayContainer,
-  emitterBundle,
-  events
+  gameCoordinator
 }) => {
   const { fleet, mainGrid, trackingGrid } = controllers;
   const viewParameters = {
@@ -27,32 +25,36 @@ export const BoardController = ({
   };
   const view = BoardView(viewParameters);
 
-  const { emitter, getPlayerEventKey, getOpponentEventKey, EVENTS } = emitterBundle;
+  const {
+    placement: placementCoordinator,
+    combat: combatCoordinator,
+    getPlayerEventKey
+  } = gameCoordinator;
 
-  const { placementsFinalized } = events;
-
-  const endTurn = () => emitter.publish(getPlayerEventKey(EVENTS.END_TURN));
-
-  const placement = {
+  const placementManager = {
     manager: null,
-    onEnd: () => {
-      placement.manager = null;
-      endTurn();
-    },
+    isInitialized: false,
     initialize: () => {
-      placement.manager = BoardPlacementManager({
+      if (placementManager.isInitialized) return;
+      placementManager.manager = BoardPlacementManager({
         placementView: view.placement,
         placementManagers: {
           fleet: fleet.getPlacementManager(),
           mainGrid: mainGrid.getPlacementManager()
         },
-        onEnd: placement.onEnd
+        placementCoordinator
       });
+      placementManager.manager.initialize();
+      placementManager.isInitialized = true;
     },
-    start: () => {
-      if (!placement.manager) placement.initialize();
-      placement.manager.start();
-    }
+    startTurn: () => placementManager.manager.startTurn(),
+    endTurn: () => {
+      if (!placementManager.isInitialized) return;
+      placementManager.manager.endTurn();
+      placementManager.isInitialized = false;
+      placementManager.manager = null;
+    },
+    isOver: () => placementManager.manager.isOver()
   };
 
   return {
@@ -60,11 +62,8 @@ export const BoardController = ({
     getPlayerName: () => playerName,
     acceptTrackingFleet: (fleet) => view.acceptTrackingFleet(fleet),
     provideTrackingFleet: () => view.provideTrackingFleet(),
-    placement: {
-      onEnd: (callback) => placement.onEnd(callback),
-      startTurn: () => placement.startTurn(),
-      isOver: () => placement.isOver
-    },
+    getPlayerEventKey,
+    placementManager,
     view
   };
 };

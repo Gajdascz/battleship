@@ -8,9 +8,7 @@ import { AIFleetModel } from './components/Fleet/AIFleetModel';
 import { AIShipModel } from './components/Ship/AIShipModel';
 import { AI_NAMES, STATUSES } from './common/constants';
 
-import { PlacementCoordinatesGenerator } from './features/placement/PlacementCoordinatesGenerator';
 import { AIView } from './AIView';
-import { GameStateManager } from '../Game/GameStateManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
 import { AI_COMBAT_EVENTS, AI_PLACEMENT_EVENTS } from './common/aiEvents';
 import { PlacementManager } from './features/placement/PlacementManager';
@@ -44,68 +42,48 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
 
   const sendAttack = getAttackStrategy();
 
-  const placement = {
-    manager: null,
-    onEnd: () => {
-      placement.manager = null;
-      endTurn();
-    },
-    initialize: () => {
-      placement.manager = BoardPlacementManager({
-        placementView: view.placement,
-        placementManagers: {
-          fleet: fleet.getPlacementManager(),
-          mainGrid: mainGrid.getPlacementManager()
-        },
-        onEnd: placement.onEnd
-      });
-    },
-    start: () => {
-      if (!placement.manager) placement.initialize();
-      placement.manager.start();
-    }
-  };
-
-  const combat = {
-    initialize: () => {
-      CombatManager({
-        model,
-        componentEmitter
-      });
-      publish(AI_COMBAT_EVENTS.INITIALIZE);
-    },
-    endCallbacks: [],
-    onEnd: (callback) => {
-      combat.endCallbacks.push(callback);
-      subscribe(AI_COMBAT_EVENTS.END, callback);
-    },
-    offEnd: () => {
-      combat.endCallbacks.forEach((callback) => unsubscribe(AI_COMBAT_EVENTS.END, callback));
-      combat.endCallbacks = [];
-    },
-    sendAttack: () => publish(AI_COMBAT_EVENTS.SEND_ATTACK),
-    onAttackSent: (callback) => subscribe(AI_COMBAT_EVENTS.ATTACK_SENT, callback),
-    offAttackSent: (callback) => unsubscribe(AI_COMBAT_EVENTS.ATTACK_SENT, callback),
-    handleSentAttackResult: (result) =>
-      publish(AI_COMBAT_EVENTS.PROCESS_SENT_ATTACK_RESULT, result),
-    handleIncomingAttack: (coordinates) => publish(AI_COMBAT_EVENTS.INCOMING_ATTACK, coordinates),
-    onIncomingAttackProcessed: (callback) =>
-      subscribe(AI_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, callback),
-    offIncomingAttackProcessed: (callback) =>
-      unsubscribe(AI_COMBAT_EVENTS.INCOMING_ATTACK_PROCESSED, callback)
-  };
-
   const getId = () => model.properties.getId();
+  const getName = () => model.properties.getName();
   const getTrackingGrid = () => view.trackingGrid.elements.getGrid();
   const getTrackingFleet = () => view.fleet.getTrackingFleet();
 
+  let gameCoordinator = null;
+
+  const placement = {
+    manager: null,
+    initialize: () => {
+      placement.manager = PlacementManager({
+        mainGrid: model.mainGrid.get(),
+        placeOnGrid: model.mainGrid.place,
+        fleetData: model.fleet.getData(),
+        isAllShipsPlaced: model.fleet.isAllShipsPlaced,
+        placementCoordinator: gameCoordinator.placement
+      });
+    },
+    startTurn: () => placement.manager.startTurn(),
+    endTurn: () => placement.manager.endTurn(),
+    isOver: () => placement.manager.isOver()
+  };
+
+  const board = {
+    getId: () => getId(),
+    getPlayerName: () => getName(),
+    provideTrackingGrid: () => getTrackingGrid(),
+    provideTrackingFleet: () => getTrackingFleet(),
+    setGameCoordinator: (coordinator) => (gameCoordinator = coordinator),
+    placement: {
+      initialize: placement.initialize,
+      startTurn: placement.startTurn,
+      endTurn: placement.endTurn,
+      isOver: placement.isOver
+    }
+  };
+
   return {
     getPlayerModel: () => model.properties,
-    board: {
-      getId: () => model.properties.getId(),
-      getPlayerName: () => model.properties.getName()
-    },
+    getId,
     isAllShipsSunk: () => model.fleet.isAllShipsSunk(),
-    sendAttack
+    sendAttack,
+    board
   };
 };

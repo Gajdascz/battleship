@@ -13,18 +13,6 @@ export const FleetController = (fleetShipControllers) => {
   const createHandler = (eventName, callback = (args) => args) =>
     EventHandler(emitter, eventName, callback);
 
-  const assignShipToFleet = (shipController) => {
-    const shipModel = shipController.getModel();
-    const shipId = shipModel.getId();
-    model.addMainShip(shipId, shipModel);
-    shipControllers.set(shipId, shipController);
-    view.addShipView(shipId, shipController.getView());
-    view.populateFleetShipLists();
-    placement.addShipPlacementManager(shipId, shipController.getPlacementManager());
-  };
-
-  if (fleetShipControllers) fleetShipControllers.forEach(assignShipToFleet);
-
   const placement = {
     manager: null,
     shipPlacementManagers: new Map(),
@@ -60,7 +48,17 @@ export const FleetController = (fleetShipControllers) => {
       return combat.manager.getManager();
     }
   };
+  const assignShipToFleet = (shipController) => {
+    const shipModel = shipController.getModel();
+    const shipId = shipModel.getId();
+    model.addMainShip(shipId, shipModel);
+    shipControllers.set(shipId, shipController);
+    view.addShipView(shipId, shipController.getView());
+    view.populateFleetShipLists();
+    placement.addShipPlacementManager(shipId, shipController.getPlacementManager());
+  };
 
+  if (fleetShipControllers) fleetShipControllers.forEach(assignShipToFleet);
   return {
     getPlacementManager: () => placement.getPlacementManager(),
     getCombatManager: () => combat.getCombatManager(),

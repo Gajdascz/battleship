@@ -15,17 +15,19 @@ export const StrategyHvA = (init, views, display, remove, acceptTrackingFleet) =
       buttonManager = mainGridButtonManager;
     },
     placement: {
+      initialize: () => {
+        const updateRotateButton = ({ data }) => {
+          const { id } = data;
+          buttonManager.updateButton('rotate-ship', fleet.getRotateShipButton(id));
+        };
+        return updateRotateButton;
+      },
       startTurn: () => {
         trackingGrid.disable();
         trackingGrid.hide();
         buttonManager.addButton('submit-placements', mainGrid.getSubmitButton());
         buttonManager.addWrapper('rotate-ship');
-        const updateRotateButton = ({ data }) => {
-          const { id } = data;
-          buttonManager.updateButton('rotate-ship', fleet.getRotateShipButton(id));
-        };
         display();
-        return updateRotateButton;
       },
       endTurn: () => {
         buttonManager.removeWrapper('submit-placements');

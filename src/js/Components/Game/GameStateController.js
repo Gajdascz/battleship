@@ -4,10 +4,9 @@ const FN_TYPES = {
   ENTER: 'onEnter',
   EXIT: 'onExit'
 };
-export const GameStateController = (emitter, transitionTriggers) => {
+export const GameStateController = ({ emitter, transitionTriggers }) => {
   const { subscribe, unsubscribe } = emitter;
   const { startTrigger, placementTrigger, progressTrigger } = transitionTriggers;
-
   const states = {
     current: null,
     [STATES.START]: {
@@ -34,8 +33,13 @@ export const GameStateController = (emitter, transitionTriggers) => {
   const unsubCurrentTransitionTrigger = () => states[states.current].unsubTransitionTrigger();
 
   const startGame = () => {
+    if (states.current) {
+      executeCurrentExit();
+      unsubCurrentTransitionTrigger();
+    }
     setCurrentState(STATES.START);
     subCurrentTransitionTrigger();
+    executeCurrentEnter();
   };
 
   const execute = (callbacks) => callbacks.forEach((fn) => fn());
@@ -67,14 +71,26 @@ export const GameStateController = (emitter, transitionTriggers) => {
 
   const resetGame = () => {
     unsubCurrentTransitionTrigger();
-    executeCurrentEnter();
+    executeCurrentExit();
     setCurrentState(null);
   };
 
+  const addOnStateEnter = (state, fn) => states[state].onEnter.push(fn);
+  const addOnStateExit = (state, fn) => states[state].onExit.push(fn);
+
   return {
-    addOnStateEnter: (state, fn) => states[state].onEnter.push(fn),
-    addOnStateExit: (state, fn) => states[state].onExit.push(fn),
+    addOnEnterTo: {
+      start: (fn) => addOnStateEnter(STATES.START, fn),
+      placement: (fn) => addOnStateEnter(STATES.PLACEMENT, fn),
+      progress: (fn) => addOnStateEnter(STATES.PROGRESS, fn)
+    },
+    addOnExitTo: {
+      start: (fn) => addOnStateExit(STATES.START, fn),
+      placement: (fn) => addOnStateExit(STATES.PLACEMENT, fn),
+      progress: (fn) => addOnStateExit(STATES.PROGRESS, fn)
+    },
     startGame,
+    transition,
     resetGame
   };
 };
