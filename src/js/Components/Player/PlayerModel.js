@@ -11,6 +11,7 @@ export const PlayerModel = ({ playerName = '', playerType, playerId }) => {
     else return name.trim();
   }
   return {
+    id,
     isPlayer: () => true,
     getName: () => name,
     getId: () => id,

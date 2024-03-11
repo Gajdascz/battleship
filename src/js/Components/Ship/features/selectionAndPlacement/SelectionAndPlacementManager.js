@@ -39,8 +39,8 @@ const ShipSelectionAndPlacementManager = ({ model, view, createHandler }) => {
     request: () => select.handler.emit(),
     deselect: () => selectionController.deselect(),
     getData: () => ({
-      id: model.getId(),
-      length: model.getLength(),
+      id: model.id,
+      length: model.length,
       orientation: model.getOrientation()
     }),
     on: (callback) => select.handler.on(callback),

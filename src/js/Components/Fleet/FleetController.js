@@ -50,7 +50,7 @@ export const FleetController = (fleetShipControllers) => {
   };
   const assignShipToFleet = (shipController) => {
     const shipModel = shipController.getModel();
-    const shipId = shipModel.getId();
+    const shipId = shipModel.id;
     model.addMainShip(shipId, shipModel);
     shipControllers.set(shipId, shipController);
     view.addShipView(shipId, shipController.getView());

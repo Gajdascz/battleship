@@ -3,20 +3,20 @@ export const ShipModel = ({ shipLength, shipName }) => {
   const length = shipLength;
   const placedCoordinates = [];
   const name = shipName;
-  const id = shipName.toLowerCase().replace(/' '/g, '-');
+  const id = shipName.toLowerCase().replace(/ /g, '-');
   let isPlaced = false;
   let isSelected = false;
   let health = length;
   let orientation = ORIENTATIONS.VERTICAL;
 
   return {
+    id,
+    length,
+    name,
     isShip: () => true,
     isSunk: () => health <= 0,
     isSelected: () => isSelected,
     isPlaced: () => isPlaced,
-    getId: () => id,
-    getLength: () => length,
-    getName: () => name,
     getHealth: () => health,
     getOrientation: () => orientation,
     getPlacedCoordinates: () => placedCoordinates.map((coordinates) => [...coordinates]),

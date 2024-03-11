@@ -1,6 +1,5 @@
 export const EventHandler = (emitter, eventName, preEmitCallback = (args) => args) => {
   const { publish, subscribe, unsubscribe } = emitter;
-  console.log(eventName, preEmitCallback);
   const validateCallback = (fn, at = '') => {
     if (!(fn && typeof fn === 'function'))
       throw new Error(`${eventName} passed invalid function at ${at}`);
@@ -11,7 +10,6 @@ export const EventHandler = (emitter, eventName, preEmitCallback = (args) => arg
   let callback = preEmitCallback;
   const emit = (args) => {
     const payload = callback(args);
-    console.log(`${eventName} | ${payload}`);
     publish(eventName, payload);
   };
   const on = (callback) => {

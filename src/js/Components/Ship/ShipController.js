@@ -11,13 +11,11 @@ export const ShipController = (shipData) => {
   const { name, length } = shipData;
   const model = ShipModel({ shipName: name, shipLength: length });
   const view = ShipView({ name, length });
+  const id = model.id;
 
   const emitter = EventEmitter();
   const createHandler = (eventName, callback = (args) => args) =>
     EventHandler(emitter, eventName, callback);
-
-  const getId = () => model.getId();
-  const getName = () => model.getName();
 
   const getMainShipElement = () => view.elements.getMainShip();
   const getTrackingShipElement = () => view.elements.getTrackingShip();
@@ -29,12 +27,10 @@ export const ShipController = (shipData) => {
   const getCombatManager = () => combatManager.getManager();
 
   return {
+    id,
+    name,
     getPlacementManager,
     getCombatManager,
-    properties: {
-      getId,
-      getName
-    },
     view: {
       getMainShipElement,
       getTrackingShipElement

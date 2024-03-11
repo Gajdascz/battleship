@@ -15,6 +15,10 @@ import { PlacementManager } from './features/placement/PlacementManager';
 import { CombatManager } from './features/combat/CombatManager';
 import { BoardController } from '../Board/BoardController';
 
+const AI_EVENTS = {
+  PLACEMENTS_FINISHED: 'placementsFinished'
+};
+
 export const AIController = ({ difficulty, boardSettings, shipData }) => {
   const mainGridModel = AIMainGridModel(boardSettings.numberOfRows, boardSettings.numberOfCols);
   const trackingGridModel = AITrackingGridModel(
@@ -36,52 +40,60 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     mainGridModel,
     trackingGridModel
   });
-  const view = AIView(boardSettings, model.properties.getName(), shipNames);
+  const view = AIView(boardSettings, model.properties.name, shipNames);
 
   const getAttackStrategy = () => model.moves.getRandomMove;
 
   const sendAttack = getAttackStrategy();
 
-  const getId = () => model.properties.getId();
-  const getName = () => model.properties.getName();
+  const id = model.properties.id;
+  const name = model.properties.name;
   const getTrackingGrid = () => view.trackingGrid.elements.getGrid();
   const getTrackingFleet = () => view.fleet.getTrackingFleet();
+
+  const emitter = EventEmitter();
+  const { publish, subscribe, unsubscribe } = emitter;
 
   let gameCoordinator = null;
 
   const placement = {
     manager: null,
     initialize: () => {
+      const pub = () => publish(AI_EVENTS.PLACEMENTS_FINISHED);
+      const unsub = () => unsubscribe(AI_EVENTS.PLACEMENTS_FINISHED, placement.manager.endTurn);
       placement.manager = PlacementManager({
         mainGrid: model.mainGrid.get(),
         placeOnGrid: model.mainGrid.place,
+        setShipPlacementCoordinates: model.fleet.setShipPlacementCoordinates,
         fleetData: model.fleet.getData(),
         isAllShipsPlaced: model.fleet.isAllShipsPlaced,
-        placementCoordinator: gameCoordinator.placement
+        placementCoordinator: gameCoordinator.placement,
+        resetController: placement.resetController,
+        unsub,
+        pub
       });
+      subscribe(AI_EVENTS.PLACEMENTS_FINISHED, placement.manager.endTurn);
+      placement.manager.initialize();
     },
-    startTurn: () => placement.manager.startTurn(),
-    endTurn: () => placement.manager.endTurn(),
-    isOver: () => placement.manager.isOver()
+    resetController: () => (placement.manager = null),
+    getManager: () => {
+      if (!placement.manager) placement.initialize();
+      return placement.manager;
+    }
   };
 
   const board = {
-    getId: () => getId(),
-    getPlayerName: () => getName(),
+    id,
+    name,
     provideTrackingGrid: () => getTrackingGrid(),
     provideTrackingFleet: () => getTrackingFleet(),
     setGameCoordinator: (coordinator) => (gameCoordinator = coordinator),
-    placement: {
-      initialize: placement.initialize,
-      startTurn: placement.startTurn,
-      endTurn: placement.endTurn,
-      isOver: placement.isOver
-    }
+    getPlacementManager: () => placement.getManager()
   };
 
   return {
     getPlayerModel: () => model.properties,
-    getId,
+    id,
     isAllShipsSunk: () => model.fleet.isAllShipsSunk(),
     sendAttack,
     board
