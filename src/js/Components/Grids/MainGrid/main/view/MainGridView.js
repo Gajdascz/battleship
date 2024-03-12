@@ -2,12 +2,6 @@ import { MAIN_GRID } from '../../common/mainGridConstants';
 import { buildMainGridUIObj } from './buildMainGridUIObj';
 import './main-grid-styles.css';
 
-const ELEMENT_IDS = {
-  GRID: 'mainGrid',
-  WRAPPER: 'mainGridWrapper',
-  SUBMIT_PLACEMENTS_BUTTON: 'submitPlacementsButton'
-};
-
 export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
   const { wrappedMainGridElement, submitPlacementsButtonElement } = buildMainGridUIObj({
     numberOfRows,
@@ -24,6 +18,10 @@ export const MainGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
     getCell,
     attachTo: (container) => container.append(wrappedMainGridElement),
     attachWithinWrapper: (element) => wrappedMainGridElement.append(element),
+    displayShipHit: (coordinates) => {
+      const cell = getCell(coordinates);
+      cell.classList.add(MAIN_GRID.CLASSES.HIT_MARKER);
+    },
     elements: {
       getWrapper: () => wrappedMainGridElement,
       getGrid: () => mainGridElement,

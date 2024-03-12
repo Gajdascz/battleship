@@ -56,6 +56,7 @@ export const FleetController = (fleetShipControllers) => {
     view.addShipView(shipId, shipController.getView());
     view.populateFleetShipLists();
     placement.addShipPlacementManager(shipId, shipController.getPlacementManager());
+    combat.addShipCombatManager(shipId, shipController.getCombatManager());
   };
 
   if (fleetShipControllers) fleetShipControllers.forEach(assignShipToFleet);

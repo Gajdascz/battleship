@@ -26,11 +26,16 @@ export const BoardController = ({
     }
   };
   const view = BoardView(viewParameters);
-  const { placement: placementCoordinator, combat: combatCoordinator } = gameCoordinator;
+  const {
+    placement: placementCoordinator,
+    combat: combatCoordinator,
+    subscribeEndTurn,
+    unsubscribeEndTurn
+  } = gameCoordinator;
 
   const placement = {
     manager: null,
-    initialize: () => {
+    initializeController: () => {
       if (placement.manager) return;
       placement.manager = BoardPlacementManager({
         placementView: view.placement,
@@ -41,12 +46,35 @@ export const BoardController = ({
         placementCoordinator,
         resetController: placement.resetController
       });
-      placement.manager.initialize();
     },
     resetController: () => (placement.manager = null),
     getManager: () => {
-      if (!placement.manager) placement.initialize();
+      if (!placement.manager) placement.initializeController();
       return placement.manager;
+    }
+  };
+
+  const combat = {
+    manager: null,
+    initializeController: () => {
+      if (combat.manager) return;
+      combat.manager = BoardCombatManager({
+        combatView: view.combat,
+        gameMode,
+        combatControllers: {
+          fleet: fleet.getCombatManager(),
+          trackingGrid: trackingGrid.getCombatManager()
+        },
+        processIncomingAttack: mainGrid.processIncomingAttack,
+        combatCoordinator,
+        resetController: combat.resetController
+      });
+      console.log(combat.manager);
+    },
+    resetController: () => (combat.manager = null),
+    getManager: () => {
+      if (!combat.manager) combat.initializeController();
+      return combat.manager;
     }
   };
 
@@ -56,6 +84,9 @@ export const BoardController = ({
     trackingFleet: view.provideTrackingFleet,
     acceptTrackingFleet: view.acceptTrackingFleet,
     getPlacementManager: placement.getManager,
+    getCombatManager: combat.getManager,
+    subscribeEndTurn,
+    unsubscribeEndTurn,
     view
   };
 };

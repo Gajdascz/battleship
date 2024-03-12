@@ -1,18 +1,6 @@
-import { MOUSE_EVENTS } from '../../Utility/constants/dom/domEvents';
-import { TrackingGridView } from '../Grids/TrackingGrid/main/view/TrackingGridView';
 import { AIShipView } from './components/Ship/AIShipView';
 import { AIFleetView } from './components/Fleet/AIFleetView';
 import { AITrackingGridView } from './components/TrackingGrid/AITrackingGridView';
-
-const AI_DISPLAY = {
-  CLASSES: {
-    GRID: 'ai-display-tracking-grid',
-    HEADER: 'ai-display-header'
-  },
-  TEXTS: {
-    HEADER: (aiName) => `${aiName}'s Attacks`
-  }
-};
 
 const buildAIFleet = (shipNames) => {
   const fleetView = AIFleetView();
@@ -26,6 +14,10 @@ const buildAIFleet = (shipNames) => {
 };
 export const AIView = (boardSettings, aiName, shipNames) => {
   const trackingGrid = AITrackingGridView(boardSettings, aiName);
+  trackingGrid.displayResult = (coordinates, result) => {
+    const cell = trackingGrid.getCell(coordinates);
+    trackingGrid.setCellStatus(cell, result);
+  };
   const fleet = buildAIFleet(shipNames);
   return { trackingGrid, fleet };
 };

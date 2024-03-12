@@ -6,14 +6,12 @@ import { AIMainGridModel } from './components/MainGrid/AIMainGridModel';
 import { AITrackingGridModel } from './components/TrackingGrid/AITrackingGridModel';
 import { AIFleetModel } from './components/Fleet/AIFleetModel';
 import { AIShipModel } from './components/Ship/AIShipModel';
-import { AI_NAMES, STATUSES } from './common/constants';
+import { AI_NAMES } from './common/constants';
 
 import { AIView } from './AIView';
 import { EventEmitter } from '../../Events/core/EventEmitter';
-import { AI_COMBAT_EVENTS, AI_PLACEMENT_EVENTS } from './common/aiEvents';
 import { PlacementManager } from './features/placement/PlacementManager';
 import { CombatManager } from './features/combat/CombatManager';
-import { BoardController } from '../Board/BoardController';
 
 const AI_EVENTS = {
   PLACEMENTS_FINISHED: 'placementsFinished'
@@ -25,12 +23,13 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     boardSettings.numberOfRows,
     boardSettings.numberOfCols
   );
+  const letterAxis = boardSettings.letterAxis;
   const fleetModel = AIFleetModel();
   const shipNames = [];
   shipData.forEach((ship) => {
     const shipModel = AIShipModel(ship.length, ship.name);
     fleetModel.addMainShip(shipModel);
-    fleetModel.addTrackingShip(shipModel.getID(), ship.length);
+    fleetModel.addTrackingShip(shipModel.id, ship.length);
     shipNames.push(shipModel.getName());
   });
   const model = AIModel({
@@ -40,7 +39,7 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
     mainGridModel,
     trackingGridModel
   });
-  const view = AIView(boardSettings, model.properties.name, shipNames);
+  const view = AIView(boardSettings, model.properties.getName(), shipNames);
 
   const getAttackStrategy = () => model.moves.getRandomMove;
 
@@ -58,9 +57,11 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
 
   const placement = {
     manager: null,
+    endTurn: null,
     initialize: () => {
-      const pub = () => publish(AI_EVENTS.PLACEMENTS_FINISHED);
-      const unsub = () => unsubscribe(AI_EVENTS.PLACEMENTS_FINISHED, placement.manager.endTurn);
+      const pubPlacementsFinalized = () => publish(AI_EVENTS.PLACEMENTS_FINISHED);
+      const unsubPlacementsFinalized = () =>
+        unsubscribe(AI_EVENTS.PLACEMENTS_FINISHED, placement.manager.endTurn);
       placement.manager = PlacementManager({
         mainGrid: model.mainGrid.get(),
         placeOnGrid: model.mainGrid.place,
@@ -69,11 +70,11 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
         isAllShipsPlaced: model.fleet.isAllShipsPlaced,
         placementCoordinator: gameCoordinator.placement,
         resetController: placement.resetController,
-        unsub,
-        pub
+        unsubPlacementsFinalized,
+        pubPlacementsFinalized
       });
+      placement.endTurn = placement.manager.endTurn;
       subscribe(AI_EVENTS.PLACEMENTS_FINISHED, placement.manager.endTurn);
-      placement.manager.initialize();
     },
     resetController: () => (placement.manager = null),
     getManager: () => {
@@ -81,14 +82,34 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
       return placement.manager;
     }
   };
-
+  const combat = {
+    manager: null,
+    initialize: () => {
+      combat.manager = CombatManager({
+        model,
+        view,
+        letterAxis,
+        setCellStatus: view.trackingGrid.setCellStatus,
+        combatCoordinator: gameCoordinator.combat,
+        resetController: combat.resetController
+      });
+    },
+    resetController: () => (combat.manager = null),
+    getManager: () => {
+      if (!combat.manager) combat.initialize();
+      return combat.manager;
+    }
+  };
   const board = {
     id,
     name,
     provideTrackingGrid: () => getTrackingGrid(),
     provideTrackingFleet: () => getTrackingFleet(),
     setGameCoordinator: (coordinator) => (gameCoordinator = coordinator),
-    getPlacementManager: () => placement.getManager()
+    getPlacementManager: () => placement.getManager(),
+    getCombatManager: () => combat.getManager(),
+    subscribeEndTurn: (callback) => gameCoordinator.subscribeEndTurn(callback),
+    unsubscribeEndTurn: (callback) => gameCoordinator.unsubscribeEndTurn(callback)
   };
 
   return {

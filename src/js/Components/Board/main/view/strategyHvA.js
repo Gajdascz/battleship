@@ -1,15 +1,11 @@
 import './board-style.css';
 
-export const StrategyHvA = (init, views, display, remove, acceptTrackingFleet) => {
+export const StrategyHvA = ({ initialize, views, display, acceptTrackingFleet }) => {
   const { mainGrid, trackingGrid, fleet } = views;
-  let aiTrackingGrid = null;
-  let aiTrackingFleet = null;
   let buttonManager = null;
   const strategy = {
     initialize: (aiGrid, aiFleet) => {
-      const { mainGridButtonManager } = init();
-      aiTrackingGrid = aiGrid;
-      aiTrackingFleet = aiFleet;
+      const { mainGridButtonManager } = initialize();
       trackingGrid.attachWithinWrapper(aiGrid);
       acceptTrackingFleet(aiFleet);
       buttonManager = mainGridButtonManager;
@@ -36,12 +32,11 @@ export const StrategyHvA = (init, views, display, remove, acceptTrackingFleet) =
       }
     },
     combat: {
-      onEnd: () => null,
-      setEndTurnFn: (endFn) => (strategy.combat.onEnd = endFn),
-      endTurn: () => {
-        trackingGrid.disable();
-        strategy.combat.onEnd();
-      }
+      onEndTurn: () => null,
+      startTurn: () => trackingGrid.enable(),
+      attackSent: () => trackingGrid.disable(),
+      setOnEndTurn: (onEndTurn) => (strategy.combat.onEndTurn = onEndTurn),
+      endTurn: () => strategy.combat.onEnd()
     }
   };
   return strategy;

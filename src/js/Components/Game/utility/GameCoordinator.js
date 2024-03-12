@@ -1,6 +1,6 @@
 import { AttackCoordinator } from './AttackCoordinator';
 import { BaseState } from './BaseState';
-import { EndTurnManager } from './EndTurnManger';
+import { TurnManager } from './TurnManager';
 /**
  * @module GameCoordinator
  * Coordinates the state-specific communication between two opponents using an event-driven architecture.
@@ -16,7 +16,10 @@ import { EndTurnManager } from './EndTurnManger';
 export const GameCoordinator = (emitterBundle) => {
   const isFn = (fn) => typeof fn === 'function';
   const resetFns = [];
-  const endTurnManager = EndTurnManager(emitterBundle);
+  const turnManager = TurnManager(emitterBundle);
+
+  const subscribeEndTurn = (callback) => turnManager.thisEnd.on(callback);
+  const unsubscribeEndTurn = (callback) => turnManager.thisEnd.off(callback);
 
   const implementStateBase = ({ state, callbacks }) => {
     const { initialize, startTurn, endTurn } = callbacks;
@@ -31,70 +34,63 @@ export const GameCoordinator = (emitterBundle) => {
       state,
       callbacks: {
         initialize: () => {},
-        startTurn: () => {},
-        endTurn: () => {
-          endTurnManager.publish();
-          endTurnManager.removeOnThisEnd();
-        }
+        startTurn: () => turnManager.publishStart(),
+        endTurn: () => turnManager.publishEnd()
       }
     });
     const reset = () => {
       state.reset();
-      endTurnManager.removeOnThisEnd();
-      endTurnManager.removeOnOtherEnd();
     };
     resetFns.push(() => reset);
     return {
       call: state.call,
-      extend: state.extend,
       add: state.add,
+      extend: state.extend,
       BASE_METHODS: state.BASE_METHODS,
-      onEndTurn: (callback) => endTurnManager.setOnThisEnd(callback),
       reset
     };
   };
 
   const CombatState = () => {
+    const { emitter, getPlayerEventKey, getOpponentEventKey } = emitterBundle;
     const state = BaseState();
     let coordinator = null;
     let hasStarted = null;
     const COMBAT_METHODS = {
       ...state.BASE_METHODS,
       SEND_ATTACK: 'sendAttack',
-      SEND_RESULT: 'sendResult',
-      END_STATE: 'endState'
+      SEND_RESULT: 'sendResult'
     };
     implementStateBase({
       state,
       callbacks: {
-        initialize: (incomingAttackHandler, sentAttackResultHandler) => {
+        initialize: ({ incomingAttackHandler, sentAttackResultHandler }) => {
           if (hasStarted) return;
           if (!isFn(incomingAttackHandler) || !isFn(sentAttackResultHandler))
             throw new Error('Cannot initialize combat with invalid handlers.');
           coordinator = AttackCoordinator({
             incomingAttackHandler,
             sentAttackResultHandler,
-            emitterBundle,
-            enableIncomingOn: endTurnManager.events.otherTurnEnded,
-            disableIncomingOn: endTurnManager.events.thisTurnEnded
+            emitterBundle
           });
-          coordinator.start();
           hasStarted = true;
+          turnManager.thisStart.on(coordinator.disableIncoming);
+          turnManager.otherStart.on(coordinator.enableIncoming);
         },
-        startTurn: () => {},
-        endTurn: () => {
-          coordinator.reset();
-          coordinator = null;
-          hasStarted = false;
-        }
+        startTurn: () => {
+          console.log(`${emitterBundle.getPlayerEventKey(`'s`)} started in coordinator`);
+          turnManager.publishStart();
+        },
+        endTurn: () => turnManager.publishEnd()
       }
     });
-    state.add(COMBAT_METHODS.END_STATE, () => {});
     state.add(COMBAT_METHODS.SEND_ATTACK, (coordinates) => coordinator.sendAttack(coordinates));
     state.add(COMBAT_METHODS.SEND_RESULT, (result) => coordinator.sendResult(result));
+
     const reset = () => {
       state.reset();
       coordinator.reset();
+      turnManager.reset();
     };
     resetFns.push(() => reset);
 
@@ -115,6 +111,8 @@ export const GameCoordinator = (emitterBundle) => {
   return {
     placement,
     combat,
+    subscribeEndTurn,
+    unsubscribeEndTurn,
     reset
   };
 };

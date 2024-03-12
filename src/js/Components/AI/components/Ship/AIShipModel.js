@@ -9,11 +9,11 @@ export const AIShipModel = (shipLength, shipName) => {
   let health = length;
 
   return {
+    id,
+    length,
     isShip: () => true,
     isSunk: () => health <= 0,
     isPlaced: () => placedCoordinates.length === length,
-    getID: () => id,
-    getLength: () => length,
     getName: () => name,
     getHealth: () => health,
     setPlacedCoordinates: (coordinates) => {

@@ -19,6 +19,7 @@ export const EventEmitter = () => {
   };
 
   const publish = (event, incomingData) => {
+    console.log(event);
     if (!hasEventSubscription(event)) return;
     const eventData = incomingData?.data ? incomingData : { data: incomingData };
     subscribers[event].forEach((callback) => {

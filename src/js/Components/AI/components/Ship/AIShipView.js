@@ -23,6 +23,6 @@ export const AIShipView = (name) => {
   const trackingShipElement = buildElementFromUIObj(trackingShipBaseObj);
   return {
     getShipElement: () => trackingShipElement,
-    setSunk: () => (trackingShipElement.dataset[SHIP_DATA_ATTRIBUTES.SHIP_SUNK] = BOOL.T)
+    setSunk: () => trackingShipElement.setAttribute(SHIP_DATA_ATTRIBUTES.SHIP_SUNK, BOOL.T)
   };
 };

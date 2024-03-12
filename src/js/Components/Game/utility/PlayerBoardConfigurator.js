@@ -27,8 +27,9 @@ export const configureBoardControllers = (emitter, p1, p2, gameMode) => {
       })
   };
   const initializeBoardView = {
-    [GAME_MODES.HvA]: (human, ai) =>
-      human.view.initialize(ai.provideTrackingGrid(), ai.provideTrackingFleet()),
+    [GAME_MODES.HvA]: (human, ai) => {
+      human.view.initialize(ai.provideTrackingGrid(), ai.provideTrackingFleet());
+    },
     [GAME_MODES.HvH]: (p1, p2) => {
       p1.view.initialize(p2.getPlayerName(), p2.provideTrackingFleet());
       p2.view.initialize(p1.getPlayerName(), p1.provideTrackingFleet());

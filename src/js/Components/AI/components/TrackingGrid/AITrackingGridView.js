@@ -7,7 +7,7 @@ const AI_TRACKING_GRID = {
     HEADER: 'ai-display-header'
   },
   TEXTS: {
-    HEADER: (aiName) => `${aiName}'s Attacks`
+    HEADER: (aiName) => `${aiName}`
   }
 };
 

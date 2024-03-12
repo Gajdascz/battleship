@@ -1,9 +1,10 @@
 import { MainGridModel } from './main/model/MainGridModel';
 import { MainGridView } from './main/view/MainGridView';
-import { CombatManagerFactory } from './features/combat/MainGridCombatManager';
 import { EventEmitter } from '../../../Events/core/EventEmitter';
 import { PlacementManagerFactory } from './features/placement/MainGridPlacementManager';
 import { EventHandler } from '../../../Events/management/EventHandler';
+import { convertToDisplayFormat } from '../../../Utility/utils/coordinatesUtils';
+import { STATUSES } from '../../AI/common/constants';
 
 export const MainGridController = (boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;
@@ -15,12 +16,18 @@ export const MainGridController = (boardConfig) => {
   const placementManager = PlacementManagerFactory({ model, view, createHandler });
   const getPlacementManager = () => placementManager.getManager();
 
-  const combatManager = CombatManagerFactory({ model, view, createHandler });
-  const getCombatManager = () => combatManager.getManager();
+  const processIncomingAttack = ({ data }) => {
+    console.log(data);
+    const cellData = model.processIncomingAttack(data);
+    const [x, y] = data;
+    const displayCoordinates = convertToDisplayFormat(x, y, model.getLetterAxis());
+    if (cellData.value.status === STATUSES.HIT) view.displayShipHit(displayCoordinates);
+    return cellData;
+  };
 
   return {
     getPlacementManager,
-    getCombatManager,
+    processIncomingAttack,
     properties: {
       getDimensions: () => model.getDimensions()
     },

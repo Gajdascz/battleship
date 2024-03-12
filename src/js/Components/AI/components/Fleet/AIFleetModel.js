@@ -6,13 +6,13 @@ export const AIFleetModel = () => {
   return {
     isAllShipsSunk: () => [...aiFleet.values()].every((ship) => ship.isSunk()),
     isAllShipsPlaced: () => [...aiFleet.values()].every((ship) => ship.isPlaced()),
-    addMainShip: (shipModel) => aiFleet.set(shipModel.getID(), shipModel),
+    addMainShip: (shipModel) => aiFleet.set(shipModel.id, shipModel),
     addTrackingShip: (shipID, shipLength) => opponentFleetTracker.set(shipID, shipLength),
     getShipFromAIFleet: (shipID) => aiFleet.get(shipID),
     getAIFleetData: () =>
       [...aiFleet.values()].map((shipModel) => ({
-        id: shipModel.getID(),
-        length: shipModel.getLength()
+        id: shipModel.id,
+        length: shipModel.length
       })),
     opponentShipSunk: (sunkShipID) => {
       const sunkShipLength = opponentFleetTracker.get(sunkShipID);
@@ -30,7 +30,7 @@ export const AIFleetModel = () => {
       ),
     getTotalFleetLength: () =>
       [...aiFleet.values()]
-        .map((shipModel) => shipModel.getLength())
+        .map((shipModel) => shipModel.length)
         .reduce((acc, value) => acc + value, 0),
     getLiveOpponentShipLengths: () => [...opponentFleetTracker.values()],
     getNumberOfOpponentShipsLeft: () => opponentFleetTracker.size

@@ -20,10 +20,11 @@ export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackin
     mainGrid: {
       get: () => mainGrid.getMainGrid(),
       place: (id, start, end) => mainGrid.placeShip(id, start, end),
-      processIncomingAttack: (x, y) => mainGrid.processIncomingAttack(x, y)
+      processIncomingAttack: (coordinates) => mainGrid.processIncomingAttack(coordinates)
     },
     fleet: {
       getData: () => fleet.getAIFleetData(),
+      getShip: (id) => fleet.getShipFromAIFleet(id),
       setShipPlacementCoordinates: (id, placement) => {
         const ship = fleet.getShipFromAIFleet(id);
         ship.setPlacedCoordinates(placement);
@@ -36,7 +37,7 @@ export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackin
       getAllAvailable: () => movesManager.getAvailableMoves(),
       get: (coordinates) => movesManager.getMove(coordinates),
       getTotalAvailable: () => movesManager.getTotalAvailableMoves(),
-      getRandomMove: () => movesManager.getRandomMove()
+      getRandomMove: () => movesManager.popRandomMove()
     }
   };
 };

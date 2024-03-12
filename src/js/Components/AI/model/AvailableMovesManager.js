@@ -31,7 +31,7 @@ export const AvailableMovesManager = () => {
     availableMoves.length = 0;
     grid.forEach((row, rowIndex) => {
       row.forEach((col, colIndex) => {
-        if (col === STATUSES.UNEXPLORED) availableMoves.push([rowIndex, colIndex]);
+        if (col.status === STATUSES.UNEXPLORED) availableMoves.push([rowIndex, colIndex]);
       });
     });
   };

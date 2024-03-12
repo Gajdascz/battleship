@@ -10,19 +10,24 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
     handler: null,
     send: (displayCoordinates) => {
       const coordinates = convertToInternalFormat(displayCoordinates);
+      console.log(coordinates);
       outgoingAttack.handler.emit(coordinates);
     },
-    acceptResult: (result) => combatView.displayResult(result),
+    acceptResult: ({ data }) => {
+      const { result } = data;
+      combatView.displayResult(result);
+    },
     enable: () => combatView.enable(),
     disable: () => combatView.disable(),
     on: (callback) => outgoingAttack.handler.on(callback),
     off: (callback) => outgoingAttack.handler.off(callback),
-    start: () => (outgoingAttack.handler = createHandler(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT)),
+    initialize: () =>
+      (outgoingAttack.handler = createHandler(TRACKING_GRID_COMBAT_EVENTS.ATTACK_SENT)),
     end: () => outgoingAttack.handler.reset()
   };
 
-  const start = () => {
-    outgoingAttack.start();
+  const initialize = () => {
+    outgoingAttack.initialize();
     combatView.initialize(outgoingAttack.send);
   };
   const end = () => {
@@ -31,7 +36,7 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
   };
 
   return {
-    start,
+    initialize,
     end,
     enable: () => outgoingAttack.enable(),
     disable: () => outgoingAttack.disable(),

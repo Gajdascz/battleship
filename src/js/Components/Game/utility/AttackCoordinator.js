@@ -1,9 +1,7 @@
 export const AttackCoordinator = ({
   incomingAttackHandler,
   sentAttackResultHandler,
-  emitterBundle,
-  enableIncomingOn,
-  disableIncomingOn
+  emitterBundle
 }) => {
   const { emitter, getPlayerEventKey, getOpponentEventKey } = emitterBundle;
   const { publish, subscribe, unsubscribe } = emitter;
@@ -23,18 +21,7 @@ export const AttackCoordinator = ({
     sentAttackResultHandler(result);
     sentAttackResultListener.disable();
   };
-
   const incomingAttackListener = {
-    manager: {
-      start: () => {
-        subscribe(enableIncomingOn, incomingAttackListener.enable);
-        subscribe(disableIncomingOn, incomingAttackListener.disable);
-      },
-      stop: () => {
-        unsubscribe(events.enableIncoming, incomingAttackListener.enable);
-        unsubscribe(events.disableIncoming, incomingAttackListener.disable);
-      }
-    },
     enable: () => subscribe(events.opponentSentAttack, incomingAttackHandler),
     disable: () => unsubscribe(events.opponentSentAttack, incomingAttackHandler)
   };
@@ -50,12 +37,16 @@ export const AttackCoordinator = ({
   };
 
   return {
-    start: () => incomingAttackListener.manager.start(),
+    enableIncoming: () => incomingAttackListener.enable(),
+    disableIncoming: () => incomingAttackListener.disable(),
     sendAttack: (coordinates) => {
       sentAttackResultListener.enable();
       publish(events.sendAttack, coordinates);
     },
-    sendResult: (result) => publish(events.sendResult, result),
+    sendResult: (result) => {
+      console.log(result);
+      publish(events.sendResult, result);
+    },
     reset
   };
 };

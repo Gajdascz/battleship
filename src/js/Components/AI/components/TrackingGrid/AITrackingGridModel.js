@@ -2,8 +2,9 @@ import { STATUSES } from '../../../../Utility/constants/common';
 
 export const AITrackingGridModel = (numberOfRows = 10, numberOfCols = 10) => {
   const createGrid = (rows, cols) =>
-    Array.from({ length: rows }, () => Array(cols).fill(STATUSES.UNEXPLORED));
-
+    Array.from({ length: rows }).map(() =>
+      Array.from({ length: cols }).fill({ status: STATUSES.UNEXPLORED })
+    );
   let trackingGrid = createGrid(numberOfRows, numberOfCols);
 
   return {

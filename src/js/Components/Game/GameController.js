@@ -1,6 +1,5 @@
 import { GameSessionInitializer } from './utility/GameSessionInitializer';
 import { GameStateController } from './GameStateController';
-import { globalEmitter } from '../../Events/core/globalEventEmitter';
 import { GAME_EVENTS } from './common/gameEvents';
 import { EventScopeManager } from '../../Events/management/EventScopeManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
@@ -21,8 +20,28 @@ const PlayerManager = (p1BoardController, p2BoardController) => {
     [p2Id]: p2BoardController
   };
   const players = { current: p1Id, waiting: p2Id };
-  const alternatePlayers = () =>
-    ([players.current, players.waiting] = [players.waiting, players.current]);
+  const alternatePlayers = () => {
+    onEnd.clearCurrent();
+    [players.current, players.waiting] = [players.waiting, players.current];
+  };
+  const getCurrentBoardController = () => boardControllers[players.current];
+
+  const onEnd = {
+    callback: null,
+    setCurrent: (callback) => {
+      const controller = getCurrentBoardController();
+      if (onEnd.callback) controller.unsubscribeEndTurn(callback);
+      controller.subscribeEndTurn(callback);
+      onEnd.callback = callback;
+    },
+    clearCurrent: () => {
+      if (!onEnd.callback) return;
+      const controller = getCurrentBoardController();
+      controller.unsubscribeEndTurn(onEnd.callback);
+      onEnd.callback = null;
+    }
+  };
+
   const placement = {
     managers: null,
     start: () =>
@@ -39,14 +58,23 @@ const PlayerManager = (p1BoardController, p2BoardController) => {
   };
   const combat = {
     managers: null,
-    start: () => {},
-    isOver: () => {},
-    getCurrentManager: () => {},
-    end: () => {}
+    start: () =>
+      (combat.managers = {
+        [p1Id]: boardControllers[p1Id].getCombatManager(),
+        [p2Id]: boardControllers[p2Id].getCombatManager()
+      }),
+    isOver: () => Object.values(combat.managers).some((manager) => manager.isOver()),
+    getCurrentManager: () => combat.managers[players.current],
+    end: () => {
+      Object.values(combat.managers).forEach((manager) => manager.destruct());
+      combat.managers = null;
+    }
   };
   return {
     alternatePlayers,
-    placement
+    setCurrentOnEnd: onEnd.setCurrent,
+    placement,
+    combat
   };
 };
 
@@ -86,8 +114,7 @@ export const GameController = () => {
     };
     const executeCurrent = () => {
       const manager = playerManager.placement.getCurrentManager();
-      manager.initialize();
-      manager.onEndTurn(onTurnEnd);
+      playerManager.setCurrentOnEnd(onTurnEnd);
       manager.startTurn();
     };
     playerManager.placement.start();
@@ -95,7 +122,17 @@ export const GameController = () => {
   };
 
   const startProgressState = () => {
-    console.log('progress Reached');
+    const onTurnEnd = () => {
+      playerManager.alternatePlayers();
+      executeCurrent();
+    };
+    const executeCurrent = () => {
+      const manager = playerManager.combat.getCurrentManager();
+      playerManager.setCurrentOnEnd(onTurnEnd);
+      manager.startTurn();
+    };
+    playerManager.combat.start();
+    executeCurrent();
   };
 
   return {

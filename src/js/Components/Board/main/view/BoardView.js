@@ -130,7 +130,7 @@ export const BoardView = ({
 
   let strategy;
   if (gameMode === GAME_MODES.HvA)
-    strategy = StrategyHvA(initialize, views, display, remove, acceptTrackingFleet);
+    strategy = StrategyHvA({ initialize, views, display, acceptTrackingFleet });
   else strategy = StrategyHvH(initialize, views, display, remove);
   return {
     display,

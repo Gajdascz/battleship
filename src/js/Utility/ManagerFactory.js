@@ -17,5 +17,10 @@ export const ManagerFactory = ({ ManagerBuilder, initialDetails, validateDetails
     if (!manager) initialize();
     return manager;
   };
-  return { getManager, setDetails };
+  const reset = () => {
+    manager.end();
+    details = null;
+    manager = null;
+  };
+  return { getManager, setDetails, reset };
 };
