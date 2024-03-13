@@ -9,7 +9,7 @@ export const BoardCombatManager = ({
   resetController
 }) => {
   const { trackingGrid, fleet } = combatControllers;
-  const { extend, call, BASE_METHODS, reset } = combatCoordinator;
+  const { extend, call, BASE_METHODS, subOnHasLost, unsubOnHasLost, reset } = combatCoordinator;
 
   const callInitialize = (args) => call(BASE_METHODS.INITIALIZE, ...args);
   const callStartTurn = () => call(BASE_METHODS.START_TURN);
@@ -61,6 +61,8 @@ export const BoardCombatManager = ({
   return {
     startTurn: () => callStartTurn(),
     endTurn: () => callEndTurn(),
+    subOnHasLost,
+    unsubOnHasLost,
     isOver: () => fleet.isAllShipsSunk(),
     destruct
   };

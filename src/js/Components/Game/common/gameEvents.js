@@ -4,5 +4,7 @@ export const GAME_EVENTS = {
   PLACEMENTS_FINALIZED: 'placementsFinalized',
   ALL_PLACEMENTS_FINALIZED: 'allPlacementsFinalized',
   TURN_ENDED: 'turnEnded',
+  ATTACK_SENT: 'attackSent',
+  ATTACK_PROCESSED: 'attackProcessed',
   PLAYER_LOST: 'playerLost'
 };

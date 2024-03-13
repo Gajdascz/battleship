@@ -1,7 +1,8 @@
 import { DEFAULT_FLEET } from '../../Fleet/common/fleetConstants';
 import { GAME_MODES, PLAYERS } from '../../../Utility/constants/common';
-import { PlayerSetupManager } from './PlayerSetupManager';
+import { initializePlayer } from './initializePlayer';
 import { configureBoardControllers } from './PlayerBoardConfigurator';
+import { GameCoordinator } from './GameCoordinator';
 
 export const GameSessionInitializer = ({
   p1Settings,
@@ -16,9 +17,13 @@ export const GameSessionInitializer = ({
       : GAME_MODES.HvH;
 
   const players = {
-    p1: PlayerSetupManager(p1Settings, boardSettings, shipData),
-    p2: PlayerSetupManager(p2Settings, boardSettings, shipData)
+    p1: initializePlayer(p1Settings, boardSettings, shipData),
+    p2: initializePlayer(p2Settings, boardSettings, shipData)
   };
+  const coordinator = GameCoordinator({
+    p1Id: players.p1.model.id,
+    p2Id: players.p2.model.id
+  });
   const { p1BoardController, p2BoardController } = configureBoardControllers(
     emitter,
     players.p1,

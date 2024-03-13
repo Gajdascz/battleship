@@ -1,3 +1,31 @@
+const globalSubscribers = {};
+const globalHasEventSubscription = (event) => !!globalSubscribers[event];
+export const globalEmitter = {
+  subscribe: (event, callback) => {
+    if (!globalHasEventSubscription(event)) globalSubscribers[event] = [];
+    globalSubscribers[event].push(callback);
+  },
+  subscribeMany: (subscriptions) =>
+    subscriptions.forEach(({ event, callback }) => globalEmitter.subscribe(event, callback)),
+  unsubscribeMany: (subscriptions) =>
+    subscriptions.forEach(({ event, callback }) => globalEmitter.unsubscribe(event, callback)),
+  unsubscribe: (event, callback) => {
+    if (!globalHasEventSubscription(event)) return;
+    globalSubscribers[event] = globalSubscribers[event].filter(
+      (subscriber) => subscriber !== callback
+    );
+  },
+  publish: (event, incomingData) => {
+    console.log(event);
+    if (!globalHasEventSubscription(event)) return;
+    const eventData = incomingData?.data ? incomingData : { data: incomingData };
+    globalSubscribers[event].forEach((callback) => {
+      callback(eventData);
+    });
+  },
+  reset: () => Object.keys(globalSubscribers).forEach((event) => delete globalSubscribers[event])
+};
+
 export const EventEmitter = () => {
   const subscribers = {};
   const hasEventSubscription = (event) => !!subscribers[event];

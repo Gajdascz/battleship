@@ -9,7 +9,8 @@ export const BoardController = ({
   controllers,
   gameMode,
   displayContainer,
-  gameCoordinator
+  gameCoordinator,
+  emitterBundle
 }) => {
   const { fleet, mainGrid, trackingGrid } = controllers;
   const id = playerId;
@@ -26,12 +27,12 @@ export const BoardController = ({
     }
   };
   const view = BoardView(viewParameters);
-  const {
-    placement: placementCoordinator,
-    combat: combatCoordinator,
-    subscribeEndTurn,
-    unsubscribeEndTurn
-  } = gameCoordinator;
+  // const {
+  //   placement: placementCoordinator,
+  //   combat: combatCoordinator,
+  //   subscribeEndTurn,
+  //   unsubscribeEndTurn
+  // } = gameCoordinator;
 
   const placement = {
     manager: null,
@@ -44,7 +45,8 @@ export const BoardController = ({
           mainGrid: mainGrid.getPlacementManager()
         },
         placementCoordinator,
-        resetController: placement.resetController
+        resetController: placement.resetController,
+        emitterBundle
       });
     },
     resetController: () => (placement.manager = null),
@@ -85,8 +87,6 @@ export const BoardController = ({
     acceptTrackingFleet: view.acceptTrackingFleet,
     getPlacementManager: placement.getManager,
     getCombatManager: combat.getManager,
-    subscribeEndTurn,
-    unsubscribeEndTurn,
     view
   };
 };

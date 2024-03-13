@@ -1,44 +1,20 @@
-import { STATES } from '../../Utility/constants/common';
-
 const FN_TYPES = {
   ENTER: 'onEnter',
   EXIT: 'onExit'
 };
-export const GameStateController = ({ emitter, transitionTriggers }) => {
-  const { subscribe, unsubscribe } = emitter;
-  const { startTrigger, placementTrigger, progressTrigger } = transitionTriggers;
-  const states = {
-    current: null,
-    [STATES.START]: {
-      subTransitionTrigger: () => subscribe(startTrigger, transition),
-      unsubTransitionTrigger: () => unsubscribe(startTrigger, transition),
-      onEnter: [],
-      onExit: []
-    },
-    [STATES.PLACEMENT]: {
-      subTransitionTrigger: () => subscribe(placementTrigger, transition),
-      unsubTransitionTrigger: () => unsubscribe(placementTrigger, transition),
-      onEnter: [],
-      onExit: []
-    },
-    [STATES.PROGRESS]: {
-      subTransitionTrigger: () => subscribe(progressTrigger, transition),
-      unsubTransitionTrigger: () => unsubscribe(progressTrigger, transition),
-      onEnter: [],
-      onExit: []
-    }
-  };
-  const setCurrentState = (state) => (states.current = state);
-  const subCurrentTransitionTrigger = () => states[states.current].subTransitionTrigger();
-  const unsubCurrentTransitionTrigger = () => states[states.current].unsubTransitionTrigger();
+export const GameStateController = (initialStates = []) => {
+  const states = { current: null };
 
-  const startGame = () => {
-    if (states.current) {
-      executeCurrentExit();
-      unsubCurrentTransitionTrigger();
-    }
-    setCurrentState(STATES.START);
-    subCurrentTransitionTrigger();
+  const addState = (stateName) => (states[stateName] = { onEnter: [], onExit: [] });
+
+  const setCurrentState = (state) => {
+    states.current = state;
+    executeCurrentEnter();
+  };
+
+  const startGame = (firstState) => {
+    if (states.current) executeCurrentExit();
+    setCurrentState(firstState);
     executeCurrentEnter();
   };
 
@@ -46,51 +22,25 @@ export const GameStateController = ({ emitter, transitionTriggers }) => {
   const executeCurrentExit = () => execute(states[states.current][FN_TYPES.EXIT]);
   const executeCurrentEnter = () => execute(states[states.current][FN_TYPES.ENTER]);
 
-  const getNextState = () => {
-    switch (states.current) {
-      case null:
-        return STATES.START;
-      case STATES.START:
-        return STATES.PLACEMENT;
-      case STATES.PLACEMENT:
-        return STATES.PROGRESS;
-      case STATES.PROGRESS:
-        return STATES.OVER;
-      case STATES.OVER:
-        return null;
-    }
-  };
-
-  const transition = () => {
-    unsubCurrentTransitionTrigger();
+  const transitionTo = (newState) => {
     executeCurrentExit();
-    setCurrentState(getNextState());
-    subCurrentTransitionTrigger();
+    setCurrentState(newState);
     executeCurrentEnter();
   };
 
   const resetGame = () => {
-    unsubCurrentTransitionTrigger();
     executeCurrentExit();
-    setCurrentState(null);
+    states.current = null;
   };
 
-  const addOnStateEnter = (state, fn) => states[state].onEnter.push(fn);
-  const addOnStateExit = (state, fn) => states[state].onExit.push(fn);
+  if (initialStates.length > 0) initialStates.forEach((state) => addState(state));
 
   return {
-    addOnEnterTo: {
-      start: (fn) => addOnStateEnter(STATES.START, fn),
-      placement: (fn) => addOnStateEnter(STATES.PLACEMENT, fn),
-      progress: (fn) => addOnStateEnter(STATES.PROGRESS, fn)
-    },
-    addOnExitTo: {
-      start: (fn) => addOnStateExit(STATES.START, fn),
-      placement: (fn) => addOnStateExit(STATES.PLACEMENT, fn),
-      progress: (fn) => addOnStateExit(STATES.PROGRESS, fn)
-    },
+    addState,
+    onEnter: (state, callback) => states[state][FN_TYPES.ENTER].push(callback),
+    onExit: (state, callback) => states[state][FN_TYPES.EXIT].push(callback),
     startGame,
-    transition,
+    transitionTo,
     resetGame
   };
 };

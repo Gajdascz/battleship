@@ -12,7 +12,7 @@ const initializePlayerControllers = (shipData, boardSettings) => ({
   trackingGrid: TrackingGridController(boardSettings)
 });
 
-export const PlayerSetupManager = (playerSettings, boardSettings, shipData) => {
+export const initializePlayer = (playerSettings, boardSettings, shipData) => {
   const player = { model: null, controllers: null };
   if (playerSettings.type === PLAYERS.TYPES.AI) {
     const { difficulty } = playerSettings;

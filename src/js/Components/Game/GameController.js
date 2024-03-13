@@ -1,7 +1,6 @@
 import { GameSessionInitializer } from './utility/GameSessionInitializer';
 import { GameStateController } from './GameStateController';
 import { GAME_EVENTS } from './common/gameEvents';
-import { EventScopeManager } from '../../Events/management/EventScopeManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
 import { STATES } from '../../Utility/constants/common';
 
@@ -98,12 +97,12 @@ export const GameController = () => {
       boardSettings,
       emitter
     });
-    playerManager = PlayerManager(p1BoardController, p2BoardController);
-    stateController.addOnEnterTo.placement(startPlacementState);
-    stateController.addOnExitTo.placement(playerManager.placement.end);
-    stateController.addOnEnterTo.progress(startProgressState);
-    stateController.startGame();
-    emitter.publish(EVENTS.ALL_PLAYERS_INITIALIZED);
+    // playerManager = PlayerManager(p1BoardController, p2BoardController);
+    // stateController.addOnEnterTo.placement(startPlacementState);
+    // stateController.addOnExitTo.placement(playerManager.placement.end);
+    // stateController.addOnEnterTo.progress(startProgressState);
+    // stateController.startGame();
+    // emitter.publish(EVENTS.ALL_PLAYERS_INITIALIZED);
   };
 
   const startPlacementState = () => {
