@@ -8,9 +8,7 @@ export const BoardController = ({
   playerName,
   controllers,
   gameMode,
-  displayContainer,
-  gameCoordinator,
-  emitterBundle
+  displayContainer
 }) => {
   const { fleet, mainGrid, trackingGrid } = controllers;
   const id = playerId;
@@ -27,56 +25,53 @@ export const BoardController = ({
     }
   };
   const view = BoardView(viewParameters);
-  // const {
-  //   placement: placementCoordinator,
-  //   combat: combatCoordinator,
-  //   subscribeEndTurn,
-  //   unsubscribeEndTurn
-  // } = gameCoordinator;
 
   const placement = {
     manager: null,
-    initializeController: () => {
+    loadManager: () => {
       if (placement.manager) return;
       placement.manager = BoardPlacementManager({
         placementView: view.placement,
         placementManagers: {
           fleet: fleet.getPlacementManager(),
           mainGrid: mainGrid.getPlacementManager()
-        },
-        placementCoordinator,
-        resetController: placement.resetController,
-        emitterBundle
+        }
       });
     },
-    resetController: () => (placement.manager = null),
-    getManager: () => {
-      if (!placement.manager) placement.initializeController();
-      return placement.manager;
+    startPlacement: (handleFinalize) => {
+      if (!placement.manager) placement.loadManager();
+      const onFinalize = () => {
+        placement.manager = null;
+        handleFinalize();
+      };
+      placement.manager.startPlacement(onFinalize);
+    },
+    endPlacement: () => {
+      if (!placement.manager) return;
+      placement.manager.endPlacement();
     }
   };
 
   const combat = {
     manager: null,
-    initializeController: () => {
+    loadManager: (sendEndTurn) => {
       if (combat.manager) return;
       combat.manager = BoardCombatManager({
         combatView: view.combat,
-        gameMode,
-        combatControllers: {
+        combatManagers: {
           fleet: fleet.getCombatManager(),
-          trackingGrid: trackingGrid.getCombatManager()
+          mainGrid: mainGrid.getCombatManager()
         },
-        processIncomingAttack: mainGrid.processIncomingAttack,
-        combatCoordinator,
-        resetController: combat.resetController
+        sendEndTurn
       });
-      console.log(combat.manager);
     },
-    resetController: () => (combat.manager = null),
-    getManager: () => {
-      if (!combat.manager) combat.initializeController();
-      return combat.manager;
+    initializeCombat: ({ sendEndTurn, sendAttack, sendResult, sendLost }) => {
+      if (!combat.manager) combat.loadManager(sendEndTurn);
+      combat.manager.startCombat({ id, name, sendAttack, sendResult, sendLost });
+    },
+    endCombat: () => {
+      if (!combat.manager) return;
+      combat.manager.endCombat();
     }
   };
 
@@ -85,8 +80,36 @@ export const BoardController = ({
     name,
     trackingFleet: view.provideTrackingFleet,
     acceptTrackingFleet: view.acceptTrackingFleet,
-    getPlacementManager: placement.getManager,
-    getCombatManager: combat.getManager,
+    placement: {
+      start: placement.startPlacement,
+      end: placement.endPlacement
+    },
+    combat: {
+      init: (initData) => combat.initializeCombat(initData)
+    },
     view
   };
 };
+// const combat = {
+//   manager: null,
+//   initializeController: () => {
+//     if (combat.manager) return;
+//     combat.manager = BoardCombatManager({
+//       combatView: view.combat,
+//       gameMode,
+//       combatControllers: {
+//         fleet: fleet.getCombatManager(),
+//         trackingGrid: trackingGrid.getCombatManager()
+//       },
+//       processIncomingAttack: mainGrid.processIncomingAttack,
+//       combatCoordinator,
+//       resetController: combat.resetController
+//     });
+//     console.log(combat.manager);
+//   },
+//   resetController: () => (combat.manager = null),
+//   getManager: () => {
+//     if (!combat.manager) combat.initializeController();
+//     return combat.manager;
+//   }
+// };

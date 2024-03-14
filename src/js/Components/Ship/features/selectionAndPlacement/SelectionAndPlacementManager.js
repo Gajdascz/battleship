@@ -26,8 +26,8 @@ const ShipSelectionAndPlacementManager = ({ model, view, createHandler }) => {
     },
     on: (callback) => place.handler.on(callback),
     off: (callback) => place.handler.off(callback),
-    start: () => (place.handler = createHandler(SHIP_PLACEMENT_EVENTS.PLACED)),
-    end: () => place.handler.reset()
+    init: () => (place.handler = createHandler(SHIP_PLACEMENT_EVENTS.PLACED)),
+    reset: () => place.handler.reset()
   };
 
   const select = {
@@ -45,8 +45,8 @@ const ShipSelectionAndPlacementManager = ({ model, view, createHandler }) => {
     }),
     on: (callback) => select.handler.on(callback),
     off: (callback) => select.handler.off(callback),
-    start: () => (select.handler = createHandler(SHIP_SELECTION_EVENTS.SELECTED, select.getData)),
-    end: () => select.handler.reset()
+    init: () => (select.handler = createHandler(SHIP_SELECTION_EVENTS.SELECTED, select.getData)),
+    reset: () => select.handler.reset()
   };
 
   const orientation = {
@@ -54,26 +54,26 @@ const ShipSelectionAndPlacementManager = ({ model, view, createHandler }) => {
     request: () => orientation.handler.emit(),
     on: (callback) => orientation.handler.on(callback),
     off: (callback) => orientation.handler.off(callback),
-    start: () =>
+    init: () =>
       (orientation.handler = createHandler(
         SHIP_SELECTION_EVENTS.ORIENTATION_TOGGLED,
         model.getOrientation
       )),
-    end: () => orientation.handler.reset()
+    reset: () => orientation.handler.reset()
   };
 
   const start = () => {
-    select.start();
-    orientation.start();
-    place.start();
+    select.init();
+    orientation.init();
+    place.init();
     selectionController.initialize(select.request, orientation.request);
   };
 
   const end = () => {
-    select.end();
-    orientation.end();
-    place.end();
-    selectionController.end();
+    select.reset();
+    orientation.reset();
+    place.reset();
+    selectionController.reset();
   };
 
   return {

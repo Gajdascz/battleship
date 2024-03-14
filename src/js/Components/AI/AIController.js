@@ -9,13 +9,8 @@ import { AIShipModel } from './components/Ship/AIShipModel';
 import { AI_NAMES } from './common/constants';
 
 import { AIView } from './AIView';
-import { EventEmitter } from '../../Events/core/EventEmitter';
-import { PlacementManager } from './features/placement/PlacementManager';
 import { CombatManager } from './features/combat/CombatManager';
-
-const AI_EVENTS = {
-  PLACEMENTS_FINISHED: 'placementsFinished'
-};
+import { PlacementCoordinatesGenerator } from './features/placement/PlacementCoordinatesGenerator';
 
 export const AIController = ({ difficulty, boardSettings, shipData }) => {
   const mainGridModel = AIMainGridModel(boardSettings.numberOfRows, boardSettings.numberOfCols);
@@ -42,79 +37,34 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
   const view = AIView(boardSettings, model.properties.getName(), shipNames);
 
   const getAttackStrategy = () => model.moves.getRandomMove;
-
   const sendAttack = getAttackStrategy();
 
-  const id = model.properties.id;
-  const name = model.properties.name;
-  const getTrackingGrid = () => view.trackingGrid.elements.getGrid();
-  const getTrackingFleet = () => view.fleet.getTrackingFleet();
-
-  const emitter = EventEmitter();
-  const { publish, subscribe, unsubscribe } = emitter;
-
-  let gameCoordinator = null;
-
-  const placement = {
-    manager: null,
-    endTurn: null,
-    initialize: () => {
-      const pubPlacementsFinalized = () => publish(AI_EVENTS.PLACEMENTS_FINISHED);
-      const unsubPlacementsFinalized = () =>
-        unsubscribe(AI_EVENTS.PLACEMENTS_FINISHED, placement.manager.endTurn);
-      placement.manager = PlacementManager({
-        mainGrid: model.mainGrid.get(),
-        placeOnGrid: model.mainGrid.place,
-        setShipPlacementCoordinates: model.fleet.setShipPlacementCoordinates,
-        fleetData: model.fleet.getData(),
-        isAllShipsPlaced: model.fleet.isAllShipsPlaced,
-        placementCoordinator: gameCoordinator.placement,
-        resetController: placement.resetController,
-        unsubPlacementsFinalized,
-        pubPlacementsFinalized
-      });
-      placement.endTurn = placement.manager.endTurn;
-      subscribe(AI_EVENTS.PLACEMENTS_FINISHED, placement.manager.endTurn);
-    },
-    resetController: () => (placement.manager = null),
-    getManager: () => {
-      if (!placement.manager) placement.initialize();
-      return placement.manager;
-    }
+  const placeShips = () => {
+    const placementGenerator = PlacementCoordinatesGenerator(model.mainGrid.get());
+    const placements = placementGenerator.calculateRandomShipPlacements(model.fleet.getData());
+    placements.forEach(({ id, placement }) => {
+      model.mainGrid.place(id, placement[0], placement[placement.length - 1]);
+      model.fleet.setShipPlacementCoordinates(id, placement);
+    });
   };
-  const combat = {
-    manager: null,
-    initialize: () => {
-      combat.manager = CombatManager({
-        model,
-        view,
-        letterAxis,
-        setCellStatus: view.trackingGrid.setCellStatus,
-        combatCoordinator: gameCoordinator.combat,
-        resetController: combat.resetController
-      });
-    },
-    resetController: () => (combat.manager = null),
-    getManager: () => {
-      if (!combat.manager) combat.initialize();
-      return combat.manager;
-    }
-  };
+
   const board = {
-    id,
-    name,
-    provideTrackingGrid: () => getTrackingGrid(),
-    provideTrackingFleet: () => getTrackingFleet(),
-    setGameCoordinator: (coordinator) => (gameCoordinator = coordinator),
-    getPlacementManager: () => placement.getManager(),
-    getCombatManager: () => combat.getManager(),
-    subscribeEndTurn: (callback) => gameCoordinator.subscribeEndTurn(callback),
-    unsubscribeEndTurn: (callback) => gameCoordinator.unsubscribeEndTurn(callback)
+    id: model.properties.id,
+    name: model.properties.name,
+    provideTrackingGrid: () => view.trackingGrid.elements.getGrid(),
+    provideTrackingFleet: () => view.fleet.getTrackingFleet(),
+    placement: {
+      start: (handleFinalize) => {
+        placeShips();
+        if (!model.fleet.isAllShipsPlaced()) throw new Error('AI Error: Not all ships placed.');
+        else handleFinalize();
+      },
+      end: () => {}
+    }
   };
 
   return {
     getPlayerModel: () => model.properties,
-    id,
     isAllShipsSunk: () => model.fleet.isAllShipsSunk(),
     sendAttack,
     board

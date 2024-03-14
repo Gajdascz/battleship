@@ -20,10 +20,8 @@ export const FleetView = () => {
         mainFleetShipList.append(shipView.elements.getMainShip());
         trackingFleetShipList.append(shipView.elements.getTrackingShip());
       }),
-    elements: {
-      getRotateShipButton: (shipID) => shipViews.get(shipID)?.elements.getRotateButton(),
-      getMainFleet: () => mainFleetElement,
-      getTrackingFleet: () => trackingFleetElement
-    }
+    getRotateShipButton: (shipID) => shipViews.get(shipID)?.elements.getRotateButton(),
+    getMainFleet: () => mainFleetElement,
+    getTrackingFleet: () => trackingFleetElement
   };
 };

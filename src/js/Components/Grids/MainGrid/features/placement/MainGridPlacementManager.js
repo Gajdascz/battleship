@@ -3,13 +3,6 @@ import { MAIN_GRID_PLACEMENT_EVENTS } from '../../common/mainGridEvents';
 import { ManagerFactory } from '../../../../../Utility/ManagerFactory';
 const MainGridPlacementManager = ({ model, view, createHandler }) => {
   const controller = MainGridPlacementController({ model, view });
-
-  const updateSelectedEntity = ({ data }) => {
-    const { id, length, orientation } = data;
-    controller.updateSelectedEntity(id, length, orientation);
-  };
-  const updateOrientation = ({ data }) => controller.updateOrientation(data);
-
   const place = {
     handler: null,
     execute: (coordinates) => {
@@ -18,39 +11,42 @@ const MainGridPlacementManager = ({ model, view, createHandler }) => {
     },
     on: (callback) => place.handler.on(callback),
     off: (callback) => place.handler.off(callback),
-    start: () => (place.handler = createHandler(MAIN_GRID_PLACEMENT_EVENTS.PROCESSED_PLACED)),
-    end: () => place.handler.reset()
+    init: () => (place.handler = createHandler(MAIN_GRID_PLACEMENT_EVENTS.PROCESSED_PLACED)),
+    reset: () => place.handler.reset()
   };
 
   const submit = {
     handler: null,
     execute: () => {
-      controller.end();
+      controller.reset();
       submit.handler.emit();
     },
     toggle: ({ data }) => controller.toggleSubmission(data),
     on: (callback) => submit.handler.on(callback),
     off: (callback) => submit.handler.off(callback),
-    start: () => (submit.handler = createHandler(MAIN_GRID_PLACEMENT_EVENTS.SUBMIT)),
-    end: () => submit.handler.reset()
+    init: () => (submit.handler = createHandler(MAIN_GRID_PLACEMENT_EVENTS.SUBMIT)),
+    reset: () => submit.handler.reset()
   };
 
   const start = () => {
-    place.start();
-    submit.start();
+    place.init();
+    submit.init();
     controller.initialize(submit.execute, place.execute);
   };
   const end = () => {
-    submit.end();
-    place.end();
-    controller.end();
+    submit.reset();
+    place.reset();
+    controller.reset();
   };
 
   return {
     start,
     end,
-    updateOrientation,
-    updateSelectedEntity,
+    updateOrientation: ({ data }) => controller.updateOrientation(data),
+    updateSelectedEntity: ({ data }) => {
+      const { id, length, orientation } = data;
+      controller.updateSelectedEntity(id, length, orientation);
+    },
     toggleSubmit: (isReady) => submit.toggle(isReady),
     onPlace: (callback) => place.on(callback),
     offPlace: (callback) => place.off(callback),

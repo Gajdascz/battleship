@@ -60,15 +60,15 @@ export const ShipSelectionController = ({ model, view }) => {
     selectionView.disable.all();
     isEnabled = false;
   };
-  const end = () => {
+  const reset = () => {
     if (!isInitialized) return;
     disable();
-    selectionView.end();
+    selectionView.reset();
     isInitialized = false;
   };
   return {
     initialize,
-    end,
+    reset,
     select,
     deselect,
     toggleOrientation,

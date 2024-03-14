@@ -38,11 +38,11 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
   return {
     initialize,
     end,
-    enable: () => outgoingAttack.enable(),
-    disable: () => outgoingAttack.disable(),
-    acceptResult: (result) => outgoingAttack.acceptResult(result),
-    onSendAttack: (callback) => outgoingAttack.on(callback),
-    offSendAttack: (callback) => outgoingAttack.off(callback)
+    enable: outgoingAttack.enable,
+    disable: outgoingAttack.disable,
+    acceptResult: outgoingAttack.acceptResult,
+    onSendAttack: outgoingAttack.on,
+    offSendAttack: outgoingAttack.off
   };
 };
 

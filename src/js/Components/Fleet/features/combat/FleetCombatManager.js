@@ -1,25 +1,56 @@
 import { ManagerFactory } from '../../../../Utility/ManagerFactory';
+import { FLEET_COMBAT_EVENTS } from '../../common/fleetEvents';
 
 const FleetCombatManager = ({ shipCombatManagers, createHandler, isAllShipsSunk }) => {
   const hit = (id) => {
     const ship = shipCombatManagers.get(id);
-    ship.hit();
-    return ship.isSunk();
+    if (ship) ship.hit();
+  };
+
+  const shipHit = {
+    on: (callback) => shipCombatManagers.forEach((manager) => manager.onHit(callback)),
+    off: (callback) => shipCombatManagers.forEach((manager) => manager.offHit(callback))
+  };
+
+  const allShipsSunk = {
+    handler: null,
+    check: () => {
+      if (isAllShipsSunk()) allShipsSunk.handler.emit();
+    },
+    init: () => {
+      if (!allShipsSunk.handler)
+        allShipsSunk.handler = createHandler(FLEET_COMBAT_EVENTS.ALL_SHIPS_SUNK);
+    },
+    on: (callback) => allShipsSunk.handler.on(callback),
+    off: (callback) => allShipsSunk.handler.off(callback),
+    reset: () => allShipsSunk.handler.reset()
+  };
+
+  const shipSunk = {
+    on: (callback) => shipCombatManagers.forEach((manager) => manager.onSunk(callback)),
+    off: (callback) => shipCombatManagers.forEach((manager) => manager.offSunk(callback))
   };
 
   const start = () => {
     shipCombatManagers.forEach((manager) => {
       manager.initialize();
+      manager.onSunk(allShipsSunk.check);
     });
   };
   const end = () => {
-    shipCombatManagers.forEach((controller) => controller.end());
+    shipCombatManagers.forEach((manager) => manager.end());
   };
 
   return {
     start,
     end,
-    hit
+    hit,
+    onShipHit: shipHit.on,
+    offShipHit: shipHit.off,
+    onShipSunk: shipSunk.on,
+    offShipSunk: shipSunk.off,
+    onAllShipsSunk: allShipsSunk.on,
+    offAllShipsSunk: allShipsSunk.off
   };
 };
 

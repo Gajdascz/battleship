@@ -125,7 +125,7 @@ export const MainGridPlacementView = ({
         container.append(submitPlacementsButtonElement);
       }
     },
-    end: () => {
+    reset: () => {
       previewManager.reset();
       listenerManager.reset();
       submitPlacementsButtonElement.remove();

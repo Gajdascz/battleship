@@ -15,7 +15,6 @@ export const GameStateController = (initialStates = []) => {
   const startGame = (firstState) => {
     if (states.current) executeCurrentExit();
     setCurrentState(firstState);
-    executeCurrentEnter();
   };
 
   const execute = (callbacks) => callbacks.forEach((fn) => fn());
@@ -25,7 +24,6 @@ export const GameStateController = (initialStates = []) => {
   const transitionTo = (newState) => {
     executeCurrentExit();
     setCurrentState(newState);
-    executeCurrentEnter();
   };
 
   const resetGame = () => {

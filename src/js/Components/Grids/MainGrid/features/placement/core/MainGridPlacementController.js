@@ -50,15 +50,15 @@ export const MainGridPlacementController = ({ model, view }) => {
     else placementView.disable.submitPlacements();
   };
 
-  const end = () => {
+  const reset = () => {
     if (!isInitialized) return;
-    placementView.end();
+    placementView.reset();
     isInitialized = false;
   };
 
   return {
     initialize,
-    end,
+    reset,
     toggleSubmission,
     updateOrientation,
     updateSelectedEntity

@@ -61,7 +61,7 @@ export const ShipSelectionView = ({ mainShipElement, rotateButtonElement }) => {
     listenerManager.disableListener(LISTENER_MANAGER_KEYS.KEY_TOGGLE_ORIENTATION);
   };
 
-  const endSelection = () => {
+  const reset = () => {
     listenerManager.removeListener(LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT);
     listenerManager.removeListener(LISTENER_MANAGER_KEYS.BUTTON_TOGGLE_ORIENTATION);
     listenerManager.removeListener(LISTENER_MANAGER_KEYS.MOUSE_TOGGLE_ORIENTATION);
@@ -95,6 +95,6 @@ export const ShipSelectionView = ({ mainShipElement, rotateButtonElement }) => {
       selectedStatus: (isSelected) =>
         mainShipElement.classList.toggle(SHIP_CLASSES.SELECTED, isSelected)
     },
-    end: () => endSelection()
+    reset
   };
 };

@@ -16,7 +16,8 @@ export const StrategyHvA = ({ initialize, views, display, acceptTrackingFleet })
           const { id } = data;
           buttonManager.updateButton('rotate-ship', fleet.getRotateShipButton(id));
         };
-        return updateRotateButton;
+        const removeRotateButton = () => buttonManager.removeButton('rotate-ship');
+        return { removeRotateButton, updateRotateButton };
       },
       startTurn: () => {
         trackingGrid.disable();

@@ -1,5 +1,4 @@
 import { BoardController } from '../../Board/BoardController';
-import { GameCoordinator } from './GameCoordinator';
 import { GAME_MODES, PLAYERS } from '../../../Utility/constants/common';
 
 const CLASSES = {
@@ -7,15 +6,9 @@ const CLASSES = {
 };
 const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
 
-export const configureBoardControllers = (emitter, p1, p2, gameMode) => {
-  const p1Id = p1.model.id;
-  const p2Id = p2.model.id;
-  // const gameCoordinators = PlayerGameCoordinators(emitter, p1Id, p2Id);
+export const configureBoardControllers = (p1, p2, gameMode) => {
   const boardController = {
-    [PLAYERS.TYPES.AI]: (player) => {
-      // player.controllers.board.setGameCoordinator(gameCoordinators[player.model.id]);
-      return player.controllers.board;
-    },
+    [PLAYERS.TYPES.AI]: (player) => player.controllers.board,
     [PLAYERS.TYPES.HUMAN]: (player) =>
       BoardController({
         playerId: player.model.id,
@@ -23,7 +16,6 @@ export const configureBoardControllers = (emitter, p1, p2, gameMode) => {
         displayContainer: gameContainer,
         gameMode,
         controllers: player.controllers
-        // gameCoordinator: gameCoordinators[player.model.id]
       })
   };
   const initializeBoardView = {

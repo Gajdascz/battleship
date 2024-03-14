@@ -63,19 +63,7 @@ export const FleetController = (fleetShipControllers) => {
   return {
     getPlacementManager: () => placement.getPlacementManager(),
     getCombatManager: () => combat.getCombatManager(),
-    view: {
-      attachMainFleetTo: (container) => view.attachMainFleetTo(container),
-      attachTrackingFleetTo: (container) => view.attachTrackingFleetTo(container),
-      addShipView: (shipID, shipView) => view.addShipView(shipID, shipView),
-      populateFleetShipLists: () => view.populateFleetShipLists(),
-      getRotateShipButton: (shipID) => view.elements.getRotateShipButton(shipID),
-      getMainFleet: () => view.elements.getMainFleet(),
-      getTrackingFleet: () => view.elements.getTrackingFleet()
-    },
-    properties: {
-      isAllShipsSunk: () => model.isAllShipsSunk()
-    },
-    getView: () => view,
+    view,
     getModel: () => model,
     getTrackingFleet: () => view.getTrackingFleet(),
     assignShipToFleet

@@ -8,14 +8,25 @@ import { InstructionsDialogView } from './js/Components/Dialogs/InstructionsDial
 
 import { AlternatePlayerDialogView } from './js/Components/Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
 import { GameOverDialogView } from './js/Components/Dialogs/GameOverDialog/GameOverDialogView';
-import { GAME_EVENTS } from './js/Events/events';
-const controller = GameController();
+import { GameCoordinator } from './js/Components/Game/utility/GameCoordinator';
+import { globalEmitter } from './js/Events/core/EventEmitter';
+
+const CLASSES = {
+  GAME_CONTAINER: 'game-container'
+};
+const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
+const START_GAME_EVENT = 'settingsSubmitted';
+const emitSettingsData = (data) => globalEmitter.publish(START_GAME_EVENT, data);
+GameCoordinator(START_GAME_EVENT);
 const test = () => console.log('Game Over');
 const settingsDialogController = SettingsDialogController();
-settingsDialogController.setOnSubmit(controller.startGame);
+
+settingsDialogController.setOnSubmit(emitSettingsData);
+
 const instructionsDialog = InstructionsDialogView();
 const alternatePlayerDialog = AlternatePlayerDialogView();
 const gameOverDialog = GameOverDialogView(test);
+
 const body = document.querySelector('body');
 settingsDialogController.setContainer(body);
 instructionsDialog.setContainer(body);

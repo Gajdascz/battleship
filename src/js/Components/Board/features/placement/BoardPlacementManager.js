@@ -3,43 +3,46 @@ export const BoardPlacementManager = ({ placementView, placementManagers }) => {
 
   let isInitialized = false;
 
-  const initializePlacement = () => {
+  const initializePlacement = (handleFinalize) => {
+    const { updateRotateButton, removeRotateButton } = placementView.initialize();
+    mainGrid.start();
+    fleet.start();
     const onShipSelected = (data) => {
       updateRotateButton(data);
       mainGrid.updateSelectedEntity(data);
     };
-    const updateRotateButton = placementView.initialize();
-    mainGrid.start();
-    fleet.start();
+    const onShipPlaced = (placementData) => {
+      fleet.place(placementData);
+      removeRotateButton();
+    };
     fleet.onSelected(onShipSelected);
     fleet.onOrientationToggled(mainGrid.updateOrientation);
     fleet.onAllShipsPlaced(mainGrid.toggleSubmit);
-    mainGrid.onPlace(fleet.place);
-    mainGrid.onSubmit(endTurn);
+    mainGrid.onPlace(onShipPlaced);
+    mainGrid.onSubmit(handleFinalize);
     isInitialized = true;
-  };
-
-  const startTurn = () => {
-    initializePlacement();
-    placementView.startTurn();
-  };
-  const endTurn = () => {
-    placementView.endTurn();
-    endPlacement();
   };
 
   const endPlacement = () => {
     if (!isInitialized) return;
     if (!fleet.isAllShipsPlaced()) throw new Error('Not all ships have been placed');
+    placementView.endTurn();
     mainGrid.end();
     fleet.end();
     isInitialized = false;
   };
 
-  isInitialized = true;
+  const startPlacement = (onFinalize) => {
+    const handleFinalize = () => {
+      if (onFinalize) onFinalize();
+      endPlacement();
+    };
+    initializePlacement(handleFinalize);
+    placementView.startTurn();
+  };
 
   return {
-    startTurn,
-    endTurn
+    startPlacement,
+    endPlacement
   };
 };
