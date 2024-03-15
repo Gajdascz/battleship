@@ -13,73 +13,78 @@ export const TurnManager = ({ emit, on, off, events, p1Id, p2Id }) => {
     }
   };
   const players = { current: p1Id, waiting: p2Id };
-  const alternatePlayers = () =>
+  const swapCurrent = () =>
     ([players.current, players.waiting] = [players.waiting, players.current]);
   const getCurrentPlayer = () => players.current;
   const startCurrentPlayerTurn = () => emit(getEvent[players.current].START);
   const endCurrentPlayerTurn = () => emit(getEvent[players.current].END);
+  const getAllPlayerEndTurnMethods = () =>
+    Object.fromEntries(
+      Object.entries(getEvent).map(([key, value]) => [key, () => emit(value.END)])
+    );
 
-  const switchTurns = () => {
-    endCurrentPlayerTurn();
-    alternatePlayers();
+  const alternate = () => {
+    swapCurrent();
     startCurrentPlayerTurn();
   };
-  const autoAlternate = {
-    isActive: false,
-    enable: () => {
-      if (autoAlternate.isActive) return;
-      on(getEvent[p1Id].END, switchTurns);
-      on(getEvent[p2Id].END, switchTurns);
-      autoAlternate.isActive = true;
-    },
-    disable: () => {
-      if (!autoAlternate.isActive) return;
-      off(getEvent[p1Id].END, switchTurns);
-      off(getEvent[p2Id].END, switchTurns);
-      autoAlternate.isActive = false;
-    }
+  const autoAlternate = (() => {
+    let isActive = false;
+    return {
+      enable: () => {
+        if (isActive) return;
+        on(getEvent[p1Id].END, alternate);
+        on(getEvent[p2Id].END, alternate);
+        isActive = true;
+      },
+      disable: () => {
+        if (isActive) return;
+        off(getEvent[p1Id].END, alternate);
+        off(getEvent[p2Id].END, alternate);
+        isActive = false;
+      }
+    };
+  })();
+  const OnTurnStartManager = (id) => {
+    let onStart = null;
+    const getStartEvent = () => getEvent[id].START;
+    const set = (callback) => {
+      if (onStart) off(getStartEvent(id), onStart);
+      on(getStartEvent(), callback);
+      onStart = callback;
+    };
+    const off = () => {
+      if (!onStart) return;
+      off(getStartEvent(), onStart);
+      onStart = null;
+    };
+    return { set, off };
   };
-  const onTurnEnd = {
-    active: [],
-    addOn: (callback) => {
-      on(getEvent[p1Id].END, callback);
-      on(getEvent[p2Id].END, callback);
-      onTurnEnd.active.push(callback);
-    },
-    off: (callback) => {
-      off(getEvent[p1Id].END, callback);
-      off(getEvent[p2Id].END, callback);
-      onTurnEnd.active = onTurnEnd.active.filter((fn) => fn !== callback);
-    },
-    offAll: () => {
-      onTurnEnd.active.forEach((callback) => {
-        off(getEvent[p1Id].END, callback);
-        off(getEvent[p2Id].END, callback);
-      });
-      onTurnEnd.active = [];
-    }
+  const onTurnStartManagers = {
+    [p1Id]: OnTurnStartManager(p1Id),
+    [p2Id]: OnTurnStartManager(p2Id)
   };
+
   const reset = () => {
     players.current = p1Id;
     players.waiting = p2Id;
-    onTurnEnd.offAll();
     autoAlternate.disable();
+    Object.values(onTurnStartManagers).forEach((manager) => manager.off());
   };
   return {
-    turnEnd: {
-      on: onTurnEnd.addOn,
-      off: onTurnEnd.off,
-      offAll: onTurnEnd.offAll
-    },
     autoAlternate: {
       enable: autoAlternate.enable,
       disable: autoAlternate.disable
     },
-    switchTurns,
-    alternatePlayers,
-    getCurrentPlayer,
-    startCurrentPlayerTurn,
-    endCurrentPlayerTurn,
+    currentPlayer: {
+      get: getCurrentPlayer,
+      startTurn: startCurrentPlayerTurn,
+      endTurn: endCurrentPlayerTurn
+    },
+    allPlayers: {
+      getAllPlayerEndTurnMethods,
+      onTurnStartManagers
+    },
+    alternate,
     reset
   };
 };

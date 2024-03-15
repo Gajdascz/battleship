@@ -10,7 +10,6 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
     handler: null,
     send: (displayCoordinates) => {
       const coordinates = convertToInternalFormat(displayCoordinates);
-      console.log(coordinates);
       outgoingAttack.handler.emit(coordinates);
     },
     acceptResult: ({ data }) => {
@@ -26,7 +25,7 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
     end: () => outgoingAttack.handler.reset()
   };
 
-  const initialize = () => {
+  const start = () => {
     outgoingAttack.initialize();
     combatView.initialize(outgoingAttack.send);
   };
@@ -36,7 +35,7 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
   };
 
   return {
-    initialize,
+    start,
     end,
     enable: outgoingAttack.enable,
     disable: outgoingAttack.disable,

@@ -1,14 +1,21 @@
 import { EventEmitter } from '../core/EventEmitter';
 
-const EventDefinitionManager = (base = {}, global = {}, initialScopes) => {
+const EventDefinitionManager = (base = {}, global = {}, initialScopes = []) => {
   const scopes = [];
   const events = {
     global,
-    base,
-    scoped: {}
+    base: {},
+    scoped: {},
+    baseTypes: {}
   };
   const setBaseEvents = (newEvents) => {
     events.base = newEvents;
+    Object.entries(events.base).forEach(([key, value]) => {
+      if (typeof value === 'object') {
+        const typeKey = key.toUpperCase().replace(/ /g, '_');
+        events.baseTypes[typeKey] = key;
+      }
+    });
     buildScopedEvents();
   };
   const setGlobalEvents = (newEvents) => (events.global = newEvents);
@@ -24,18 +31,30 @@ const EventDefinitionManager = (base = {}, global = {}, initialScopes) => {
     delete events.scoped[scope];
   };
 
-  const buildScopedEvents = () => {
-    scopes.forEach((scope) => {
-      events.scoped[scope] = {};
-      Object.entries(events.base).forEach(
-        ([key, value]) => (events.scoped[scope][key] = createKey(scope, value))
-      );
+  const scopeEvents = (scope, eventObj, scopedObj = {}) => {
+    Object.entries(eventObj).forEach(([key, value]) => {
+      if (typeof value === 'object') {
+        scopedObj[key] = {};
+        scopeEvents(scope, value, scopedObj[key]);
+      } else scopedObj[key] = createKey(scope, value);
     });
+    return scopedObj;
   };
-  if (initialScopes) {
+
+  const buildScopedEvents = () =>
+    scopes.forEach((scope) => (events.scoped[scope] = scopeEvents(scope, events.base)));
+  if (Object.values(base).length > 0) setBaseEvents(base);
+  if (initialScopes.length > 0) {
     initialScopes.forEach((scope) => scopes.push(scope));
     buildScopedEvents();
   }
+  const reset = () => {
+    events.global = {};
+    events.base = {};
+    events.scoped = {};
+    events.baseTypes = {};
+    scopes.length = 0;
+  };
   return {
     createKey,
     addScope,
@@ -45,12 +64,15 @@ const EventDefinitionManager = (base = {}, global = {}, initialScopes) => {
     setGlobalEvents,
     getGlobalEvents: () => events.global,
     getBaseEvents: () => events.base,
-    getScopedEvents: () => events.scoped
+    getScopedEvents: () => events.scoped,
+    getBaseTypes: () => events.baseTypes,
+    reset
   };
 };
 
 export const EventManager = (eventsConfig) => {
-  const { subscribe, unsubscribe, publish } = EventEmitter();
+  const emitter = EventEmitter();
+  const { subscribe, unsubscribe, publish } = emitter;
   const { global, base, scopes } = eventsConfig;
   let subscriptionTracker = [];
   const events = EventDefinitionManager(base, global, scopes);
@@ -74,14 +96,18 @@ export const EventManager = (eventsConfig) => {
   const off = (event, callback) => {
     removeSubscription(event, callback);
   };
-  const offAll = () => removeAllSubscriptions();
   const emit = (event, data) => publish(event, data);
 
   return {
     on,
     off,
-    offAll,
+    offAll: removeAllSubscriptions,
     emit,
-    events
+    events,
+    reset: () => {
+      removeAllSubscriptions();
+      events.reset();
+      emitter.reset();
+    }
   };
 };

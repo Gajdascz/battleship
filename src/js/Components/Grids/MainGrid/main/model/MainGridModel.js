@@ -35,10 +35,10 @@ export const MainGridModel = ({
   });
 
   const processIncomingAttack = (coordinates) => {
-    const cell = valueAt(coordinates);
-    if (cell.status === STATUSES.OCCUPIED) setCellStatus(coordinates, STATUSES.HIT);
+    const cellValue = valueAt(coordinates);
+    if (cellValue.status === STATUSES.OCCUPIED) setCellStatus(coordinates, STATUSES.HIT);
     else setCellStatus(coordinates, STATUSES.MISS);
-    return { coordinates, value: valueAt(coordinates) };
+    return { coordinates, cellValue };
   };
 
   return {

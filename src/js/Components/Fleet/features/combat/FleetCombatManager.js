@@ -32,13 +32,15 @@ const FleetCombatManager = ({ shipCombatManagers, createHandler, isAllShipsSunk 
   };
 
   const start = () => {
+    allShipsSunk.init();
     shipCombatManagers.forEach((manager) => {
-      manager.initialize();
+      manager.start();
       manager.onSunk(allShipsSunk.check);
     });
   };
   const end = () => {
     shipCombatManagers.forEach((manager) => manager.end());
+    allShipsSunk.reset();
   };
 
   return {

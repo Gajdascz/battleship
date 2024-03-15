@@ -7,131 +7,166 @@ import { DEFAULT_FLEET } from '../../Fleet/common/fleetConstants';
 import { configureBoardControllers } from './PlayerBoardConfigurator';
 import { TurnManager } from './TurnManager';
 import { CombatManager } from './CombatManager';
+import { GameOverDialogView } from '../../Dialogs/GameOverDialog/GameOverDialogView';
+import { StartState } from '../States/StartState';
+import { PlacementState } from '../States/PlacementState';
 
-const getEventsConfig = (scopes) => ({
-  global: {
-    ALL_PLAYERS_INITIALIZED: 'allPlayersInitialized',
-    ALL_PLACEMENTS_FINALIZED: 'allPlacementsFinalized',
-    PLAYER_LOST: 'playerLost'
-  },
-  base: {
-    START_TURN: 'startTurn',
-    END_TURN: 'endTurn',
-    FINALIZE_PLACEMENT: 'finalizePlacement',
-    SEND_ATTACK: 'sendAttack',
-    SEND_RESULT: 'sendIncomingAttackResult',
-    SEND_SHIP_SUNK: 'shipSunk'
-  },
-  scopes
-});
 export const GameCoordinator = (startGameEvent) => {
-  const players = {};
+  let gameSettingsData = null;
+  let turnManager = null;
+  const players = {
+    ids: null,
+    controllers: null
+  };
+  const events = {
+    manager: null,
+    methods: null,
+    getters: {},
+    setManager: (eventManager) => {
+      eventManager.manager = eventManager;
+      events.methods = eventManager.getEventMethods();
+      events.getters.getGlobal = eventManager.getGlobal;
+      events.getters.getScoped = eventManager.getScoped;
+      events.getters.getBaseTypes = eventManager.getBaseTypes;
+    }
+  };
+
   const stateController = GameStateController([
     STATES.START,
     STATES.PLACEMENT,
     STATES.PROGRESS,
     STATES.OVER
   ]);
-  let turnManager = null;
-  let p1Id;
-  let p2Id;
-  const events = (() => {
-    let manager = null;
-    return {
-      loadManager: () => {
-        if (!manager) manager = EventManager(getEventsConfig(Object.keys(players)));
-      },
-      getScoped: (scope) => manager.events.getScopedEvents()[scope],
-      getEventMethods: () => ({ on: manager.on, off: manager.off, emit: manager.emit })
-    };
-  })();
 
-  const loadTurnManager = (p1Id, p2Id) => {
-    if (turnManager || !p1Id || !p2Id) return;
-    events.loadManager();
-    const { emit, on, off } = events.getEventMethods();
-    const p1Events = events.getScoped(p1Id);
-    const p2Events = events.getScoped(p2Id);
-    turnManager = TurnManager({
-      emit,
-      on,
-      off,
-      events: {
-        p1StartTurn: p1Events.START_TURN,
-        p1EndTurn: p1Events.END_TURN,
-        p2StartTurn: p2Events.START_TURN,
-        p2EndTurn: p2Events.END_TURN
-      },
-      p1Id,
-      p2Id
-    });
+  const states = {
+    start: null,
+    placement: null,
+    combat: null,
+    over: null
   };
-
-  const start = {
-    settingsData: null,
-    onStart: () => {
-      const { p1Settings, p2Settings, boardSettings } = start.settingsData;
-      const gameMode =
-        p1Settings.type === PLAYERS.TYPES.HUMAN && p2Settings.type === PLAYERS.TYPES.AI
-          ? GAME_MODES.HvA
-          : GAME_MODES.HvH;
-      const p1 = initializePlayer(p1Settings, boardSettings, DEFAULT_FLEET);
-      const p2 = initializePlayer(p2Settings, boardSettings, DEFAULT_FLEET);
-      const p1Id = p1.model.id;
-      const p2Id = p2.model.id;
-      const { p1BoardController, p2BoardController } = configureBoardControllers(p1, p2, gameMode);
-      players[p1Id] = p1BoardController;
-      players[p2Id] = p2BoardController;
-      events.loadManager();
-      loadTurnManager(p1Id, p2Id);
-      start.settingsData = null;
-      stateController.onEnter(STATES.PLACEMENT, placement.executeCurrent);
-      stateController.transitionTo(STATES.PLACEMENT);
-    },
-    catchSettingsData: ({ data }) => {
-      start.settingsData = data;
-      stateController.onEnter(STATES.START, start.onStart);
-      stateController.startGame(STATES.START);
+  const stateMethods = {
+    startGame: () => stateController.startGame(STATES.START),
+    start: {
+      enter: () => {
+        if (!gameSettingsData) throw new Error(`Invalid Settings Data: ${gameSettingsData}`);
+        states.start = StartState();
+        states.start.init(gameSettingsData);
+        const { getPlayerControllers, getPlayerIds, getEventManager, getTurnManager } =
+          states.start;
+        players.controllers = getPlayerControllers();
+        players.ids = getPlayerIds();
+        events.setManager(getEventManager());
+        turnManager = getTurnManager();
+        turnManager.autoAlternate.enable();
+      },
+      exit: () => {
+        console.log('test');
+        states.start.reset();
+        states.start = null;
+        stateController.transitionTo(STATES.PLACEMENT);
+      }
     }
   };
+  const initStateController = () => {
+    stateController.onEnter(STATES.START, stateMethods.start.enter);
+    stateController.onExit(STATES.START, stateMethods.start.exit);
+    stateController.onEnter(STATES.PLACEMENT, placement.executeCurrent);
+    stateController.onEnter(STATES.PROGRESS, combat.startState);
+    stateController.onEnter(STATES.OVER, over.loadDialog);
+    stateController.startGame(STATES.START);
+  };
+
+  const setGameSettingsData = (data) => {
+    gameSettingsData = data;
+    initStateController();
+  };
+  globalEmitter.subscribe(startGameEvent, setGameSettingsData);
+
   const placement = {
     finalized: {},
     onFinalize: ({ data }) => {
       placement.finalized[data] = true;
-      turnManager.switchTurns();
-      if (Object.keys(players).every((id) => placement.finalized[id])) {
+      turnManager.currentPlayer.endTurn();
+      if (players.ids.every((id) => placement.finalized[id]))
         stateController.transitionTo(STATES.PROGRESS);
-      } else placement.executeCurrent();
+      else placement.executeCurrent();
     },
     setupFinalizeEvent: (id) => {
-      const { on, off, emit } = events.getEventMethods();
-      const scopedEvents = events.getScoped(id);
-      const finalizeEvent = scopedEvents.FINALIZE_PLACEMENT;
-      on(finalizeEvent, placement.onFinalize);
+      const { on, off, emit } = events.methods;
+      const { getScoped, getBaseTypes } = events.getters;
+      const { FINALIZE_PLACEMENT } = getScoped(id, getBaseTypes().PLACEMENT);
+      on(FINALIZE_PLACEMENT, placement.onFinalize);
       const finalizePlacement = () => {
-        emit(finalizeEvent, id);
-        off(finalizeEvent, placement.onFinalize);
+        emit(FINALIZE_PLACEMENT, id);
+        off(FINALIZE_PLACEMENT, placement.onFinalize);
       };
       return finalizePlacement;
     },
     executeCurrent: () => {
-      const currentId = turnManager.getCurrentPlayer();
+      const currentId = turnManager.currentPlayer.get();
+      console.log(currentId);
       const onFinalize = placement.setupFinalizeEvent(currentId);
-      players[currentId].placement.start(onFinalize);
-    }
+      players.controllers[currentId].placement.start(onFinalize);
+    },
+    reset: () => (placement.finalized = {})
   };
   const combat = {
-    attackManager: null,
+    manager: null,
+    lostEvent: null,
+    playerCombatControllers: null,
+    getPlayerCombatData: (id) => {
+      const { getScoped, getBaseTypes } = events.getters;
+      return {
+        id,
+        combatEvents: getScoped(id, getBaseTypes().COMBAT),
+        handlers: players.controllers[id].combat.getHandlers()
+      };
+    },
     loadManager: () => {
-      if (combat.attackManager) return;
-      const p1BoardController = players[p1Id];
-      const p2BoardController = players[p2Id];
-      combat.attackManager = AttackManager({
-        p1CombatData,
-        p2CombatData,
-        eventManager: events
+      if (combat.manager) return;
+      const [p1Id, p2Id] = players.ids;
+      const { getGlobal } = events.getters;
+      combat.manager = CombatManager({
+        p1CombatData: combat.getPlayerCombatData(p1Id),
+        p2CombatData: combat.getPlayerCombatData(p2Id),
+        eventMethods: events.methods,
+        lostEvent: getGlobal().PLAYER_LOST
       });
+    },
+    handlePlayerLost: ({ data }) => {},
+    startState: () => {
+      combat.playerCombatControllers = Object.entries(players.controllers).map(([key, value]) => ({
+        key,
+        controller: value.combat
+      }));
+      const { on } = events.methods;
+      const { getGlobal } = events.getters;
+      const endTurnMethods = turnManager.allPlayers.getAllPlayerEndTurnMethods();
+      const onTurnStartMethodManagers = turnManager.allPlayers.onTurnStartManagers;
+      combat.lostEvent = getGlobal().PROGRESS_OVER;
+      combat.playerCombatControllers.forEach(({ key, controller }) => {
+        controller.init();
+        onTurnStartMethodManagers[key].set(controller.startTurn);
+      });
+      if (!combat.manager) combat.loadManager();
+      combat.playerCombatControllers.forEach(({ key, controller }) =>
+        controller.start({ sendEndTurn: endTurnMethods[key], ...combat.manager[key] })
+      );
+      on(combat.lostEvent, combat.handlePlayerLost);
+      players.controllers[turnManager.currentPlayer.get()].combat.startTurn();
+    },
+    reset: () => {
+      const { off } = events.methods;
+      combat.manager.reset();
+      combat.manager = null;
+      combat.playerCombatControllers.forEach(({ key, controller }) => controller.end());
+      off(combat.lostEvent, combat.handlePlayerLost);
     }
   };
-  globalEmitter.subscribe(startGameEvent, start.catchSettingsData);
+
+  const over = {
+    dialog: null,
+    loadDialog: () => (over.dialog = GameOverDialogView(stateController.startGame(STATES.START))),
+    displayResult: (name) => {}
+  };
 };

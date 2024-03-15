@@ -6,16 +6,20 @@ export const GameOverDialogView = (restartCallback) => {
     buildGameOverDialogElement();
   const container = { current: null };
   let winnerMessage = ` Wins!`;
-  const closeDialog = () => {
-    playAgainBtn.removeEventListener(MOUSE_EVENTS.CLICK, restartCallback);
-    closeButton.removeEventListener(MOUSE_EVENTS.CLICK, dialogElement.showModal);
-    dialogElement.close();
-  };
 
   const setContainer = (newContainer) => {
     if (!(newContainer && newContainer instanceof HTMLElement))
       throw new Error(`Invalid Container: ${newContainer}`);
     container.current = newContainer;
+  };
+  const onRestart = () => {
+    closeDialog();
+    restartCallback();
+  };
+  const closeDialog = () => {
+    playAgainBtn.removeEventListener(MOUSE_EVENTS.CLICK, onRestart);
+    closeButton.removeEventListener(MOUSE_EVENTS.CLICK, dialogElement.showModal);
+    dialogElement.close();
   };
 
   const display = (playerName, newContainer = null) => {
@@ -24,7 +28,7 @@ export const GameOverDialogView = (restartCallback) => {
     container.current.append(dialogElement);
     winnerNameElement.textContent = playerName;
     winnerMessageElement.textContent = winnerMessage;
-    playAgainBtn.addEventListener(MOUSE_EVENTS.CLICK, restartCallback);
+    playAgainBtn.addEventListener(MOUSE_EVENTS.CLICK, onRestart);
     closeButton.addEventListener(MOUSE_EVENTS.CLICK, closeDialog);
     dialogElement.showModal();
   };

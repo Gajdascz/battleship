@@ -6,13 +6,14 @@ import { AIMainGridModel } from './components/MainGrid/AIMainGridModel';
 import { AITrackingGridModel } from './components/TrackingGrid/AITrackingGridModel';
 import { AIFleetModel } from './components/Fleet/AIFleetModel';
 import { AIShipModel } from './components/Ship/AIShipModel';
-import { AI_NAMES } from './common/constants';
+import { AI_NAMES, STATUSES } from './common/constants';
 
 import { AIView } from './AIView';
-import { CombatManager } from './features/combat/CombatManager';
 import { PlacementCoordinatesGenerator } from './features/placement/PlacementCoordinatesGenerator';
 
-export const AIController = ({ difficulty, boardSettings, shipData }) => {
+import { AiCombatManager } from './features/combat/AiCombatManager';
+
+export const AIController = ({ difficulty, boardSettings, fleetData }) => {
   const mainGridModel = AIMainGridModel(boardSettings.numberOfRows, boardSettings.numberOfCols);
   const trackingGridModel = AITrackingGridModel(
     boardSettings.numberOfRows,
@@ -21,7 +22,7 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
   const letterAxis = boardSettings.letterAxis;
   const fleetModel = AIFleetModel();
   const shipNames = [];
-  shipData.forEach((ship) => {
+  fleetData.forEach((ship) => {
     const shipModel = AIShipModel(ship.length, ship.name);
     fleetModel.addMainShip(shipModel);
     fleetModel.addTrackingShip(shipModel.id, ship.length);
@@ -50,7 +51,7 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
 
   const board = {
     id: model.properties.id,
-    name: model.properties.name,
+    name: model.properties.getName(),
     provideTrackingGrid: () => view.trackingGrid.elements.getGrid(),
     provideTrackingFleet: () => view.fleet.getTrackingFleet(),
     placement: {
@@ -60,6 +61,29 @@ export const AIController = ({ difficulty, boardSettings, shipData }) => {
         else handleFinalize();
       },
       end: () => {}
+    },
+    combat: {
+      manager: null,
+      init: (sendEndTurn) => {
+        if (board.combat.manager) return;
+        board.combat.manager = AiCombatManager({ sendEndTurn, model, view, letterAxis });
+      },
+      start: ({ sendAttack, sendResult, sendShipSunk, sendLost, sendEndTurn }) => {
+        if (!board.combat.manager) throw new Error(`Ai Combat Manager Not initialized`);
+        board.combat.manager.initializeCombat({
+          sendAttack,
+          sendResult,
+          sendShipSunk,
+          sendLost,
+          sendEndTurn
+        });
+      },
+      getHandlers: () => board.combat.manager.getHandlers(),
+      startTurn: () => board.combat.manager.startTurn(),
+      end: () => {
+        if (!board.combat.manager) return;
+        board.combat.manager.endCombat();
+      }
     }
   };
 

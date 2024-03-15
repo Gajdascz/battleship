@@ -26,7 +26,7 @@ export const GameStateController = (initialStates = []) => {
     setCurrentState(newState);
   };
 
-  const resetGame = () => {
+  const exitCurrent = () => {
     executeCurrentExit();
     states.current = null;
   };
@@ -39,6 +39,6 @@ export const GameStateController = (initialStates = []) => {
     onExit: (state, callback) => states[state][FN_TYPES.EXIT].push(callback),
     startGame,
     transitionTo,
-    resetGame
+    exitCurrent
   };
 };

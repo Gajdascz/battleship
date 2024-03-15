@@ -1,12 +1,13 @@
 export const CombatManager = ({ p1CombatData, p2CombatData, eventMethods, lostEvent }) => {
-  const { id: p1Id, handlers: p1Handlers, events: p1Events } = p1CombatData;
-  const { id: p2Id, handlers: p2Handlers, events: p2Events } = p2CombatData;
+  const { id: p1Id, handlers: p1Handlers, combatEvents: p1Events } = p1CombatData;
+  const { id: p2Id, handlers: p2Handlers, combatEvents: p2Events } = p2CombatData;
   const { on, off, emit } = eventMethods;
 
   const setupPlayerCombat = (playerEvents, opponentHandlers) => {
     const { SEND_ATTACK, SEND_RESULT, SEND_SHIP_SUNK } = playerEvents;
     const { incomingAttackHandler, incomingResultHandler } = opponentHandlers;
-    if (opponentHandlers.shipSunkHandler) on(SEND_SHIP_SUNK, opponentHandlers.shipSunkHandler);
+    if (opponentHandlers.incomingSunkenShipDataHandler)
+      on(SEND_SHIP_SUNK, opponentHandlers.incomingSunkenShipDataHandler);
     on(SEND_ATTACK, incomingAttackHandler);
     on(SEND_RESULT, incomingResultHandler);
     return {
@@ -19,7 +20,8 @@ export const CombatManager = ({ p1CombatData, p2CombatData, eventMethods, lostEv
   const dismantlePlayerCombat = (playerEvents, opponentHandlers) => {
     const { SEND_ATTACK, SEND_RESULT, SEND_SHIP_SUNK } = playerEvents;
     const { incomingAttackHandler, incomingResultHandler } = opponentHandlers;
-    if (opponentHandlers.shipSunkHandler) off(SEND_SHIP_SUNK, opponentHandlers.shipSunkHandler);
+    if (opponentHandlers.incomingSunkenShipDataHandler)
+      off(SEND_SHIP_SUNK, opponentHandlers.incomingSunkenShipDataHandler);
     off(SEND_ATTACK, incomingAttackHandler);
     off(SEND_RESULT, incomingResultHandler);
   };

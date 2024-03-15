@@ -49,35 +49,52 @@ export const BoardController = ({
     endPlacement: () => {
       if (!placement.manager) return;
       placement.manager.endPlacement();
+      placement.manager = null;
     }
   };
 
   const combat = {
     manager: null,
-    loadManager: (sendEndTurn) => {
+    loadManager: () => {
       if (combat.manager) return;
       combat.manager = BoardCombatManager({
         combatView: view.combat,
+        gameMode,
         combatManagers: {
           fleet: fleet.getCombatManager(),
-          mainGrid: mainGrid.getCombatManager()
-        },
+          mainGrid: mainGrid.getCombatManager(),
+          trackingGrid: trackingGrid.getCombatManager()
+        }
+      });
+    },
+    startCombat: ({ sendEndTurn, sendAttack, sendResult, sendShipSunk, sendLost }) => {
+      if (!combat.manager) throw new Error(`Board Combat Manager Not initialized`);
+      combat.manager.initializeCombat({
+        id,
+        name,
+        sendAttack,
+        sendResult,
+        sendShipSunk,
+        sendLost,
         sendEndTurn
       });
     },
-    initializeCombat: ({ sendEndTurn, sendAttack, sendResult, sendLost }) => {
-      if (!combat.manager) combat.loadManager(sendEndTurn);
-      combat.manager.startCombat({ id, name, sendAttack, sendResult, sendLost });
-    },
+    getHandlers: () => ({
+      incomingAttackHandler: combat.manager.incomingAttackHandler,
+      incomingResultHandler: combat.manager.incomingResultHandler
+    }),
+    startTurn: () => combat.manager.startTurn(),
     endCombat: () => {
       if (!combat.manager) return;
-      combat.manager.endCombat();
+      combat.manager.reset();
+      combat.manager = null;
     }
   };
 
   return {
     id,
     name,
+    view,
     trackingFleet: view.provideTrackingFleet,
     acceptTrackingFleet: view.acceptTrackingFleet,
     placement: {
@@ -85,9 +102,16 @@ export const BoardController = ({
       end: placement.endPlacement
     },
     combat: {
-      init: (initData) => combat.initializeCombat(initData)
+      init: combat.loadManager,
+      start: combat.startCombat,
+      startTurn: combat.startTurn,
+      getHandlers: combat.getHandlers,
+      end: () => combat.endCombat
     },
-    view
+    reset: () => {
+      placement.endPlacement();
+      combat.endCombat();
+    }
   };
 };
 // const combat = {

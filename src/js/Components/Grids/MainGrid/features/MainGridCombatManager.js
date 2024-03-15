@@ -8,11 +8,11 @@ const MainGridCombatManager = ({ model, view, createHandler }) => {
   const incomingAttack = {
     handler: null,
     process: ({ data }) => {
-      const result = model.processIncomingAttack(data);
+      const { coordinates, cellValue } = model.processIncomingAttack(data);
       const [x, y] = data;
       const displayCoordinates = convertToDisplayFormat(x, y, model.getLetterAxis());
-      if (result.value.status === STATUSES.HIT) view.displayShipHit(displayCoordinates);
-      incomingAttack.handler.emit(result);
+      if (cellValue.status === STATUSES.HIT) view.displayShipHit(displayCoordinates);
+      incomingAttack.handler.emit({ coordinates, cellValue });
     },
     init: () => {
       if (incomingAttack.handler) return;
