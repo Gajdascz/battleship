@@ -1,7 +1,7 @@
 // Tracking Grid Component
 import { TrackingGridModel } from './main/model/TrackingGridModel';
 import { TrackingGridView } from './main/view/TrackingGridView';
-import { CombatManagerFactory } from './features/combat/TrackingGridCombatManager';
+import { CombatManagerFactory } from './Managers/TrackingGridCombatManager';
 
 // External
 import { EventEmitter } from '../../../Events/core/EventEmitter';

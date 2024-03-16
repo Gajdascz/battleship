@@ -1,10 +1,9 @@
-import { GameStateController } from '../GameStateController';
-import { GAME_MODES, STATES } from '../../../Utility/constants/common';
-import { CombatManager } from './CombatManager';
-import { StartStateCoordinator } from '../States/StartStateCoordinator';
-import { PlacementStateCoordinator } from '../States/PlacementStateCoordinator';
-import { CombatStateCoordinator } from '../States/CombatStateCoordinator';
-import { dialogsManager } from './dialogsManager';
+import { GameStateController } from './GameStateController';
+import { GAME_MODES, STATES } from '../../Utility/constants/common';
+import { StartStateCoordinator } from './States/StartStateCoordinator';
+import { PlacementStateCoordinator } from './States/PlacementStateCoordinator';
+import { CombatStateCoordinator } from './States/CombatStateCoordinator';
+import { dialogsManager } from './Managers/dialogsManager';
 
 export const GameCoordinator = (() => {
   const { settings, gameOver, alternatePlayers } = dialogsManager;
@@ -24,6 +23,9 @@ export const GameCoordinator = (() => {
     getOpponentName: (playerId) => {
       const opponentId = players.ids.find((storedId) => playerId !== storedId);
       if (opponentId) return players.names[opponentId];
+    },
+    resetControllers: () => {
+      Object.values(players.controllers).forEach((controller) => controller.reset());
     }
   };
   const events = {
@@ -48,6 +50,7 @@ export const GameCoordinator = (() => {
   ]);
 
   const stateManager = (() => {
+    const sendStartRequest = () => startGame(STATES.START);
     const start = (() => {
       let coordinator = null;
       const enter = () => {
@@ -144,21 +147,28 @@ export const GameCoordinator = (() => {
       };
       return { enter, exit };
     })();
+
+    const over = (() => {
+      const enter = () => {
+        const onPlayAgain = () => {
+          players.resetControllers();
+          sendStartRequest();
+        };
+        gameOver.setOnPlayAgain(onPlayAgain);
+        gameOver.display();
+      };
+      return { enter };
+    })();
     onEnter(STATES.START, start.enter);
     onExit(STATES.START, start.exit);
     onEnter(STATES.PLACEMENT, placement.enter);
     onExit(STATES.PLACEMENT, placement.exit);
     onEnter(STATES.PROGRESS, combat.enter);
     onExit(STATES.PROGRESS, combat.exit);
-    return { startGame: () => startGame(STATES.START) };
+    onEnter(STATES.OVER, over.enter);
+    return { startGame: sendStartRequest };
   })();
 
   settings.setOnSubmit(stateManager.startGame);
   settings.display();
-
-  const over = {
-    dialog: null,
-    loadDialog: () => (over.dialog = GameOverDialogView(startGame(STATES.START))),
-    displayResult: (name) => {}
-  };
 })();

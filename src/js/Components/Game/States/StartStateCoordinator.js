@@ -1,9 +1,9 @@
 import { DEFAULT_FLEET } from '../../Fleet/common/fleetConstants';
 import { PLAYERS, GAME_MODES } from '../../../Utility/constants/common';
 import { initializePlayer } from '../utility/initializePlayer';
-import { configureBoardControllers } from '../utility/PlayerBoardConfigurator';
+import { configureBoardControllers } from '../utility/configurePlayerBoardControllers';
 import { EventManager } from '../../../Events/management/EventManager';
-import { TurnManager } from '../utility/TurnManager';
+import { TurnManager } from '../Managers/TurnManager';
 
 const GameEventManager = (playerIds) => {
   let manager = null;

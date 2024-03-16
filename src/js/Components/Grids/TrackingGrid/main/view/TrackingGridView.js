@@ -2,41 +2,38 @@ import { STATUSES } from '../../../../../Utility/constants/common';
 import { TRACKING_GRID } from '../../common/trackingGridConstants';
 import { COMMON_GRID } from '../../../common/gridConstants';
 import { buildTrackingGridUIObj } from './buildTrackingGridUIObj';
-
 import './tracking-grid-styles.css';
 
-const ELEMENT_IDS = {
-  WRAPPER: 'trackingGridWrapper',
-  GRID: 'trackingGrid'
-};
-
 export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => {
-  const { wrappedTrackingGridElement } = buildTrackingGridUIObj({
-    numberOfRows,
-    numberOfCols,
-    letterAxis
-  });
-  const trackingGridElement = wrappedTrackingGridElement.querySelector(
-    `.${TRACKING_GRID.CLASSES.TYPE}`
-  );
-  const cells = trackingGridElement.querySelectorAll(`.${COMMON_GRID.CLASSES.CELL}`);
+  const elements = {};
+  const buildAndSetElements = () => {
+    const { wrappedTrackingGridElement } = buildTrackingGridUIObj({
+      numberOfRows,
+      numberOfCols,
+      letterAxis
+    });
+    const grid = wrappedTrackingGridElement.querySelector(`.${TRACKING_GRID.CLASSES.TYPE}`);
+    const cells = grid.querySelectorAll(`.${COMMON_GRID.CLASSES.CELL}`);
+    Object.assign(elements, { wrappedTrackingGridElement, grid, cells });
+  };
+
   const isCellUnexplored = (cell) =>
     cell.dataset[TRACKING_GRID.PROPERTIES.ATTRIBUTES.CELL_STATUS_ACCESSOR] === STATUSES.UNEXPLORED;
   const enable = () =>
-    [...cells].forEach((cell) => {
+    [...elements.cells].forEach((cell) => {
       if (isCellUnexplored(cell)) cell.disabled = false;
     });
-  const disable = () => [...cells].forEach((cell) => (cell.disabled = true));
-  const attachWithinWrapper = (element) => wrappedTrackingGridElement.append(element);
-  const hide = () => (wrappedTrackingGridElement.style.display = 'none');
-  const show = () => wrappedTrackingGridElement.removeAttribute('style');
+  const disable = () => [...elements.cells].forEach((cell) => (cell.disabled = true));
+  const attachWithinWrapper = (element) => elements.wrappedTrackingGridElement.append(element);
+  const hide = () => (elements.wrappedTrackingGridElement.style.display = 'none');
+  const show = () => elements.wrappedTrackingGridElement.removeAttribute('style');
   const getCell = (coordinates) =>
-    trackingGridElement.querySelector(TRACKING_GRID.SELECTORS.CELL(coordinates));
+    elements.grid.querySelector(TRACKING_GRID.SELECTORS.CELL(coordinates));
   const setCellStatus = (cell, status) =>
     cell.setAttribute(TRACKING_GRID.PROPERTIES.ATTRIBUTES.CELL_STATUS_DATA, status);
-
+  buildAndSetElements();
   return {
-    attachTo: (container) => container.append(wrappedTrackingGridElement),
+    attachTo: (container) => container.append(elements.wrappedTrackingGridElement),
     attachWithinWrapper,
     getCell,
     setCellStatus,
@@ -45,8 +42,11 @@ export const TrackingGridView = ({ numberOfRows, numberOfCols, letterAxis }) => 
     enable,
     disable,
     elements: {
-      getWrapper: () => wrappedTrackingGridElement,
-      getGrid: () => trackingGridElement
+      getWrapper: () => elements.wrappedTrackingGridElement,
+      getGrid: () => elements.grid
+    },
+    reset: () => {
+      buildAndSetElements();
     }
   };
 };

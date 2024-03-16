@@ -1,5 +1,5 @@
-import { ManagerFactory } from '../../../../Utility/ManagerFactory';
-import { FLEET_PLACEMENT_EVENTS } from '../../common/fleetEvents';
+import { ManagerFactory } from '../../../Utility/ManagerFactory';
+import { FLEET_PLACEMENT_EVENTS } from '../common/fleetEvents';
 
 const FleetPlacementManager = ({ shipPlacementManagers, createHandler, isAllShipsPlaced }) => {
   const selected = { ship: null, data: null };

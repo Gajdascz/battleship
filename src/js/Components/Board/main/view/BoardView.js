@@ -9,7 +9,6 @@ import {
   ButtonContainerManager
 } from './boardViewUtility';
 import { BoardPlacementView } from './BoardPlacementView';
-import { ListenerManager } from '../../../../Utility/uiBuilderUtils/ListenerManager';
 import { MOUSE_EVENTS } from '../../../../Utility/constants/dom/domEvents';
 
 export const BoardView = ({

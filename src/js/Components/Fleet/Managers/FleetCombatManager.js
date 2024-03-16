@@ -1,5 +1,5 @@
-import { ManagerFactory } from '../../../../Utility/ManagerFactory';
-import { FLEET_COMBAT_EVENTS } from '../../common/fleetEvents';
+import { ManagerFactory } from '../../../Utility/ManagerFactory';
+import { FLEET_COMBAT_EVENTS } from '../common/fleetEvents';
 
 const FleetCombatManager = ({ shipCombatManagers, createHandler, isAllShipsSunk }) => {
   const hit = (id) => {

@@ -1,9 +1,9 @@
 import { MainGridModel } from './main/model/MainGridModel';
 import { MainGridView } from './main/view/MainGridView';
 import { EventEmitter } from '../../../Events/core/EventEmitter';
-import { PlacementManagerFactory } from './features/placement/MainGridPlacementManager';
+import { PlacementManagerFactory } from './Managers/placement/MainGridPlacementManager';
 import { EventHandler } from '../../../Events/management/EventHandler';
-import { CombatManagerFactory } from './features/MainGridCombatManager';
+import { CombatManagerFactory } from './Managers/MainGridCombatManager';
 
 export const MainGridController = (boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;

@@ -1,7 +1,7 @@
 import { FleetModel } from './main/model/FleetModel';
 import { FleetView } from './main/view/FleetView';
-import { PlacementManagerFactory } from './features/placement/FleetPlacementManager';
-import { CombatManagerFactory } from './features/combat/FleetCombatManager';
+import { PlacementManagerFactory } from './Managers/FleetPlacementManager';
+import { CombatManagerFactory } from './Managers/FleetCombatManager';
 import { EventEmitter } from '../../Events/core/EventEmitter';
 import { EventHandler } from '../../Events/management/EventHandler';
 

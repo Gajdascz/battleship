@@ -1,4 +1,4 @@
-import Queue from '../dataStructures/Queue';
+import Queue from '../../../ai/dataStructures/Queue';
 
 export const MoveStrategy = ({ trackingGrid, getOpenMovesAround, getRandomMove, popRandom }) => {
   let _lastHit = null;
@@ -29,8 +29,6 @@ export const MoveStrategy = ({ trackingGrid, getOpenMovesAround, getRandomMove, 
    * @returns {number[]} - Coordinates of move to execute.
    */
   const getNextMove = () => {
-    console.log(priorityMoves);
-    console.log(hitChain.copyToArray());
     if (!_lastHit && priorityMoves.length === 0) return getRandomMove();
     if (priorityMoves.length > 0) return getRandomPriorityMove();
     if (_lastHit) {

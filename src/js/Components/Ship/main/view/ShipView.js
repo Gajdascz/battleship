@@ -6,7 +6,6 @@ export const ShipView = ({ name, length }) => {
     name,
     length
   });
-
   return {
     elements: {
       getMainShip: () => mainShipElement,

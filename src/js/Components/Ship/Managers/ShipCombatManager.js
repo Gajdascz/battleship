@@ -1,8 +1,8 @@
-import { STATUSES } from '../../../../Utility/constants/common';
-import { BOOL } from '../../../../Utility/constants/dom/attributes';
-import { SHIP_DATA_ATTRIBUTES } from '../../common/shipConstants';
-import { SHIP_COMBAT_EVENTS } from '../../common/shipEvents';
-import { ManagerFactory } from '../../../../Utility/ManagerFactory';
+import { STATUSES } from '../../../Utility/constants/common';
+import { BOOL } from '../../../Utility/constants/dom/attributes';
+import { SHIP_DATA_ATTRIBUTES } from '../common/shipConstants';
+import { SHIP_COMBAT_EVENTS } from '../common/shipEvents';
+import { ManagerFactory } from '../../../Utility/ManagerFactory';
 
 const ShipCombatManager = ({ model, view, createHandler }) => {
   const hit = {

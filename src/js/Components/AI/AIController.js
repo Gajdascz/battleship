@@ -82,8 +82,13 @@ export const AIController = ({ difficulty, boardSettings, fleetData }) => {
       startTurn: () => board.combat.manager.startTurn(),
       end: () => {
         if (!board.combat.manager) return;
-        board.combat.manager.endCombat();
+        board.combat.manager.reset();
+        board.combat.manager = null;
       }
+    },
+    reset: () => {
+      board.combat.end();
+      model.reset();
     }
   };
 

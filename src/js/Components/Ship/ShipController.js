@@ -1,8 +1,8 @@
 // Ship Component
 import { ShipModel } from './main/model/ShipModel';
 import { ShipView } from './main/view/ShipView';
-import { SelectionAndPlacementManagerFactory } from './features/selectionAndPlacement/SelectionAndPlacementManager';
-import { CombatManagerFactory } from './features/combat/ShipCombatManager';
+import { SelectionAndPlacementManagerFactory } from './Managers/SelectionAndPlacement/SelectionAndPlacementManager';
+import { CombatManagerFactory } from './Managers/ShipCombatManager';
 // External
 import { EventEmitter } from '../../Events/core/EventEmitter';
 import { EventHandler } from '../../Events/management/EventHandler';

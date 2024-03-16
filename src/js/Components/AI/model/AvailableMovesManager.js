@@ -68,6 +68,7 @@ export const AvailableMovesManager = () => {
     popRandomMove,
     popMove,
     getTotalAvailableMoves: () => availableMoves.length,
-    getAvailableMoves: () => availableMoves.map((move) => move.slice())
+    getAvailableMoves: () => availableMoves.map((move) => move.slice()),
+    reset: () => (availableMoves.length = 0)
   };
 };

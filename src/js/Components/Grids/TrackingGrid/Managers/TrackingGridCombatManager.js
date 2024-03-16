@@ -1,8 +1,8 @@
 // Tracking Grid Component
-import { TRACKING_GRID_COMBAT_EVENTS } from '../../common/trackingGridEvents';
-import { TrackingGridCombatView } from './TrackingGridCombatView';
-import { ManagerFactory } from '../../../../../Utility/ManagerFactory';
-import { convertToInternalFormat } from '../../../../../Utility/utils/coordinatesUtils';
+import { TRACKING_GRID_COMBAT_EVENTS } from '../common/trackingGridEvents';
+import { TrackingGridCombatView } from '../main/view/TrackingGridCombatView';
+import { ManagerFactory } from '../../../../Utility/ManagerFactory';
+import { convertToInternalFormat } from '../../../../Utility/utils/coordinatesUtils';
 const TrackingGridCombatManager = ({ view, createHandler }) => {
   const combatView = TrackingGridCombatView(view);
 

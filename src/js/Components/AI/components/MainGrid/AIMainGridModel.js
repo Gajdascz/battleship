@@ -45,14 +45,12 @@ export const AIMainGridModel = (numberOfRows = 10, numberOfCols = 10) => {
     return { coordinates, cell: getCell(row, col) };
   };
 
-  const resetGrid = () => {
-    mainGrid = createGrid(numberOfRows, numberOfCols);
-  };
+  const reset = () => (mainGrid = createGrid(numberOfRows, numberOfCols));
 
   return {
     placeShip,
     processIncomingAttack,
-    resetGrid,
+    reset,
     getMainGrid: () => mainGrid
   };
 };

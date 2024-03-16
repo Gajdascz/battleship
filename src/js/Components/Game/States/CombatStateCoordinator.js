@@ -2,7 +2,7 @@ import { COMMON_ELEMENTS } from '../../../Utility/constants/dom/elements';
 import { BASE_CLASSES } from '../../../Utility/constants/dom/baseStyles';
 import { buildUIElement } from '../../../Utility/uiBuilderUtils/uiBuilders';
 import { MOUSE_EVENTS } from '../../../Utility/constants/dom/domEvents';
-import { CombatManager } from '../utility/CombatManager';
+import { CombatManager } from '../Managers/CombatManager';
 import { GAME_MODES } from '../../../Utility/constants/common';
 const EndTurnButtonManager = ({ sendEndTurn, enableOn, disableOn, eventMethods }) => {
   const { on, off } = eventMethods;
@@ -98,10 +98,7 @@ export const CombatStateCoordinator = ({
     combatManager.reset();
     combatManager = null;
 
-    // Not an array
-    // Fix Fix
-    // Fix Fix
-    combatControllers.forEach(({ key, controller }) => controller.end());
+    Object.values(combatControllers).forEach((controller) => controller.end());
 
     const endTurnButtonsArray = Object.values(endTurnButtons);
     if (endTurnButtonsArray.length > 0) endTurnButtonsArray.forEach((btn) => btn.reset());

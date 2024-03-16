@@ -33,6 +33,12 @@ export const AIFleetModel = () => {
         .map((shipModel) => shipModel.length)
         .reduce((acc, value) => acc + value, 0),
     getLiveOpponentShipLengths: () => [...opponentFleetTracker.values()],
-    getNumberOfOpponentShipsLeft: () => opponentFleetTracker.size
+    getNumberOfOpponentShipsLeft: () => opponentFleetTracker.size,
+    reset: () => {
+      aiFleet.clear();
+      opponentFleetTracker.clear();
+      lastShipSunk.id = null;
+      lastShipSunk.length = null;
+    }
   };
 };

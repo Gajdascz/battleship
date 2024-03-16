@@ -37,7 +37,14 @@ export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackin
       getAllAvailable: () => movesManager.getAvailableMoves(),
       get: (coordinates) => movesManager.getMove(coordinates),
       getTotalAvailable: () => movesManager.getTotalAvailableMoves(),
-      getRandomMove: () => movesManager.popRandomMove()
+      getRandomMove: () => movesManager.popRandomMove(),
+      reset: () => movesManager.reset()
+    },
+    reset: () => {
+      trackingGrid.reset();
+      mainGrid.reset();
+      fleet.reset();
+      movesManager.reset();
     }
   };
 };

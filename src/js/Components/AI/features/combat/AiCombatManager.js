@@ -5,15 +5,33 @@ export const AiCombatManager = ({ model, view, letterAxis }) => {
   const id = model.properties.id;
   const name = model.properties.getName();
   const isAllShipsSunk = () => model.fleet.isAllShipsSunk();
-  const getAttackCoordinates = () => model.moves.getRandomMove();
   const processIncomingAttack = (coordinates) => model.mainGrid.processIncomingAttack(coordinates);
+
+  const getAttackStrategy = (difficulty) => {
+    switch (difficulty) {
+      case 0:
+        return model.moves.getRandomMove;
+      case 1:
+        break;
+      case 2:
+        break;
+    }
+  };
+  const getAttackCoordinates = getAttackStrategy(model.properties.getDifficulty());
 
   const send = {
     attack: () => {},
     result: () => {},
     shipSunk: () => {},
     lost: () => {},
-    endTurn: () => {}
+    endTurn: () => {},
+    reset: () => {
+      send.attack = () => {};
+      send.result = () => {};
+      send.shipSunk = () => {};
+      send.lost = () => {};
+      send.endTurn = () => {};
+    }
   };
   const incomingAttack = {
     handleShipSunk: (shipId) => {
@@ -66,6 +84,10 @@ export const AiCombatManager = ({ model, view, letterAxis }) => {
   };
 
   const startTurn = () => outgoingAttack.sendRequest();
+  const reset = () => {
+    send.reset();
+    model.moves.reset();
+  };
 
-  return { initializeCombat, startTurn, getHandlers };
+  return { initializeCombat, startTurn, getHandlers, reset };
 };

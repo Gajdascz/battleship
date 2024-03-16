@@ -19,9 +19,8 @@ export const AITrackingGridView = (boardSettings, aiName) => {
   const headerText = trackingGridElement.querySelector('.tracking-grid-header > p');
   header.classList.add(AI_TRACKING_GRID.CLASSES.HEADER);
   headerText.textContent = AI_TRACKING_GRID.TEXTS.HEADER(aiName);
-  trackingGridElement.querySelectorAll('button.grid-cell').forEach((cell) => {
-    cell.setAttribute('disabled', true);
-    cell.addEventListener(MOUSE_EVENTS.CLICK, () => window.alert(`NO!`));
-  });
+  trackingGridElement
+    .querySelectorAll('button.grid-cell')
+    .forEach((cell) => cell.setAttribute('disabled', true));
   return trackingGridView;
 };
