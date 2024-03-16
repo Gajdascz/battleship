@@ -1,28 +1,37 @@
-import { globalEmitter } from '../../../Events/core/EventEmitter';
-import { EventManager } from '../../../Events/management/EventManager';
 import { GameStateController } from '../GameStateController';
-import { PLAYERS, GAME_MODES, STATES } from '../../../Utility/constants/common';
-import { initializePlayer } from './initializePlayer';
-import { DEFAULT_FLEET } from '../../Fleet/common/fleetConstants';
-import { configureBoardControllers } from './PlayerBoardConfigurator';
-import { TurnManager } from './TurnManager';
+import { GAME_MODES, STATES } from '../../../Utility/constants/common';
 import { CombatManager } from './CombatManager';
-import { GameOverDialogView } from '../../Dialogs/GameOverDialog/GameOverDialogView';
-import { StartState } from '../States/StartState';
-import { PlacementState } from '../States/PlacementState';
+import { StartStateCoordinator } from '../States/StartStateCoordinator';
+import { PlacementStateCoordinator } from '../States/PlacementStateCoordinator';
+import { CombatStateCoordinator } from '../States/CombatStateCoordinator';
+import { dialogsManager } from './dialogsManager';
 
-export const GameCoordinator = (startGameEvent) => {
-  let gameSettingsData = null;
+export const GameCoordinator = (() => {
+  const { settings, gameOver, alternatePlayers } = dialogsManager;
+
   let turnManager = null;
   const players = {
     ids: null,
-    controllers: null
+    controllers: null,
+    controllerTypes: {
+      PLACEMENT: 'placement',
+      COMBAT: 'combat'
+    },
+    getControllersOfType: (type) =>
+      Object.fromEntries(
+        Object.entries(players.controllers).map(([id, controller]) => [id, controller[type]])
+      ),
+    getOpponentName: (playerId) => {
+      const opponentId = players.ids.find((storedId) => playerId !== storedId);
+      if (opponentId) return players.names[opponentId];
+    }
   };
   const events = {
     manager: null,
     methods: null,
     getters: {},
     setManager: (eventManager) => {
+      if (events.manager) events.manager.reset();
       eventManager.manager = eventManager;
       events.methods = eventManager.getEventMethods();
       events.getters.getGlobal = eventManager.getGlobal;
@@ -31,142 +40,125 @@ export const GameCoordinator = (startGameEvent) => {
     }
   };
 
-  const stateController = GameStateController([
+  const { startGame, onEnter, onExit, transitionTo, exitCurrent } = GameStateController([
     STATES.START,
     STATES.PLACEMENT,
     STATES.PROGRESS,
     STATES.OVER
   ]);
 
-  const states = {
-    start: null,
-    placement: null,
-    combat: null,
-    over: null
-  };
-  const stateMethods = {
-    startGame: () => stateController.startGame(STATES.START),
-    start: {
-      enter: () => {
-        if (!gameSettingsData) throw new Error(`Invalid Settings Data: ${gameSettingsData}`);
-        states.start = StartState();
-        states.start.init(gameSettingsData);
-        const { getPlayerControllers, getPlayerIds, getEventManager, getTurnManager } =
-          states.start;
-        players.controllers = getPlayerControllers();
-        players.ids = getPlayerIds();
+  const stateManager = (() => {
+    const start = (() => {
+      let coordinator = null;
+      const enter = () => {
+        if (!coordinator) {
+          const startCoordinator = StartStateCoordinator();
+          coordinator = startCoordinator;
+          startCoordinator.init(settings.getCurrentSettings());
+        }
+        const { getPlayerData, getEventManager, getTurnManager } = coordinator;
+        Object.assign(players, { ...getPlayerData() });
         events.setManager(getEventManager());
         turnManager = getTurnManager();
         turnManager.autoAlternate.enable();
-      },
-      exit: () => {
-        console.log('test');
-        states.start.reset();
-        states.start = null;
-        stateController.transitionTo(STATES.PLACEMENT);
-      }
-    }
-  };
-  const initStateController = () => {
-    stateController.onEnter(STATES.START, stateMethods.start.enter);
-    stateController.onExit(STATES.START, stateMethods.start.exit);
-    stateController.onEnter(STATES.PLACEMENT, placement.executeCurrent);
-    stateController.onEnter(STATES.PROGRESS, combat.startState);
-    stateController.onEnter(STATES.OVER, over.loadDialog);
-    stateController.startGame(STATES.START);
-  };
-
-  const setGameSettingsData = (data) => {
-    gameSettingsData = data;
-    initStateController();
-  };
-  globalEmitter.subscribe(startGameEvent, setGameSettingsData);
-
-  const placement = {
-    finalized: {},
-    onFinalize: ({ data }) => {
-      placement.finalized[data] = true;
-      turnManager.currentPlayer.endTurn();
-      if (players.ids.every((id) => placement.finalized[id]))
-        stateController.transitionTo(STATES.PROGRESS);
-      else placement.executeCurrent();
-    },
-    setupFinalizeEvent: (id) => {
-      const { on, off, emit } = events.methods;
-      const { getScoped, getBaseTypes } = events.getters;
-      const { FINALIZE_PLACEMENT } = getScoped(id, getBaseTypes().PLACEMENT);
-      on(FINALIZE_PLACEMENT, placement.onFinalize);
-      const finalizePlacement = () => {
-        emit(FINALIZE_PLACEMENT, id);
-        off(FINALIZE_PLACEMENT, placement.onFinalize);
+        if (players.gameMode === GAME_MODES.HvH) {
+          const onTurnEndManagers = turnManager.allPlayers.onTurnEndManagers;
+          const dialog = alternatePlayers.getDialog();
+          players.ids.forEach((playerId) => {
+            const opponentName = players.getOpponentName(playerId);
+            const endTurnHandler = () => dialog.display(opponentName);
+            onTurnEndManagers[playerId].set(endTurnHandler);
+          });
+        }
+        transitionTo(STATES.PLACEMENT);
       };
-      return finalizePlacement;
-    },
-    executeCurrent: () => {
-      const currentId = turnManager.currentPlayer.get();
-      console.log(currentId);
-      const onFinalize = placement.setupFinalizeEvent(currentId);
-      players.controllers[currentId].placement.start(onFinalize);
-    },
-    reset: () => (placement.finalized = {})
-  };
-  const combat = {
-    manager: null,
-    lostEvent: null,
-    playerCombatControllers: null,
-    getPlayerCombatData: (id) => {
-      const { getScoped, getBaseTypes } = events.getters;
-      return {
-        id,
-        combatEvents: getScoped(id, getBaseTypes().COMBAT),
-        handlers: players.controllers[id].combat.getHandlers()
+      const exit = () => {
+        coordinator.reset();
+        coordinator = null;
       };
-    },
-    loadManager: () => {
-      if (combat.manager) return;
-      const [p1Id, p2Id] = players.ids;
-      const { getGlobal } = events.getters;
-      combat.manager = CombatManager({
-        p1CombatData: combat.getPlayerCombatData(p1Id),
-        p2CombatData: combat.getPlayerCombatData(p2Id),
-        eventMethods: events.methods,
-        lostEvent: getGlobal().PLAYER_LOST
-      });
-    },
-    handlePlayerLost: ({ data }) => {},
-    startState: () => {
-      combat.playerCombatControllers = Object.entries(players.controllers).map(([key, value]) => ({
-        key,
-        controller: value.combat
-      }));
-      const { on } = events.methods;
-      const { getGlobal } = events.getters;
-      const endTurnMethods = turnManager.allPlayers.getAllPlayerEndTurnMethods();
-      const onTurnStartMethodManagers = turnManager.allPlayers.onTurnStartManagers;
-      combat.lostEvent = getGlobal().PROGRESS_OVER;
-      combat.playerCombatControllers.forEach(({ key, controller }) => {
-        controller.init();
-        onTurnStartMethodManagers[key].set(controller.startTurn);
-      });
-      if (!combat.manager) combat.loadManager();
-      combat.playerCombatControllers.forEach(({ key, controller }) =>
-        controller.start({ sendEndTurn: endTurnMethods[key], ...combat.manager[key] })
-      );
-      on(combat.lostEvent, combat.handlePlayerLost);
-      players.controllers[turnManager.currentPlayer.get()].combat.startTurn();
-    },
-    reset: () => {
-      const { off } = events.methods;
-      combat.manager.reset();
-      combat.manager = null;
-      combat.playerCombatControllers.forEach(({ key, controller }) => controller.end());
-      off(combat.lostEvent, combat.handlePlayerLost);
-    }
-  };
+      return { enter, exit };
+    })();
+    const placement = (() => {
+      let coordinator = null;
+      const transition = () => transitionTo(STATES.PROGRESS);
+      const enter = () => {
+        if (!coordinator) {
+          coordinator = PlacementStateCoordinator({
+            endCurrentPlayerTurn: turnManager.currentPlayer.endTurn,
+            getCurrentPlayerId: turnManager.currentPlayer.getId,
+            playerIds: players.ids,
+            placementControllers: players.getControllersOfType(players.controllerTypes.PLACEMENT),
+            eventMethods: events.methods,
+            eventGetters: events.getters,
+            transition
+          });
+        }
+        coordinator.start();
+      };
+      const exit = () => {
+        coordinator.reset();
+        coordinator = null;
+      };
+      return { enter, exit };
+    })();
+
+    const combat = (() => {
+      let coordinator = null;
+      let overEvent = null;
+      const getWinnerName = (loserId) => {
+        const winnerId = players.ids.find((playerId) => playerId !== loserId);
+        if (winnerId) return players.names[winnerId];
+      };
+      const transition = ({ data }) => {
+        const { id } = data;
+        const winner = getWinnerName(id);
+        gameOver.setWinnerName(winner);
+        transitionTo(STATES.OVER);
+      };
+      const toggleOverListener = (on = false) => {
+        if (on) events.methods.on(overEvent, transition);
+        else events.methods.off(overEvent, transition);
+      };
+      const enter = () => {
+        if (!coordinator) {
+          overEvent = events.getters.getGlobal().PLAYER_LOST;
+          coordinator = CombatStateCoordinator({
+            eventMethods: events.methods,
+            eventGetters: events.getters,
+            combatControllers: players.getControllersOfType(players.controllerTypes.COMBAT),
+            playerIds: players.ids,
+            currentPlayerId: turnManager.currentPlayer.getId(),
+            endTurnMethods: turnManager.allPlayers.getAllPlayerEndTurnMethods(),
+            onTurnStartManagers: turnManager.allPlayers.onTurnStartManagers,
+            overEvent,
+            gameMode: players.gameMode
+          });
+        }
+        coordinator.start();
+        toggleOverListener(true);
+      };
+      const exit = () => {
+        coordinator.reset();
+        coordinator = null;
+        toggleOverListener(false);
+      };
+      return { enter, exit };
+    })();
+    onEnter(STATES.START, start.enter);
+    onExit(STATES.START, start.exit);
+    onEnter(STATES.PLACEMENT, placement.enter);
+    onExit(STATES.PLACEMENT, placement.exit);
+    onEnter(STATES.PROGRESS, combat.enter);
+    onExit(STATES.PROGRESS, combat.exit);
+    return { startGame: () => startGame(STATES.START) };
+  })();
+
+  settings.setOnSubmit(stateManager.startGame);
+  settings.display();
 
   const over = {
     dialog: null,
-    loadDialog: () => (over.dialog = GameOverDialogView(stateController.startGame(STATES.START))),
+    loadDialog: () => (over.dialog = GameOverDialogView(startGame(STATES.START))),
     displayResult: (name) => {}
   };
-};
+})();

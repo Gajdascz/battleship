@@ -5,16 +5,16 @@ export const InstructionsDialogView = () => {
   const dialogElement = buildInstructionsDialogElement();
   const listenerManager = initializeListenerManager(dialogElement);
 
-  const container = { current: null };
+  let container = document.querySelector('body');
   const setContainer = (newContainer) => {
     if (!(newContainer && newContainer instanceof HTMLElement))
       throw new Error(`Invalid Container: ${newContainer}`);
-    container.current = newContainer;
+    container = newContainer;
   };
   const display = (newContainer = null) => {
     if (newContainer) setContainer(newContainer);
-    if (!container.current) throw new Error('Cannot display dialog without a container.');
-    container.current.append(dialogElement);
+    if (!container) throw new Error('Cannot display dialog without a container.');
+    container.append(dialogElement);
     listenerManager.enableAllListeners();
     dialogElement.showModal();
   };

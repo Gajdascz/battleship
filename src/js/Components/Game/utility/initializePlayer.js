@@ -13,7 +13,6 @@ const initializePlayerControllers = (fleetData, boardSettings) => ({
 });
 
 export const initializePlayer = ({ playerSettings, boardSettings, fleetData }) => {
-  console.log(playerSettings, boardSettings, fleetData);
   const player = { model: null, controllers: null };
   if (playerSettings.type === PLAYERS.TYPES.AI) {
     const { difficulty } = playerSettings;

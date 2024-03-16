@@ -4,7 +4,7 @@ export const BoardPlacementManager = ({ placementView, placementManagers }) => {
   let isInitialized = false;
 
   const initializePlacement = (handleFinalize) => {
-    const { updateRotateButton, removeRotateButton } = placementView.initialize();
+    const { updateRotateButton, removeRotateButton } = placementView.init();
     mainGrid.start();
     fleet.start();
     const onShipSelected = (data) => {
@@ -23,9 +23,10 @@ export const BoardPlacementManager = ({ placementView, placementManagers }) => {
     isInitialized = true;
   };
 
-  const endPlacement = () => {
+  const endPlacement = (isFinalizeRequest) => {
     if (!isInitialized) return;
-    if (!fleet.isAllShipsPlaced()) throw new Error('Not all ships have been placed');
+    if (isFinalizeRequest && !fleet.isAllShipsPlaced())
+      throw new Error('Not all ships have been placed');
     placementView.endTurn();
     mainGrid.end();
     fleet.end();
@@ -34,8 +35,8 @@ export const BoardPlacementManager = ({ placementView, placementManagers }) => {
 
   const startPlacement = (onFinalize) => {
     const handleFinalize = () => {
+      endPlacement(true);
       if (onFinalize) onFinalize();
-      endPlacement();
     };
     initializePlacement(handleFinalize);
     placementView.startTurn();

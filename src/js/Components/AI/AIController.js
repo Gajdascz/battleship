@@ -64,18 +64,18 @@ export const AIController = ({ difficulty, boardSettings, fleetData }) => {
     },
     combat: {
       manager: null,
-      init: (sendEndTurn) => {
+      init: () => {
         if (board.combat.manager) return;
-        board.combat.manager = AiCombatManager({ sendEndTurn, model, view, letterAxis });
+        board.combat.manager = AiCombatManager({ model, view, letterAxis });
       },
-      start: ({ sendAttack, sendResult, sendShipSunk, sendLost, sendEndTurn }) => {
+      start: ({ sendAttack, sendResult, sendShipSunk, sendLost, endTurnMethod }) => {
         if (!board.combat.manager) throw new Error(`Ai Combat Manager Not initialized`);
         board.combat.manager.initializeCombat({
           sendAttack,
           sendResult,
           sendShipSunk,
           sendLost,
-          sendEndTurn
+          endTurnMethod
         });
       },
       getHandlers: () => board.combat.manager.getHandlers(),

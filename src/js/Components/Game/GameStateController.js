@@ -2,6 +2,7 @@ const FN_TYPES = {
   ENTER: 'onEnter',
   EXIT: 'onExit'
 };
+
 export const GameStateController = (initialStates = []) => {
   const states = { current: null };
 

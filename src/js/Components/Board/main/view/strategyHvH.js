@@ -14,6 +14,36 @@ export const StrategyHvH = (init, views, display, remove) => {
     attributes: { class: `${BASE_CLASSES.BUTTON} end-turn-button`, disabled: '' }
   });
 
+  const BaseStrategy = ({ remove, display, buttonManager, listenerManager }) => {
+    const placement = {
+      init: () => {
+        const updateRotateButton = ({ data }) => {
+          const { id } = data;
+          buttonManager.updateButton('rotate-ship', fleet.getRotateShipButton(id));
+        };
+        const removeRotateButton = () => buttonManager.removeButton('rotate-ship');
+        return { removeRotateButton, updateRotateButton };
+      },
+      startTurn: () => {
+        trackingGrid.disable();
+        trackingGrid.hide();
+        buttonManager.addButton('submit-placements', mainGrid.getSubmitButton());
+        buttonManager.addWrapper('rotate-ship');
+        display();
+      },
+      endTurn: () => {
+        buttonManager.removeWrapper('submit-placements');
+        buttonManager.removeWrapper('rotate-ship');
+        trackingGrid.show();
+        remove();
+      }
+    };
+  };
+  return {
+    initialize: () => {},
+    combat: () => {}
+  };
+
   const listenerManager = ListenerManager();
 
   let buttonManager = null;

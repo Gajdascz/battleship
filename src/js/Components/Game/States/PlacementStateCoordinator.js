@@ -1,20 +1,20 @@
-export const PlacementState = ({
+export const PlacementStateCoordinator = ({
   endCurrentPlayerTurn,
   getCurrentPlayerId,
   playerIds,
   placementControllers,
   eventMethods,
-  eventGetters
+  eventGetters,
+  transition
 }) => {
   const { on, off, emit } = eventMethods;
-  const { getGlobal, getBaseTypes, getScoped } = eventGetters;
-  const PLACEMENT_OVER = getGlobal().PLACEMENT_OVER;
+  const { getBaseTypes, getScoped } = eventGetters;
   let finalized = {};
 
   const onFinalize = ({ data }) => {
     finalized[data] = true;
     endCurrentPlayerTurn();
-    if (playerIds.every((id) => finalized[id])) emit(PLACEMENT_OVER);
+    if (playerIds.every((id) => finalized[id])) transition();
     else start();
   };
 
@@ -33,7 +33,10 @@ export const PlacementState = ({
     placementControllers[currentId].start(finalizePlacement);
   };
 
-  const reset = () => (finalized = {});
+  const reset = () => {
+    finalized = {};
+    Object.values(placementControllers).forEach((controller) => controller.end());
+  };
 
   return {
     start,

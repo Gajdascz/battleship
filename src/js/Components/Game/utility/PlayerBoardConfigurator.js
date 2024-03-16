@@ -20,11 +20,12 @@ export const configureBoardControllers = (p1, p2, gameMode) => {
   };
   const initializeBoardView = {
     [GAME_MODES.HvA]: (human, ai) => {
-      human.view.initialize(ai.provideTrackingGrid(), ai.provideTrackingFleet());
+      human.view.init(ai.provideTrackingFleet(), ai.provideTrackingGrid());
     },
     [GAME_MODES.HvH]: (p1, p2) => {
-      p1.view.initialize(p2.getPlayerName(), p2.provideTrackingFleet());
-      p2.view.initialize(p1.getPlayerName(), p1.provideTrackingFleet());
+      console.log(p1, p2);
+      p1.view.init(p2.provideTrackingFleet());
+      p2.view.init(p1.provideTrackingFleet());
     }
   };
   const p1BoardController = boardController[p1.model.getType()](p1);

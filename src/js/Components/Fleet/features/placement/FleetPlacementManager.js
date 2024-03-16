@@ -18,12 +18,10 @@ const FleetPlacementManager = ({ shipPlacementManagers, createHandler, isAllShip
     }),
     emitData: () => select.handler.emit(select.getData()),
     execute: ({ data }) => {
-      console.log(data);
       allShipsPlaced.emitFalse();
       const { id } = data;
       shipPlacementManagers.forEach((manager, key) => {
         if (key === id) {
-          console.log(key, id);
           manager.select();
           selected.ship = manager;
           selected.data = data;

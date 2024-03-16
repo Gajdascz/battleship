@@ -1,6 +1,6 @@
 import './board-style.css';
 
-export const StrategyHvA = ({ initialize, views, display, acceptTrackingFleet }) => {
+export const StrategyHvA = ({ initialize, views, display, remove, acceptTrackingFleet }) => {
   const { mainGrid, trackingGrid, fleet } = views;
   let buttonManager = null;
   const strategy = {
@@ -8,6 +8,12 @@ export const StrategyHvA = ({ initialize, views, display, acceptTrackingFleet })
       const { mainGridButtonManager } = initialize();
       trackingGrid.attachWithinWrapper(aiGrid);
       acceptTrackingFleet(aiFleet);
+      buttonManager = mainGridButtonManager;
+
+          initialize: (opponentPlayerName, opponentFleet) => {
+      const { mainGridButtonManager, setTrackingFleet } = init();
+      opponentName = opponentPlayerName;
+      setTrackingFleet(opponentFleet);
       buttonManager = mainGridButtonManager;
     },
     placement: {

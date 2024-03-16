@@ -4,6 +4,7 @@ import { initializePlayer } from '../utility/initializePlayer';
 import { configureBoardControllers } from '../utility/PlayerBoardConfigurator';
 import { EventManager } from '../../../Events/management/EventManager';
 import { TurnManager } from '../utility/TurnManager';
+
 const GameEventManager = (playerIds) => {
   let manager = null;
   const config = {
@@ -40,7 +41,10 @@ const GameEventManager = (playerIds) => {
     getGlobal: () => manager.events.getGlobalEvents(),
     getBaseTypes: () => manager.events.getBaseTypes(),
     getEventMethods: () => ({ on: manager.on, off: manager.off, emit: manager.emit }),
-    reset: () => manager.reset()
+    reset: () => {
+      manager.reset();
+      manager = null;
+    }
   };
 };
 const GameTurnManager = ({ p1Id, p2Id, eventManager }) => {
@@ -79,23 +83,27 @@ const initPlayers = ({ p1Settings, p2Settings, boardSettings }) => ({
       : GAME_MODES.HvH
 });
 
-export const StartState = () => {
+export const StartStateCoordinator = () => {
   let eventManager = null;
   let turnManager = null;
   let players = null;
 
-  const init = ({ data }) => {
-    const { p1Settings, p2Settings, boardSettings } = data;
-    console.log(data);
+  const init = (settings) => {
+    const { p1Settings, p2Settings, boardSettings } = settings;
     const { p1, p2, gameMode } = initPlayers({ p1Settings, p2Settings, boardSettings });
     const [p1Id, p2Id] = [p1.model.id, p2.model.id];
     const { p1BoardController, p2BoardController } = configureBoardControllers(p1, p2, gameMode);
     players = {
       ids: [p1Id, p2Id],
-      boardControllers: {
+      names: {
+        [p1Id]: p1.model.getName(),
+        [p2Id]: p2.model.getName()
+      },
+      controllers: {
         [p1Id]: p1BoardController,
         [p2Id]: p2BoardController
-      }
+      },
+      gameMode
     };
 
     if (eventManager) eventManager.reset();
@@ -111,8 +119,7 @@ export const StartState = () => {
     turnManager.load();
   };
   return {
-    getPlayerControllers: () => players.boardControllers,
-    getPlayerIds: () => players.ids,
+    getPlayerData: () => players,
     getEventManager: () => eventManager,
     getTurnManager: () => turnManager.get(),
     init,

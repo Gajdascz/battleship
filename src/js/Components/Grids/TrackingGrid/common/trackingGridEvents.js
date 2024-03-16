@@ -15,5 +15,5 @@ export const TRACKING_GRID_COMBAT_EVENTS = {
 
   // Declarations
   ATTACK_SENT: 'attackSent',
-  SENT_ATTACK_PROCESSED: 'attackProcessedInTracking'
+  RESUlT_PROCESSED: 'sentAttackResultProcessed'
 };

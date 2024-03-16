@@ -1,40 +1,72 @@
 import { MOUSE_EVENTS } from '../../../Utility/constants/dom/domEvents';
 import { buildGameOverDialogElement } from './buildGameOverDialogElement';
+import { ListenerManager } from '../../../Utility/uiBuilderUtils/ListenerManager';
 
-export const GameOverDialogView = (restartCallback) => {
+export const GameOverDialogView = () => {
   const { dialogElement, playAgainBtn, closeButton, winnerNameElement, winnerMessageElement } =
     buildGameOverDialogElement();
-  const container = { current: null };
+
+  const listenerManager = ListenerManager();
+  let container = document.querySelector('body');
+  let winnerName = 'k';
   let winnerMessage = ` Wins!`;
 
   const setContainer = (newContainer) => {
     if (!(newContainer && newContainer instanceof HTMLElement))
       throw new Error(`Invalid Container: ${newContainer}`);
-    container.current = newContainer;
+    container = newContainer;
   };
-  const onRestart = () => {
-    closeDialog();
-    restartCallback();
+
+  const listenerKeys = {
+    PLAY_AGAIN: 'playAgain',
+    CLOSE: 'closeDialog'
   };
-  const closeDialog = () => {
-    playAgainBtn.removeEventListener(MOUSE_EVENTS.CLICK, onRestart);
-    closeButton.removeEventListener(MOUSE_EVENTS.CLICK, dialogElement.showModal);
+
+  const onClose = () => {
+    listenerManager.disableAllListeners();
     dialogElement.close();
   };
 
-  const display = (playerName, newContainer = null) => {
-    if (newContainer) setContainer(newContainer);
-    if (!container.current) throw new Error('Cannot display dialog without a container.');
-    container.current.append(dialogElement);
+  listenerManager.addController({
+    element: closeButton,
+    event: MOUSE_EVENTS.CLICK,
+    callback: onClose,
+    key: listenerKeys.CLOSE,
+    enable: true
+  });
+
+  const setOnPlayAgain = (playAgainFn) => {
+    const onPlayAgain = () => {
+      playAgainFn();
+      dialogElement.close();
+    };
+    listenerManager.addController({
+      element: playAgainBtn,
+      event: MOUSE_EVENTS.CLICK,
+      callback: onPlayAgain,
+      key: listenerKeys.PLAY_AGAIN,
+      enable: true
+    });
+  };
+
+  const setText = (playerName) => {
     winnerNameElement.textContent = playerName;
     winnerMessageElement.textContent = winnerMessage;
-    playAgainBtn.addEventListener(MOUSE_EVENTS.CLICK, onRestart);
-    closeButton.addEventListener(MOUSE_EVENTS.CLICK, closeDialog);
+  };
+
+  const display = (playerName = winnerName, newContainer = null) => {
+    if (newContainer) setContainer(newContainer);
+    if (!container) throw new Error('Cannot display dialog without a container.');
+    container.append(dialogElement);
+    setText(playerName);
+    listenerManager.enableAllListeners();
     dialogElement.showModal();
   };
   return {
+    setWinnerName: (newName) => (winnerName = newName),
     setWinnerMessage: (message) => (winnerMessage = message),
     setContainer,
+    setOnPlayAgain,
     display
   };
 };

@@ -22,14 +22,12 @@ export const AiCombatManager = ({ model, view, letterAxis }) => {
       if (isAllShipsSunk()) send.lost({ id, name });
     },
     processResultFromGrid: (cell) => {
-      console.log(cell);
       const ship = model.fleet.getShip(cell.id);
       ship.hit();
       if (ship.isSunk()) incomingAttack.handleShipSunk(ship.id);
     },
     handleRequest: ({ data }) => {
       const result = processIncomingAttack(data);
-      console.log(data);
       const { coordinates, cell } = result;
       if (cell.status === STATUSES.HIT) incomingAttack.processResultFromGrid(cell);
       send.result({ coordinates, result: cell.status });
@@ -58,12 +56,12 @@ export const AiCombatManager = ({ model, view, letterAxis }) => {
     incomingSunkenShipDataHandler: outgoingAttack.handleIncomingSunkenShipData
   });
   const initializeCombat = (initData) => {
-    const { sendAttack, sendResult, sendShipSunk, sendLost, sendEndTurn } = initData;
+    const { sendAttack, sendResult, sendShipSunk, sendLost, endTurnMethod } = initData;
     send.attack = sendAttack;
     send.result = sendResult;
     send.shipSunk = sendShipSunk;
     send.lost = sendLost;
-    send.endTurn = sendEndTurn;
+    send.endTurn = endTurnMethod;
     model.moves.initialize();
   };
 

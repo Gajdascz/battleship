@@ -1,7 +1,6 @@
 export const TurnManager = ({ emit, on, off, events, p1Id, p2Id }) => {
   const { p1StartTurn, p1EndTurn, p2StartTurn, p2EndTurn } = events;
 
-  console.log(events, p1Id, p2Id);
   const getEvent = {
     [p1Id]: {
       START: p1StartTurn,
@@ -63,6 +62,25 @@ export const TurnManager = ({ emit, on, off, events, p1Id, p2Id }) => {
     [p1Id]: OnTurnStartManager(p1Id),
     [p2Id]: OnTurnStartManager(p2Id)
   };
+  const OnTurnEndManager = (id) => {
+    let onEnd = null;
+    const getEndEvent = () => getEvent[id].END;
+    const set = (callback) => {
+      if (onEnd) off(getEndEvent(id), onEnd);
+      on(getEndEvent(), callback);
+      onEnd = callback;
+    };
+    const off = () => {
+      if (!onEnd) return;
+      off(getEndEvent(), onEnd);
+      onEnd = null;
+    };
+    return { set, off };
+  };
+  const onTurnEndManagers = {
+    [p1Id]: OnTurnEndManager(p1Id),
+    [p2Id]: OnTurnEndManager(p2Id)
+  };
 
   const reset = () => {
     players.current = p1Id;
@@ -76,13 +94,14 @@ export const TurnManager = ({ emit, on, off, events, p1Id, p2Id }) => {
       disable: autoAlternate.disable
     },
     currentPlayer: {
-      get: getCurrentPlayer,
+      getId: getCurrentPlayer,
       startTurn: startCurrentPlayerTurn,
       endTurn: endCurrentPlayerTurn
     },
     allPlayers: {
       getAllPlayerEndTurnMethods,
-      onTurnStartManagers
+      onTurnStartManagers,
+      onTurnEndManagers
     },
     alternate,
     reset

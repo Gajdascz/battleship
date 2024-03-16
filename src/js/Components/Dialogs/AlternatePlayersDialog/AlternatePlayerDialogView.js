@@ -13,16 +13,16 @@ export const AlternatePlayerDialogView = () => {
     dialogElement.remove();
   };
 
-  const container = { current: document.querySelector('body') };
+  let container = document.querySelector('body');
   const setContainer = (newContainer) => {
     if (!(newContainer && newContainer instanceof HTMLElement))
       throw new Error(`Invalid Container: ${newContainer}`);
-    container.current = newContainer;
+    container = newContainer;
   };
   const display = (playerName = displayName, newContainer = null) => {
     if (newContainer) setContainer(newContainer);
-    if (!container.current) throw new Error('Cannot display dialog without a container.');
-    container.current.append(dialogElement);
+    if (!container) throw new Error('Cannot display dialog without a container.');
+    container.append(dialogElement);
     playerNameElement.textContent = `${playerName}'s Turn`;
     proceedButtonElement.addEventListener(MOUSE_EVENTS.CLICK, closeDialog);
     dialogElement.showModal();

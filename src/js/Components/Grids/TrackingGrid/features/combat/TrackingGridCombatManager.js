@@ -6,15 +6,25 @@ import { convertToInternalFormat } from '../../../../../Utility/utils/coordinate
 const TrackingGridCombatManager = ({ view, createHandler }) => {
   const combatView = TrackingGridCombatView(view);
 
+  const acceptResult = {
+    handler: null,
+    process: ({ data }) => {
+      const { result } = data;
+      combatView.displayResult(result);
+      acceptResult.handler.emit();
+    },
+    on: (callback) => acceptResult.handler.on(callback),
+    off: (callback) => acceptResult.handler.off(callback),
+    initialize: () =>
+      (acceptResult.handler = createHandler(TRACKING_GRID_COMBAT_EVENTS.RESUlT_PROCESSED)),
+    end: () => outgoingAttack.handler.reset()
+  };
+
   const outgoingAttack = {
     handler: null,
     send: (displayCoordinates) => {
       const coordinates = convertToInternalFormat(displayCoordinates);
       outgoingAttack.handler.emit(coordinates);
-    },
-    acceptResult: ({ data }) => {
-      const { result } = data;
-      combatView.displayResult(result);
     },
     enable: () => combatView.enable(),
     disable: () => combatView.disable(),
@@ -27,11 +37,13 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
 
   const start = () => {
     outgoingAttack.initialize();
+    acceptResult.initialize();
     combatView.initialize(outgoingAttack.send);
   };
   const end = () => {
     outgoingAttack.end();
     combatView.end();
+    acceptResult.end();
   };
 
   return {
@@ -39,7 +51,9 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
     end,
     enable: outgoingAttack.enable,
     disable: outgoingAttack.disable,
-    acceptResult: outgoingAttack.acceptResult,
+    acceptResult: acceptResult.process,
+    onResultProcessed: acceptResult.on,
+    offResultProcessed: acceptResult.off,
     onSendAttack: outgoingAttack.on,
     offSendAttack: outgoingAttack.off
   };

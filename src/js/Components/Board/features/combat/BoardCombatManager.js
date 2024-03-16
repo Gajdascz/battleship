@@ -1,17 +1,7 @@
-import { GAME_MODES, STATUSES } from '../../../../Utility/constants/common';
+import { STATUSES } from '../../../../Utility/constants/common';
 
-export const BoardCombatManager = ({ gameMode, combatManagers, combatView }) => {
+export const BoardCombatManager = ({ combatManagers, combatView }) => {
   const { trackingGrid, fleet, mainGrid } = combatManagers;
-  const postAttackStrategy = {
-    [GAME_MODES.HvA]: () => {
-      trackingGrid.disable();
-      send.endTurn();
-    },
-    [GAME_MODES.HvH]: () => {
-      trackingGrid.disable();
-      // enable button -> on button click send.endTurn()
-    }
-  };
 
   const send = {
     attack: () => {},
@@ -47,15 +37,11 @@ export const BoardCombatManager = ({ gameMode, combatManagers, combatView }) => 
   };
   const outgoingAttack = {
     isInitialized: false,
-    updateOnAttackSent: postAttackStrategy[gameMode],
     sendRequest: (coordinates) => {
+      trackingGrid.disable();
       send.attack(coordinates);
-      outgoingAttack.updateOnAttackSent();
     },
-    handleIncomingResultRequest: (result) => {
-      console.log(result);
-      trackingGrid.acceptResult(result);
-    },
+    handleIncomingResultRequest: (result) => trackingGrid.acceptResult(result),
     init: () => {
       if (outgoingAttack.isInitialized) return;
       trackingGrid.onSendAttack(outgoingAttack.sendRequest);
@@ -64,20 +50,24 @@ export const BoardCombatManager = ({ gameMode, combatManagers, combatView }) => 
   };
 
   const initializeCombat = (initData) => {
-    const { id, name, sendAttack, sendResult, sendShipSunk, sendLost, sendEndTurn } = initData;
+    const { id, name, sendAttack, sendResult, sendShipSunk, sendLost, endTurnMethod } = initData;
     send.attack = sendAttack;
     send.result = sendResult;
     send.shipSunk = sendShipSunk;
     send.lost = sendLost;
-    send.endTurn = sendEndTurn;
     fleet.start();
     mainGrid.start();
     trackingGrid.start();
     outgoingAttack.init();
     incomingAttack.init(id, name);
+    if (typeof endTurnMethod === 'function') trackingGrid.onResultProcessed(endTurnMethod);
+    else combatView.setEndTurnButton(endTurnMethod);
   };
 
-  const startTurn = () => trackingGrid.enable();
+  const startTurn = () => {
+    combatView.startTurn();
+    trackingGrid.enable();
+  };
 
   const reset = () => {
     mainGrid.end();
@@ -87,6 +77,7 @@ export const BoardCombatManager = ({ gameMode, combatManagers, combatView }) => 
     incomingAttack.onLost = null;
     incomingAttack.isInitialized = false;
     outgoingAttack.isInitialized = false;
+    combatView.reset();
   };
 
   return {

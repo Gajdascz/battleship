@@ -16,7 +16,7 @@ export const BoardController = ({
   const viewParameters = {
     playerId,
     playerName,
-    container: displayContainer,
+    displayContainer,
     gameMode,
     views: {
       mainGrid: mainGrid.view,
@@ -31,7 +31,7 @@ export const BoardController = ({
     loadManager: () => {
       if (placement.manager) return;
       placement.manager = BoardPlacementManager({
-        placementView: view.placement,
+        placementView: view.placementView,
         placementManagers: {
           fleet: fleet.getPlacementManager(),
           mainGrid: mainGrid.getPlacementManager()
@@ -58,7 +58,7 @@ export const BoardController = ({
     loadManager: () => {
       if (combat.manager) return;
       combat.manager = BoardCombatManager({
-        combatView: view.combat,
+        combatView: view.combatView,
         gameMode,
         combatManagers: {
           fleet: fleet.getCombatManager(),
@@ -67,7 +67,7 @@ export const BoardController = ({
         }
       });
     },
-    startCombat: ({ sendEndTurn, sendAttack, sendResult, sendShipSunk, sendLost }) => {
+    startCombat: ({ sendAttack, sendResult, sendShipSunk, sendLost, endTurnMethod }) => {
       if (!combat.manager) throw new Error(`Board Combat Manager Not initialized`);
       combat.manager.initializeCombat({
         id,
@@ -76,7 +76,7 @@ export const BoardController = ({
         sendResult,
         sendShipSunk,
         sendLost,
-        sendEndTurn
+        endTurnMethod
       });
     },
     getHandlers: () => ({
@@ -95,8 +95,7 @@ export const BoardController = ({
     id,
     name,
     view,
-    trackingFleet: view.provideTrackingFleet,
-    acceptTrackingFleet: view.acceptTrackingFleet,
+    provideTrackingFleet: view.provideTrackingFleet,
     placement: {
       start: placement.startPlacement,
       end: placement.endPlacement
@@ -111,29 +110,7 @@ export const BoardController = ({
     reset: () => {
       placement.endPlacement();
       combat.endCombat();
+      view.reset();
     }
   };
 };
-// const combat = {
-//   manager: null,
-//   initializeController: () => {
-//     if (combat.manager) return;
-//     combat.manager = BoardCombatManager({
-//       combatView: view.combat,
-//       gameMode,
-//       combatControllers: {
-//         fleet: fleet.getCombatManager(),
-//         trackingGrid: trackingGrid.getCombatManager()
-//       },
-//       processIncomingAttack: mainGrid.processIncomingAttack,
-//       combatCoordinator,
-//       resetController: combat.resetController
-//     });
-//     console.log(combat.manager);
-//   },
-//   resetController: () => (combat.manager = null),
-//   getManager: () => {
-//     if (!combat.manager) combat.initializeController();
-//     return combat.manager;
-//   }
-// };
