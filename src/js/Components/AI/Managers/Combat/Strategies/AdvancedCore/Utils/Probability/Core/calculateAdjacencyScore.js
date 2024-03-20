@@ -6,34 +6,35 @@ import { STATUSES } from '../../../../../../../../../Utility/constants/common';
 
 const MISS_VALUE = 0.2;
 const UNRESOLVED_HIT_VALUE = 2;
-const UNEXPLORED_VALUE = 0.33;
+const BASE_VALUE = 0.33;
 const NUMBER_OF_ADJACENT_DIRECTIONS = 4;
 
 export const calculateAdjacencyScore = (
   move,
   { getCellsInAllDirections, getCellStatusAt, isHitResolved }
 ) => {
-  let unresolvedScore = 0;
-  let missScore = 0;
-  let unexploredScore = 0;
+  let score = 0;
+
+  const getUnresolvedHitsScore = (cell) => {
+    let unresolvedHitsScore = 0;
+    const direction = getDelta(move, cell);
+    let currentCell = cell;
+    let currentCellStatus = getCellStatusAt(currentCell);
+    while (currentCellStatus && currentCellStatus === STATUSES.HIT && !isHitResolved(currentCell)) {
+      unresolvedHitsScore += UNRESOLVED_HIT_VALUE;
+      currentCell = sumCoordinates(currentCell, direction);
+      currentCellStatus = getCellStatusAt(currentCell);
+    }
+    return unresolvedHitsScore;
+  };
   const adjacentCells = getCellsInAllDirections(move);
+  score = (NUMBER_OF_ADJACENT_DIRECTIONS - adjacentCells.length) * BASE_VALUE;
   adjacentCells.forEach((cell) => {
     const cellStatus = getCellStatusAt(cell);
-    if (cellStatus === STATUSES.MISS) missScore += MISS_VALUE;
+    if (cellStatus === STATUSES.MISS) score -= MISS_VALUE;
     else if (cellStatus === STATUSES.HIT && !isHitResolved(cell)) {
-      const direction = getDelta(move, cell);
-      let currentCell = cell;
-      let currentCellStatus = getCellStatusAt(currentCell);
-      while (
-        currentCellStatus &&
-        currentCellStatus === STATUSES.HIT &&
-        !isHitResolved(currentCell)
-      ) {
-        unresolvedScore += UNRESOLVED_HIT_VALUE;
-        currentCell = sumCoordinates(currentCell, direction);
-        currentCellStatus = getCellStatusAt(currentCell);
-      }
-    } else if (cellStatus === STATUSES.UNEXPLORED) unexploredScore += UNEXPLORED_VALUE;
+      score += getUnresolvedHitsScore(cell);
+    } else score += BASE_VALUE;
   });
-  return (unresolvedScore + unexploredScore - missScore) / NUMBER_OF_ADJACENT_DIRECTIONS;
+  return score / NUMBER_OF_ADJACENT_DIRECTIONS;
 };

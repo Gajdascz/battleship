@@ -61,6 +61,13 @@ describe('calculateAdjacencyScore', () => {
     expect(score).toBe(getScore({ unexplored: 2, unresolvedHits: 2 }));
   });
 
+  it('should correctly adjust score for corner/edge moves', () => {
+    const isCornerEqualToSurrounded = getAdjacencyScore([0, 0]) === getAdjacencyScore([1, 1]);
+    expect(isCornerEqualToSurrounded).toBeTruthy();
+    const isEdgeEqualToSurrounded = getAdjacencyScore([9, 2]) === getAdjacencyScore([2, 2]);
+    expect(isEdgeEqualToSurrounded).toBeTruthy();
+  });
+
   it('should handle a mix of different cell statuses correctly', () => {
     const move = [5, 5];
     grid[4][5] = { status: STATUSES.MISS };
