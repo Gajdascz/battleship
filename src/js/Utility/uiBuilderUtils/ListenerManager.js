@@ -1,5 +1,6 @@
 /**
  * Validates createEventController parameters.
+ *
  * @param {Object} parameters Contains parameters for createEventController.
  */
 const validateControllerParameters = (parameters) => {
@@ -14,6 +15,7 @@ const validateControllerParameters = (parameters) => {
 
 /**
  * Creates an event controller for managing a DOM event listener.
+ *
  * @param {Object} params The parameters for creating an event controller.
  * @param {HTMLElement} params.element The DOM element to attach the event listener to.
  * @param {string} params.event The event type (e.g., 'click', 'change').
@@ -27,6 +29,7 @@ const createEventController = ({ element, event, callback, key }) => {
   const controller = {
     /**
      * Enables listener if not active.
+     *
      * @returns {Object} This controller object to enable chaining.
      */
     enable: () => {
@@ -38,6 +41,7 @@ const createEventController = ({ element, event, callback, key }) => {
     },
     /**
      * Disables listener if active.
+     *
      * @returns {Object} This controller object to enable chaining.
      */
     disable: () => {
@@ -55,6 +59,7 @@ const createEventController = ({ element, event, callback, key }) => {
 
 /**
  * Creates a manager for handling multiple event controllers.
+ *
  * @returns {Object} The listener manager with methods to add, enable, disable, and remove event listeners.
  */
 export const ListenerManager = () => {
@@ -63,6 +68,7 @@ export const ListenerManager = () => {
 
   /**
    * Ensures efficient and consistent updates when enabling and disabling listeners.
+   *
    * @param {Object} controller Event controller object.
    */
   const updateControllers = (controller) => {
@@ -77,6 +83,7 @@ export const ListenerManager = () => {
 
   /**
    * Adds a new event controller to the manager.
+   *
    * @param {Object} config Configuration object for the event controller.
    * @param {HTMLElement} config.element The DOM element to attach the event listener to.
    * @param {string} config.event The event type.

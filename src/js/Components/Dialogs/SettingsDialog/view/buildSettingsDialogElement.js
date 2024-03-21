@@ -5,8 +5,8 @@ import {
   PLAYER_SETTINGS,
   BOARD_SETTINGS,
   BUTTONS
-} from '../utility/constants';
-import { COMMON_ELEMENTS, STRUCTURAL_ELEMENTS } from '../../../../Utility/constants/dom/elements';
+} from '../constants';
+import { STRUCTURAL_ELEMENTS } from '../../../../Utility/constants/dom/elements';
 import {
   buildElementFromUIObj,
   buildUIObj,
@@ -63,16 +63,13 @@ const buildPlayerTypeSelectInputObj = (player, selected) => {
     text: SELECTIONS.PLAYER_TYPE.TEXTS.HUMAN,
     isSelected: selected === SELECTIONS.PLAYER_TYPE.TYPES.HUMAN
   };
+  const computerOption = {
+    value: SELECTIONS.PLAYER_TYPE.TYPES.COMPUTER,
+    text: SELECTIONS.PLAYER_TYPE.TEXTS.COMPUTER,
+    isSelected: selected === SELECTIONS.PLAYER_TYPE.TYPES.COMPUTER
+  };
   options.push(humanOption);
-  let computerOption = null;
-  if (player === PLAYER_SETTINGS.PLAYER_TWO.ID) {
-    computerOption = {
-      value: SELECTIONS.PLAYER_TYPE.TYPES.COMPUTER,
-      text: SELECTIONS.PLAYER_TYPE.TEXTS.COMPUTER,
-      isSelected: selected === SELECTIONS.PLAYER_TYPE.TYPES.COMPUTER
-    };
-    options.push(computerOption);
-  }
+  options.push(computerOption);
   return buildSelectInputObj({ id: SELECTIONS.PLAYER_TYPE.PLAYER_TYPE_CLASS(player), options });
 };
 
@@ -110,6 +107,23 @@ const buildDimensionInputObj = ({ id, classAttr, wrapperClass, labelText, labelC
     })
   ]);
 
+const buildAttackDelayInputObj = (id) =>
+  wrap(`${INPUT_FIELDS.ATTACK_DELAY.CLASSES.WRAPPER}`, [
+    buildUIObj(INPUT_FIELDS.ATTACK_DELAY.ELEMENT, {
+      attributes: {
+        type: INPUT_FIELDS.ATTACK_DELAY.ATTRIBUTES.TYPE,
+        min: INPUT_FIELDS.ATTACK_DELAY.ATTRIBUTES.MIN,
+        value: INPUT_FIELDS.ATTACK_DELAY.ATTRIBUTES.DEFAULT_VALUE,
+        id,
+        class: INPUT_FIELDS.ATTACK_DELAY.CLASSES.ATTACK_DELAY_INPUT
+      }
+    }),
+    buildLabelObj(INPUT_FIELDS.ATTACK_DELAY.TEXTS.ATTACK_DELAY, {
+      for: id,
+      class: INPUT_FIELDS.ATTACK_DELAY.CLASSES.LABEL
+    })
+  ]);
+
 const buildBoardSettingsInputsObj = () =>
   wrap(BOARD_SETTINGS.CLASSES.CONTAINER, [
     buildParagraphObj(BOARD_SETTINGS.TEXTS.TITLE, BOARD_SETTINGS.CLASSES.TITLE),
@@ -140,7 +154,9 @@ const buildPlayerInfoInputObj = () =>
         PLAYER_SETTINGS.PLAYER_ONE.ID,
         PLAYER_SETTINGS.PLAYER_ONE.TYPE_DEFAULT
       ),
-      buildTextUsernameInputObj(PLAYER_SETTINGS.PLAYER_ONE.ID)
+      buildTextUsernameInputObj(PLAYER_SETTINGS.PLAYER_ONE.ID),
+      buildDifficultySelectInputObj(PLAYER_SETTINGS.PLAYER_ONE.ID, true),
+      buildAttackDelayInputObj(PLAYER_SETTINGS.PLAYER_ONE.ID)
     ]),
     wrap(PLAYER_SETTINGS.COMMON_CLASSES.INFO_CONTAINER, [
       buildParagraphObj(PLAYER_SETTINGS.PLAYER_TWO.TITLE, PLAYER_SETTINGS.PLAYER_TWO.TITLE_CLASS),
@@ -149,7 +165,8 @@ const buildPlayerInfoInputObj = () =>
         PLAYER_SETTINGS.PLAYER_TWO.TYPE_DEFAULT
       ),
       buildTextUsernameInputObj(PLAYER_SETTINGS.PLAYER_TWO.ID, true),
-      buildDifficultySelectInputObj(PLAYER_SETTINGS.PLAYER_TWO.ID, false)
+      buildDifficultySelectInputObj(PLAYER_SETTINGS.PLAYER_TWO.ID, false),
+      buildAttackDelayInputObj(PLAYER_SETTINGS.PLAYER_TWO.ID)
     ])
   ]);
 

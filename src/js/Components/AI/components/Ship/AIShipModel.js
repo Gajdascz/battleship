@@ -1,5 +1,5 @@
-import { STATUSES } from '../../common/constants';
-import { createSlug } from '../../common/utilityFunctions';
+import { STATUSES } from '../../../../Utility/constants/common';
+import { createSlug } from '../../../../Utility/utils/stringUtils';
 
 export const AIShipModel = (shipLength, shipName) => {
   const length = shipLength;

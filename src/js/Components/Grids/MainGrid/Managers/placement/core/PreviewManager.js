@@ -6,6 +6,23 @@ import {
   convertToDisplayFormat
 } from '../../../../../../Utility/utils/coordinatesUtils';
 
+const CLASSES = {
+  PLACED_SHIP: 'placed-ship',
+  INVALID_PLACEMENT: 'invalid-placement',
+  VALID_PLACEMENT: 'valid-placement'
+};
+
+/**
+ * Initializes a PreviewManager which provides the interface with a real-time preview depicting a ships potential placement at a given location within the grid.
+ *
+ * @param {Object} detail Initialization detail.
+ * @param {HTMLElement} gridElement HTML element representing the placement grid interface.
+ * @param {number} maxVertical The maximum vertical value of the grid interface.
+ * @param {number} maxHorizontal The maximum horizontal value of the grid interface.
+ * @param {string} letterAxis Defines the grid axis which is labeled using letters.
+ * @param {function} getCell Function to retrieve specific cell within the provided grid element.
+ * @returns {Object} Interface for managing the preview display.
+ */
 export const PreviewManager = ({
   gridElement = null,
   maxVertical = null,
@@ -26,8 +43,8 @@ export const PreviewManager = ({
   /**
    * Calculates and returns a list of cells for placement preview based on the starting cell and ship orientation.
    * It considers the ship's orientation (vertical/horizontal) and length to determine which cells will be occupied.
-   * @param {string} startingCoordinates - String representation of the cell coordinates where the preview starts.
-   * @returns {array} - Array of valid cells for preview.
+   * @param {string} startingCoordinates String representation of the cell coordinates where the preview starts.
+   * @returns {array} Array of valid cells for preview.
    */
   const calculateCells = (startingCoordinates) => {
     /**
@@ -46,7 +63,6 @@ export const PreviewManager = ({
         end
       };
     };
-
     const isVertical = currentShip.orientation === ORIENTATIONS.VERTICAL;
     const verticalStrategy = (index, coordinates) =>
       convertToDisplayFormat(index, coordinates[1], grid.letterAxis);
@@ -64,27 +80,48 @@ export const PreviewManager = ({
     }
     return cells;
   };
+
+  /**
+   * Dynamically displays the placement preview in provided grid interface.
+   *
+   * @param {string[]} cells Array of display-formatted coordinates.
+   */
   const displayPlacementPreview = (cells) => {
-    const isAtopAnotherShip = (cell) => cell.classList.contains('placed-ship');
+    const isAtopAnotherShip = (cell) => cell.classList.contains(CLASSES.PLACED_SHIP);
     clearPlacementPreview(grid.element);
     cells.forEach((coordinates) => {
       const cell = grid.getCell(coordinates);
-      if (isAtopAnotherShip(cell)) cell.classList.add('invalid-placement');
-      else cell.classList.add('valid-placement');
+      if (isAtopAnotherShip(cell)) cell.classList.add(CLASSES.INVALID_PLACEMENT);
+      else cell.classList.add(CLASSES.VALID_PLACEMENT);
     });
   };
 
+  /**
+   * Clears all placement preview stylings from the grid interface.
+   */
   const clearPlacementPreview = () => {
-    grid.element.querySelectorAll('.valid-placement, .invalid-placement').forEach((cell) => {
-      cell.classList.remove('valid-placement', 'invalid-placement');
-    });
+    grid.element
+      .querySelectorAll(`.${CLASSES.VALID_PLACEMENT}, .${CLASSES.INVALID_PLACEMENT}`)
+      .forEach((cell) => {
+        cell.classList.remove(CLASSES.VALID_PLACEMENT, CLASSES.INVALID_PLACEMENT);
+      });
   };
 
+  /**
+   * Calculates and displays the placement preview cells.
+   *
+   * @param {string} targetCoordinates Display-formatted coordinates of target cell.
+   */
   const processPreview = (targetCoordinates) => {
     const cells = calculateCells(targetCoordinates);
     displayPlacementPreview(cells);
   };
 
+  /**
+   * Listens for mouse-over events within the given grid interface to update an display the preview in real-time.
+   *
+   * @param {Event} e DOM-level mouse-over event.
+   */
   const handleMouseOver = (e) => {
     if (!currentShip.orientation) return;
     const target = e.target;

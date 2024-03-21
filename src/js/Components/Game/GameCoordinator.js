@@ -7,42 +7,36 @@ import { dialogsManager } from './Managers/dialogsManager';
 
 export const GameCoordinator = (() => {
   const { settings, gameOver, alternatePlayers } = dialogsManager;
-
-  let turnManager = null;
-  const players = {
-    ids: null,
-    controllers: null,
-    controllerTypes: {
-      PLACEMENT: 'placement',
-      COMBAT: 'combat'
+  const { getCurrentSettings } = settings;
+  const managers = {
+    turn: null,
+    player: null,
+    event: {
+      manager: null,
+      methods: null,
+      getters: {},
+      setManager: (eventManager) => {
+        if (managers.event.manager) managers.event.manager.reset();
+        managers.event.manager = eventManager;
+        managers.event.methods = eventManager.getEventMethods();
+        managers.event.getters.getGlobal = eventManager.getGlobal;
+        managers.event.getters.getScoped = eventManager.getScoped;
+        managers.event.getters.getBaseTypes = eventManager.getBaseTypes;
+      }
     },
-    getControllersOfType: (type) =>
-      Object.fromEntries(
-        Object.entries(players.controllers).map(([id, controller]) => [id, controller[type]])
-      ),
-    getOpponentName: (playerId) => {
-      const opponentId = players.ids.find((storedId) => playerId !== storedId);
-      if (opponentId) return players.names[opponentId];
-    },
-    resetControllers: () => {
-      Object.values(players.controllers).forEach((controller) => controller.reset());
-    }
-  };
-  const events = {
-    manager: null,
-    methods: null,
-    getters: {},
-    setManager: (eventManager) => {
-      if (events.manager) events.manager.reset();
-      eventManager.manager = eventManager;
-      events.methods = eventManager.getEventMethods();
-      events.getters.getGlobal = eventManager.getGlobal;
-      events.getters.getScoped = eventManager.getScoped;
-      events.getters.getBaseTypes = eventManager.getBaseTypes;
+    reset: () => {
+      managers.turn?.reset();
+      managers.player?.reset();
+      managers.event.manager?.reset();
+      managers.turn = null;
+      managers.player = null;
+      managers.event.manager = null;
+      managers.event.methods = null;
+      managers.event.getters = {};
     }
   };
 
-  const { startGame, onEnter, onExit, transitionTo, exitCurrent } = GameStateController([
+  const { startGame, onEnter, onExit, transitionTo } = GameStateController([
     STATES.START,
     STATES.PLACEMENT,
     STATES.PROGRESS,
@@ -50,52 +44,52 @@ export const GameCoordinator = (() => {
   ]);
 
   const stateManager = (() => {
-    const sendStartRequest = () => startGame(STATES.START);
+    const sendStartRequest = () => {
+      managers.reset();
+      startGame(STATES.START);
+    };
     const start = (() => {
-      let coordinator = null;
       const enter = () => {
-        if (!coordinator) {
-          const startCoordinator = StartStateCoordinator();
-          coordinator = startCoordinator;
-          startCoordinator.init(settings.getCurrentSettings());
-        }
-        const { getPlayerData, getEventManager, getTurnManager } = coordinator;
-        Object.assign(players, { ...getPlayerData() });
-        events.setManager(getEventManager());
-        turnManager = getTurnManager();
+        const coordinator = StartStateCoordinator(getCurrentSettings());
+        const { playerManager, eventManager, turnManager } = coordinator;
+        managers.player = playerManager;
+        managers.turn = turnManager;
+        managers.event.setManager(eventManager);
         turnManager.autoAlternate.enable();
-        if (players.gameMode === GAME_MODES.HvH) {
+        const { gameMode, ids, getOpponentName } = managers.player;
+        if (gameMode === GAME_MODES.HvH) {
           const onTurnEndManagers = turnManager.allPlayers.onTurnEndManagers;
           const dialog = alternatePlayers.getDialog();
-          players.ids.forEach((playerId) => {
-            const opponentName = players.getOpponentName(playerId);
+          ids.forEach((playerId) => {
+            const opponentName = getOpponentName(playerId);
             const endTurnHandler = () => dialog.display(opponentName);
             onTurnEndManagers[playerId].set(endTurnHandler);
           });
         }
         transitionTo(STATES.PLACEMENT);
       };
-      const exit = () => {
-        coordinator.reset();
-        coordinator = null;
-      };
+      const exit = () => {};
       return { enter, exit };
     })();
     const placement = (() => {
       let coordinator = null;
       const transition = () => transitionTo(STATES.PROGRESS);
       const enter = () => {
-        if (!coordinator) {
-          coordinator = PlacementStateCoordinator({
-            endCurrentPlayerTurn: turnManager.currentPlayer.endTurn,
-            getCurrentPlayerId: turnManager.currentPlayer.getId,
-            playerIds: players.ids,
-            placementControllers: players.getControllersOfType(players.controllerTypes.PLACEMENT),
-            eventMethods: events.methods,
-            eventGetters: events.getters,
-            transition
-          });
-        }
+        if (coordinator) coordinator.reset();
+        const { endTurn: endCurrentPlayerTurn, getId: getCurrentPlayerId } =
+          managers.turn.currentPlayer;
+        const { ids: playerIds, getControllersOfType, controllerTypes } = managers.player;
+        const { methods: eventMethods, getters: eventGetters } = managers.event;
+        const placementControllers = getControllersOfType(controllerTypes.PLACEMENT);
+        coordinator = PlacementStateCoordinator({
+          endCurrentPlayerTurn,
+          getCurrentPlayerId,
+          playerIds,
+          placementControllers,
+          eventMethods,
+          eventGetters,
+          transition
+        });
         coordinator.start();
       };
       const exit = () => {
@@ -109,8 +103,9 @@ export const GameCoordinator = (() => {
       let coordinator = null;
       let overEvent = null;
       const getWinnerName = (loserId) => {
-        const winnerId = players.ids.find((playerId) => playerId !== loserId);
-        if (winnerId) return players.names[winnerId];
+        const { ids, getPlayerName } = managers.player;
+        const winnerId = ids.find((playerId) => playerId !== loserId);
+        if (winnerId) return getPlayerName(winnerId);
       };
       const transition = ({ data }) => {
         const { id } = data;
@@ -118,25 +113,32 @@ export const GameCoordinator = (() => {
         gameOver.setWinnerName(winner);
         transitionTo(STATES.OVER);
       };
-      const toggleOverListener = (on = false) => {
-        if (on) events.methods.on(overEvent, transition);
-        else events.methods.off(overEvent, transition);
+      const toggleOverListener = (enable = false) => {
+        if (!managers.event.methods) return;
+        const { on, off } = managers.event.methods;
+        if (enable) on(overEvent, transition);
+        else off(overEvent, transition);
       };
       const enter = () => {
-        if (!coordinator) {
-          overEvent = events.getters.getGlobal().PLAYER_LOST;
-          coordinator = CombatStateCoordinator({
-            eventMethods: events.methods,
-            eventGetters: events.getters,
-            combatControllers: players.getControllersOfType(players.controllerTypes.COMBAT),
-            playerIds: players.ids,
-            currentPlayerId: turnManager.currentPlayer.getId(),
-            endTurnMethods: turnManager.allPlayers.getAllPlayerEndTurnMethods(),
-            onTurnStartManagers: turnManager.allPlayers.onTurnStartManagers,
-            overEvent,
-            gameMode: players.gameMode
-          });
-        }
+        if (coordinator) coordinator.reset();
+        const { methods: eventMethods, getters: eventGetters } = managers.event;
+        const { ids: playerIds, getControllersOfType, controllerTypes, gameMode } = managers.player;
+        const combatControllers = getControllersOfType(controllerTypes.COMBAT);
+        const { getAllPlayerEndTurnMethods, onTurnStartManagers } = managers.turn.allPlayers;
+        const endTurnMethods = getAllPlayerEndTurnMethods();
+        const currentPlayerId = managers.turn.currentPlayer.getId();
+        overEvent = eventGetters.getGlobal().PLAYER_LOST;
+        coordinator = CombatStateCoordinator({
+          eventMethods,
+          eventGetters,
+          combatControllers,
+          playerIds,
+          currentPlayerId,
+          endTurnMethods,
+          onTurnStartManagers,
+          overEvent,
+          gameMode
+        });
         coordinator.start();
         toggleOverListener(true);
       };
@@ -150,11 +152,7 @@ export const GameCoordinator = (() => {
 
     const over = (() => {
       const enter = () => {
-        const onPlayAgain = () => {
-          players.resetControllers();
-          sendStartRequest();
-        };
-        gameOver.setOnPlayAgain(onPlayAgain);
+        gameOver.setOnPlayAgain(sendStartRequest);
         gameOver.display();
       };
       return { enter };

@@ -3,6 +3,7 @@ import { LETTER_AXES } from '../constants/common';
 import { buildUIObj } from './uiBuilders';
 import { convertIndexToLetter } from '../utils/stringUtils';
 import { COMMON_GRID } from '../../Components/Grids/common/gridConstants';
+
 const buildGridHeaderObj = ({ headerClass, headerText }) =>
   buildUIObj(COMMON_ELEMENTS.DIV, {
     attributes: {

@@ -8,34 +8,51 @@ const LISTENER_MANAGER_KEYS = {
   KEY_TOGGLE_ORIENTATION: 'keyToggleOrientation',
   BUTTON_TOGGLE_ORIENTATION: 'buttonToggleOrientation'
 };
+
+/**
+ * Initializes a ShipSelectionView which manages the selection user interface and DOM-level events.
+ *
+ * @param {Object} detail Initialization detail.
+ * @param {HTMLElement} mainShipElement Ship DOM Element.
+ * @param {HTMLElement} rotateButtonElement Rotate ship button DOM Element.
+ * @returns {Object} Interface for managing the ship's selection view.
+ */
 export const ShipSelectionView = ({ mainShipElement, rotateButtonElement }) => {
   const listenerManager = ListenerManager();
+  const { addController, enableListener, disableListener, removeListener } = listenerManager;
   let isInitialized = false;
 
+  /**
+   * Assigns callbacks to user interface DOM-level interactions and event listeners.
+   *
+   * @param {Object} detail Contains callbacks for UI.
+   * @param {Object} detail.requestSelectionCallback Function to execute when user selects ship in interface.
+   * @param {Object} detail.toggleOrientationCallback Function to execute when user toggles ship orientation in interface.
+   */
   const initializeSelection = ({ requestSelectionCallback, toggleOrientationCallback }) => {
     if (isInitialized) return;
-    listenerManager.addController({
+    addController({
       element: mainShipElement,
       event: MOUSE_EVENTS.CLICK,
       callback: requestSelectionCallback,
       key: LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT,
       enable: true
     });
-    listenerManager.addController({
+    addController({
       element: document,
       event: MOUSE_EVENTS.DOWN,
       callback: toggleOrientationCallback,
       key: LISTENER_MANAGER_KEYS.MOUSE_TOGGLE_ORIENTATION,
       enable: false
     });
-    listenerManager.addController({
+    addController({
       element: document,
       event: KEY_EVENTS.DOWN,
       callback: toggleOrientationCallback,
       key: LISTENER_MANAGER_KEYS.KEY_TOGGLE_ORIENTATION,
       enable: false
     });
-    listenerManager.addController({
+    addController({
       element: rotateButtonElement,
       event: MOUSE_EVENTS.CLICK,
       callback: toggleOrientationCallback,
@@ -45,27 +62,26 @@ export const ShipSelectionView = ({ mainShipElement, rotateButtonElement }) => {
     isInitialized = true;
   };
 
-  const enableSelect = () => listenerManager.enableListener(LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT);
+  const enableSelect = () => enableListener(LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT);
 
-  const disableSelect = () =>
-    listenerManager.disableListener(LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT);
+  const disableSelect = () => disableListener(LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT);
 
   const enableOrientationToggle = () => {
-    listenerManager.enableListener(LISTENER_MANAGER_KEYS.BUTTON_TOGGLE_ORIENTATION);
-    listenerManager.enableListener(LISTENER_MANAGER_KEYS.MOUSE_TOGGLE_ORIENTATION);
-    listenerManager.enableListener(LISTENER_MANAGER_KEYS.KEY_TOGGLE_ORIENTATION);
+    enableListener(LISTENER_MANAGER_KEYS.BUTTON_TOGGLE_ORIENTATION);
+    enableListener(LISTENER_MANAGER_KEYS.MOUSE_TOGGLE_ORIENTATION);
+    enableListener(LISTENER_MANAGER_KEYS.KEY_TOGGLE_ORIENTATION);
   };
   const disableOrientationToggle = () => {
-    listenerManager.disableListener(LISTENER_MANAGER_KEYS.BUTTON_TOGGLE_ORIENTATION);
-    listenerManager.disableListener(LISTENER_MANAGER_KEYS.MOUSE_TOGGLE_ORIENTATION);
-    listenerManager.disableListener(LISTENER_MANAGER_KEYS.KEY_TOGGLE_ORIENTATION);
+    disableListener(LISTENER_MANAGER_KEYS.BUTTON_TOGGLE_ORIENTATION);
+    disableListener(LISTENER_MANAGER_KEYS.MOUSE_TOGGLE_ORIENTATION);
+    disableListener(LISTENER_MANAGER_KEYS.KEY_TOGGLE_ORIENTATION);
   };
 
   const reset = () => {
-    listenerManager.removeListener(LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT);
-    listenerManager.removeListener(LISTENER_MANAGER_KEYS.BUTTON_TOGGLE_ORIENTATION);
-    listenerManager.removeListener(LISTENER_MANAGER_KEYS.MOUSE_TOGGLE_ORIENTATION);
-    listenerManager.removeListener(LISTENER_MANAGER_KEYS.KEY_TOGGLE_ORIENTATION);
+    removeListener(LISTENER_MANAGER_KEYS.MAIN_SHIP_SELECT);
+    removeListener(LISTENER_MANAGER_KEYS.BUTTON_TOGGLE_ORIENTATION);
+    removeListener(LISTENER_MANAGER_KEYS.MOUSE_TOGGLE_ORIENTATION);
+    removeListener(LISTENER_MANAGER_KEYS.KEY_TOGGLE_ORIENTATION);
     rotateButtonElement.remove();
     listenerManager.reset();
     isInitialized = false;

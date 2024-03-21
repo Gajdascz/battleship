@@ -1,4 +1,3 @@
-import { createIdentity } from '../../../../../Utility/utils/createIdentity';
 import {
   copyGrid,
   isWithinGrid,

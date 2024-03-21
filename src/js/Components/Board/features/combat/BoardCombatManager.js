@@ -1,37 +1,45 @@
 import { STATUSES } from '../../../../Utility/constants/common';
 
-export const BoardCombatManager = ({ combatManagers, combatView }) => {
+export const BoardCombatManager = ({ playerId, combatManagers, combatView }) => {
   const { trackingGrid, fleet, mainGrid } = combatManagers;
 
   const send = {
     attack: () => {},
     result: () => {},
-    shipSunk: () => {},
     lost: () => {},
     endTurn: () => {},
     reset: () => {
       send.attack = () => {};
       send.result = () => {};
-      send.shipSunk = () => {};
       send.endTurn = () => {};
     }
   };
   const incomingAttack = {
     isInitialized: false,
     onLost: null,
+    lastSunk: null,
+    allShipsSunk: false,
     handleRequest: (coordinates) => mainGrid.processIncomingAttack(coordinates),
-    processResultFromGrid: ({ data }) => {
+    updateLastSunk: ({ data }) => (incomingAttack.lastSunk = data),
+    triggerAllShipsSunk: () => (incomingAttack.allShipsSunk = true),
+    process: ({ data }) => {
       const { coordinates, cellValue } = data;
       const { status, id } = cellValue;
-      if (status === STATUSES.HIT) fleet.hit(id);
-      send.result({ coordinates, result: status });
+      let payload = { result: status };
+      if (status === STATUSES.HIT) {
+        fleet.hit(id);
+        if (incomingAttack.lastSunk) {
+          if (incomingAttack.lastSunk === id) payload = { result: STATUSES.SHIP_SUNK, id };
+          else incomingAttack.lastSunk = null;
+        }
+      }
+      send.result({ coordinates, ...payload });
+      if (incomingAttack.allShipsSunk) send.lost({ id: playerId });
     },
-    init: (id, name) => {
+    init: () => {
       if (incomingAttack.isInitialized) return;
-      mainGrid.onIncomingAttackProcessed(incomingAttack.processResultFromGrid);
-      incomingAttack.onLost = () => send.lost({ id, name });
-      fleet.onAllShipsSunk(incomingAttack.onLost);
-      fleet.onShipSunk(send.shipSunk);
+      mainGrid.onIncomingAttackProcessed(incomingAttack.process);
+      fleet.onAllShipsSunk(incomingAttack.triggerAllShipsSunk);
       incomingAttack.isInitialized = true;
     }
   };
@@ -50,16 +58,15 @@ export const BoardCombatManager = ({ combatManagers, combatView }) => {
   };
 
   const initializeCombat = (initData) => {
-    const { id, name, sendAttack, sendResult, sendShipSunk, sendLost, endTurnMethod } = initData;
+    const { sendAttack, sendResult, sendLost, endTurnMethod } = initData;
     send.attack = sendAttack;
     send.result = sendResult;
-    send.shipSunk = sendShipSunk;
     send.lost = sendLost;
     fleet.start();
     mainGrid.start();
     trackingGrid.start();
     outgoingAttack.init();
-    incomingAttack.init(id, name);
+    incomingAttack.init();
     if (typeof endTurnMethod === 'function') trackingGrid.onResultProcessed(endTurnMethod);
     else combatView.setEndTurnButton(endTurnMethod);
   };
@@ -77,6 +84,8 @@ export const BoardCombatManager = ({ combatManagers, combatView }) => {
     incomingAttack.onLost = null;
     incomingAttack.isInitialized = false;
     outgoingAttack.isInitialized = false;
+    incomingAttack.lastSunk = null;
+    incomingAttack.allShipsSunk = false;
     combatView.reset();
   };
 

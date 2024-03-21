@@ -14,18 +14,27 @@ const createSlug = (text) => {
   const clean = cleanText(text);
   return clean ? clean.toLowerCase().replaceAll(/ /g, '-') : null;
 };
+
+/**
+ * Removes redundant spaces from text.
+ *
+ * @param {string} text Text to clean.
+ * @returns {string} Cleaned text.
+ */
 const cleanText = (text) => {
   let clean = `${text}`;
   clean = clean.replace(/\s+/g, ' ');
   return clean.trim();
 };
+
+const A_CHARACTER_CODE = 65;
+
 /**
  * Converts a numerical index to its corresponding alphabet letter (starting from 'A').
  *
  * @param {number} num The numerical index to convert.
  * @return {string} The corresponding alphabet letter.
  */
-const A_CHARACTER_CODE = 65;
 const convertIndexToLetter = (index) => String.fromCharCode(A_CHARACTER_CODE + index);
 /**
  * Converts a character string to its corresponding index value.

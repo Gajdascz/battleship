@@ -7,16 +7,14 @@
   background-color: var(--color-vibrant-blue);
 }
 
+.tracking-grid > .board-row > :disabled.grid-cell[data-cell-status='miss'],
 .tracking-grid > .board-row > .grid-cell[data-cell-status='miss'] {
   background-color: var(--color-light-gray);
 }
+
+.tracking-grid > .board-row > button:disabled.grid-cell[data-cell-status='ship_sunk'],
+.tracking-grid > .board-row > .grid-cell[data-cell-status='ship_sunk'],
+.tracking-grid > .board-row > button:disabled.grid-cell[data-cell-status='hit'],
 .tracking-grid > .board-row > .grid-cell[data-cell-status='hit'] {
   background-color: var(--color-bright-red);
-}
-
-.tracking-grid > .board-row > button:disabled.grid-cell[data-cell-status='hit'] {
-  background-color: var(--color-bright-red);
-}
-.tracking-grid > .board-row > :disabled.grid-cell[data-cell-status='miss'] {
-  background-color: var(--color-light-gray);
 }

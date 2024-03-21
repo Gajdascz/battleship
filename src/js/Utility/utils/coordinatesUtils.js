@@ -1,5 +1,6 @@
 import { convertIndexToLetter, convertLetterToIndex } from './stringUtils';
 import { LETTER_AXES, DIRECTIONS, ORIENTATIONS } from '../constants/common';
+import { areCoordinatePairs, validateCoordinates } from './validationUtils';
 /**
  * @module coordinatesHelpers
  * Provides utility functions for AI with 2D grid coordinate pairs in spatial analysis and navigation.
@@ -25,10 +26,10 @@ import { LETTER_AXES, DIRECTIONS, ORIENTATIONS } from '../constants/common';
  * @returns {number[]} Coordinate pair as numbers [row, column] for internal processing.
  * @throws {Error} If the coordinate format is invalid or cannot be parsed.
  * @example
- * // Returns [4, 5] for letter labeling columns
+ * Returns [4, 5] for letter labeling columns
  * convertToInternalFormat("E5");
  * @example
- * // Returns [1, 0] for letter labeling rows
+ * Returns [1, 0] for letter labeling rows
  * convertToInternalFormat("1A");
  */
 const convertToInternalFormat = (coordinatesString) => {
@@ -49,10 +50,10 @@ const convertToInternalFormat = (coordinatesString) => {
  * @param {boolean} isLetterRow Flag indicating whether the row (true) or column (false) is labeled with a letter in the output.
  * @returns {string} String representation of coordinates, formatted based on the specified axis labeling.
  * @example
- * // Returns "A0" when the column is labeled with letters
+ * Returns "A0" when the column is labeled with letters
  * convertToDisplayFormat(0, 0, false);
  * @example
- * // Returns "0A" when the row is labeled with letters
+ * Returns "0A" when the row is labeled with letters
  * convertToDisplayFormat(0, 0, true);
  */
 const convertToDisplayFormat = (row, col, letterAxis) => {
@@ -66,7 +67,7 @@ const convertToDisplayFormat = (row, col, letterAxis) => {
 const areCoordinatesEqual = (c1, c2) => c1[0] === c2[0] && c1[1] === c2[1];
 
 // Cleans orientation string input for ease of use
-const normalizeOrientationString = (orientationString) => orientationString.toLowerCase().trim();
+const normalizeOrientationString = (orientationString) => orientationString?.toLowerCase().trim();
 
 // Returns the difference between two coordinates as absolute, single step values.
 const getAbsoluteDeltaVector = (coordinatesOne, coordinatesTwo) => {
@@ -120,6 +121,7 @@ const isSingleStepVector = (testVector) => {
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
 const sumCoordinates = (coordinatesOne, coordinatesTwo) => {
+  if (!areCoordinatePairs([coordinatesOne, coordinatesTwo])) return undefined;
   const dx = coordinatesOne[0] + coordinatesTwo[0];
   const dy = coordinatesOne[1] + coordinatesTwo[1];
   const result = [dx, dy];
@@ -156,6 +158,7 @@ const getOrientationDirections = (orientation) => {
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
 const getDelta = (prev, next, forceSingleStep = false) => {
+  if (!areCoordinatePairs([prev, next])) return undefined;
   const toSingleStepVector = (coordinate) =>
     coordinate === 0 ? 0 : coordinate / Math.abs(coordinate);
   const dx = next[0] - prev[0];
@@ -192,6 +195,7 @@ const getPerpendicularCoordinates = (origin, orientation) => {
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
 const isAdjacent = (coordinatesOne, coordinatesTwo) => {
+  if (!areCoordinatePairs([coordinatesOne, coordinatesTwo])) return undefined;
   const deltaVector = getDelta(coordinatesOne, coordinatesTwo, false);
   return isSingleStepVector(deltaVector);
 };
@@ -205,6 +209,7 @@ const isAdjacent = (coordinatesOne, coordinatesTwo) => {
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
 const getRelativeOrientation = (coordinatesOne, coordinatesTwo, adjacent = true) => {
+  if (!areCoordinatePairs([coordinatesOne, coordinatesTwo])) return undefined;
   const deltaVector = getDelta(coordinatesOne, coordinatesTwo, adjacent !== true);
   if (!isSingleStepVector(deltaVector)) return null;
   return coordinatesOne[0] === coordinatesTwo[0] ? ORIENTATIONS.HORIZONTAL : ORIENTATIONS.VERTICAL;
@@ -220,6 +225,7 @@ const getRelativeOrientation = (coordinatesOne, coordinatesTwo, adjacent = true)
  * @throws {Error} If coordinate pairs are not arrays containing numbers.
  */
 const doCoordinatesMatchOrientation = (orientation, coordinatesOne, coordinatesTwo) => {
+  if (!areCoordinatePairs([coordinatesOne, coordinatesTwo])) return undefined;
   const cleanOrientation = normalizeOrientationString(orientation);
   if (cleanOrientation === ORIENTATIONS.VERTICAL) return isVertical(coordinatesOne, coordinatesTwo);
   if (cleanOrientation === ORIENTATIONS.HORIZONTAL) {
@@ -228,12 +234,14 @@ const doCoordinatesMatchOrientation = (orientation, coordinatesOne, coordinatesT
 };
 
 export {
+  normalizeOrientationString,
   convertToInternalFormat,
   convertToDisplayFormat,
   areCoordinatesEqual,
   sumCoordinates,
   isAdjacent,
   isHorizontal,
+  isVertical,
   isDiagonal,
   doCoordinatesMatchOrientation,
   getRelativeOrientation,

@@ -16,7 +16,7 @@
 .player-information-container {
   display: flex;
   flex-direction: column;
-  gap: 0.25em;
+  gap: 0.5em;
   width: 100%;
 }
 .player-information-container > input,
@@ -26,7 +26,18 @@
   padding: 0.25em;
   font-weight: bold;
 }
-
+.attack-delay-input-wrapper {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+.attack-delay-input-wrapper > input {
+  text-align: center;
+  max-width: 150px;
+}
+.attack-delay-input-wrapper > .attack-delay-label {
+  font-weight: bold;
+}
 .board-settings-container {
   display: flex;
   flex-direction: column;

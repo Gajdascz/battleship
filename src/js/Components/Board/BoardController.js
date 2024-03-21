@@ -59,7 +59,7 @@ export const BoardController = ({
       if (combat.manager) return;
       combat.manager = BoardCombatManager({
         combatView: view.combatView,
-        gameMode,
+        playerId,
         combatManagers: {
           fleet: fleet.getCombatManager(),
           mainGrid: mainGrid.getCombatManager(),
@@ -67,14 +67,11 @@ export const BoardController = ({
         }
       });
     },
-    startCombat: ({ sendAttack, sendResult, sendShipSunk, sendLost, endTurnMethod }) => {
+    startCombat: ({ sendAttack, sendResult, sendLost, endTurnMethod }) => {
       if (!combat.manager) throw new Error(`Board Combat Manager Not initialized`);
       combat.manager.initializeCombat({
-        id,
-        name,
         sendAttack,
         sendResult,
-        sendShipSunk,
         sendLost,
         endTurnMethod
       });

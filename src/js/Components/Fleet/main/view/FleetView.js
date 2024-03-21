@@ -17,7 +17,6 @@ export const FleetView = () => {
     addShipView: (shipID, shipView) => shipViews.set(shipID, shipView),
     populateFleetShipLists: () =>
       shipViews.forEach((shipView) => {
-        console.log(shipViews);
         mainFleetShipList.append(shipView.elements.getMainShip());
         trackingFleetShipList.append(shipView.elements.getTrackingShip());
       }),

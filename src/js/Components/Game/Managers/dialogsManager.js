@@ -2,6 +2,9 @@ import { SettingsDialogController } from '../../Dialogs/SettingsDialog/SettingsD
 import { GameOverDialogView } from '../../Dialogs/GameOverDialog/GameOverDialogView';
 import { AlternatePlayerDialogView } from '../../Dialogs/AlternatePlayersDialog/AlternatePlayerDialogView';
 
+/**
+ * Centrally manages the dialogs within the game.
+ */
 export const dialogsManager = (() => {
   const settings = SettingsDialogController();
   const gameOver = GameOverDialogView();

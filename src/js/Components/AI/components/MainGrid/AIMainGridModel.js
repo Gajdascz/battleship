@@ -2,8 +2,8 @@ import { STATUSES } from '../../../../Utility/constants/common';
 
 export const AIMainGridModel = (numberOfRows = 10, numberOfCols = 10) => {
   const createGrid = (rows, cols) =>
-    Array.from({ length: rows }).map(() =>
-      Array.from({ length: cols }).fill({ status: STATUSES.EMPTY })
+    Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => ({ status: STATUSES.EMPTY }))
     );
 
   let mainGrid = createGrid(numberOfRows, numberOfCols);

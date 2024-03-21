@@ -15,8 +15,8 @@ const initializePlayerControllers = (fleetData, boardSettings) => ({
 export const initializePlayer = ({ playerSettings, boardSettings, fleetData }) => {
   const player = { model: null, controllers: null };
   if (playerSettings.type === PLAYERS.TYPES.AI) {
-    const { difficulty } = playerSettings;
-    const aiController = AIController({ difficulty, boardSettings, fleetData });
+    const { id, difficulty, attackDelay } = playerSettings;
+    const aiController = AIController({ id, difficulty, boardSettings, fleetData, attackDelay });
     player.model = aiController.getPlayerModel();
     player.controllers = aiController;
   } else {

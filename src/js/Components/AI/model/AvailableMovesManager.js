@@ -1,11 +1,6 @@
 import { STATUSES } from '../../../Utility/constants/common';
-import {
-  popRandom,
-  popFrom,
-  areCoordinatesEqual,
-  getRandom,
-  getFrom
-} from '../ai/utilities/helperFunctions';
+import { popRandom, popFrom, getRandom, getFrom } from '../../../Utility/utils/arrayUtils';
+import { areCoordinatesEqual } from '../../../Utility/utils/coordinatesUtils';
 
 /**
  * @module AvailableMovesManager

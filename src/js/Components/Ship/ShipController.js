@@ -1,12 +1,17 @@
-// Ship Component
 import { ShipModel } from './main/model/ShipModel';
 import { ShipView } from './main/view/ShipView';
 import { SelectionAndPlacementManagerFactory } from './Managers/SelectionAndPlacement/SelectionAndPlacementManager';
 import { CombatManagerFactory } from './Managers/ShipCombatManager';
-// External
 import { EventEmitter } from '../../Events/core/EventEmitter';
 import { EventHandler } from '../../Events/management/EventHandler';
 
+/**
+ * Initializes a ShipController to manage ship interactions.
+ * Utilizes selection, placement, and combat managers for core functionality.
+ *
+ * @param {Object} shipData Object containing name and length properties.
+ * @returns {Object} Interface for interacting with Ship component.
+ */
 export const ShipController = (shipData) => {
   const { name, length } = shipData;
   const model = ShipModel({ shipName: name, shipLength: length });

@@ -19,7 +19,7 @@ const buildUIObj = (
 });
 
 /**
- * Provides easy access to buildElementTree from this module for building uiObjs.
+ * Provides easy access to buildElementTree for building uiObjs.
  *
  * @param {Object} uiObj Structured object to be built.
  * @returns {HTMLElement} Element created from object structure.
@@ -38,8 +38,12 @@ const buildUIElement = (
   { text = '', attributes = {}, children = [], namespace = null } = {}
 ) => buildElementTree(buildUIObj(type, { text, attributes, children, namespace }));
 
-const wrap = (wrapperClass, uiObjs = []) =>
-  buildUIObj(COMMON_ELEMENTS.DIV, { attributes: { class: wrapperClass }, children: uiObjs });
+const wrap = (wrapperClass, uiObjs = [], additionalAttributes) =>
+  buildUIObj(COMMON_ELEMENTS.DIV, {
+    attributes: { class: wrapperClass },
+    children: uiObjs,
+    ...additionalAttributes
+  });
 
 const buildParagraphObj = (text, classAttr) =>
   buildUIObj(COMMON_ELEMENTS.PARAGRAPH, { text, attributes: { class: classAttr } });

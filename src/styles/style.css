@@ -112,7 +112,6 @@ input[type='text'] {
 }
 .ai-display-header > p {
   color: #ff3333;
-  border-bottom: 2px solid var(--hit);
   font-size: 1.15rem;
 }
 

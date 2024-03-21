@@ -1,10 +1,10 @@
 import { areCoordinatesEqual } from './coordinatesUtils';
 
 const popRandom = (array) => array?.splice(Math.floor(Math.random() * array.length), 1)[0] ?? null;
-const popFrom = (array, index) => array?.splice(index, 1) ?? null;
-const getFrom = (array, index) => array?.slice(index, 1) ?? null;
+const popFrom = (array, index) => array?.splice(index, 1)[0] ?? null;
 const popFirst = (array) => array.splice(0, 1)[0];
 
+const getFrom = (array, index) => array?.slice(index, index + 1)[0] ?? null;
 const getRandom = (array) => array[Math.floor(Math.random() * array.length)].slice() ?? null;
 
 const removeDuplicates = (array) => {

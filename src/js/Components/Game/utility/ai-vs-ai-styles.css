@@ -1,0 +1,10 @@
+.ai-vs-ai-display {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+.ai-board {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}

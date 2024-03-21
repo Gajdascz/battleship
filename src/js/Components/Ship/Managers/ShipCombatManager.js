@@ -1,10 +1,34 @@
 import { STATUSES } from '../../../Utility/constants/common';
 import { BOOL } from '../../../Utility/constants/dom/attributes';
 import { SHIP_DATA_ATTRIBUTES } from '../common/shipConstants';
-import { SHIP_COMBAT_EVENTS } from '../common/shipEvents';
 import { ManagerFactory } from '../../../Utility/ManagerFactory';
 
+const SHIP_COMBAT_EVENTS = {
+  SUNK: 'shipSunk',
+  HIT: 'shipHit'
+};
+
+/**
+ * Handles event-driven combat for ships, managing hits and sink events.
+ *
+ * @param {Object} detail Initialization detail.
+ * @param {Object} detail.model Ship data model.
+ * @param {Object} detail.view Ship view interface.
+ * @param {function} detail.createHandler Method for creating an EventHandler instance.
+ * @returns {Object} Interface providing ship combat functionality.
+ */
 const ShipCombatManager = ({ model, view, createHandler }) => {
+  /**
+   * @typedef {Object} hit Encapsulates the ship's hit logic and event communication.
+   * @property {function(): {id: string, isSunk: boolean}} getData Provides id and sunk status of ship.
+   * @property {function()} emitData Emits information from getData to subscribers.
+   * @property {function()} execute Executes the hit method (decrements ship's health) and sinks if applicable then emits ship data.
+   * @property {function(function): void} on Subscribes a callback to execute when a ship hit event occurs.
+   * @property {function(function): void} off Unsubscribes a callback from the ship hit event.
+   * @property {function()} init Creates the event handler for the ship hit event. Allows external components to respond to this event.
+   * @property {function()} reset Resets the handler to its initial state.
+   */
+  /** @type {hit} */
   const hit = {
     handler: null,
     getData: () => ({
@@ -23,6 +47,15 @@ const ShipCombatManager = ({ model, view, createHandler }) => {
     reset: () => hit.handler.reset()
   };
 
+  /**
+   * @typedef {Object} sink Encapsulates the ship's sink logic and event communication.
+   * @property {function()} execute Updates the user interface and Executes the sink method (sets sunk state) then emits the ship's id.
+   * @property {function(function): void} on Subscribes a callback to execute when a ship sunk event occurs.
+   * @property {function(function): void} off Unsubscribes a callback from the ship sunk event.
+   * @property {function()} init Creates the event handler for the ship sunk event. Allows external components to respond to this event.
+   * @property {function()} reset Resets the handler to its initial state.
+   */
+  /** @type {sink} */
   const sink = {
     handler: null,
     execute: () => {
@@ -30,18 +63,23 @@ const ShipCombatManager = ({ model, view, createHandler }) => {
       view.elements.getTrackingShip().setAttribute(SHIP_DATA_ATTRIBUTES.SHIP_SUNK, BOOL.T);
       sink.handler.emit(model.id);
     },
-
     on: (callback) => sink.handler.on(callback),
     off: (callback) => sink.handler.off(callback),
     init: () => (sink.handler = createHandler(SHIP_COMBAT_EVENTS.SUNK)),
     reset: () => sink.handler.reset()
   };
 
+  /**
+   * Resets ship combat event handlers.
+   */
   const end = () => {
     hit.reset();
     sink.reset();
   };
 
+  /**
+   * Initializes ship combat event handlers.
+   */
   const start = () => {
     hit.init();
     sink.init();

@@ -6,7 +6,7 @@ const buildAIFleet = (shipNames) => {
   const fleetView = AIFleetView();
   shipNames.forEach((name) => {
     const shipView = AIShipView(name);
-    const id = name.toLowerCase().replace(/' '/, '-');
+    const id = name.toLowerCase().replace(' ', '-');
     fleetView.addShipView(id, shipView);
   });
   fleetView.populateFleetShipLists();

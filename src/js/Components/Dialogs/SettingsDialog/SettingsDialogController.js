@@ -1,6 +1,10 @@
-import { SettingsDialogModel } from './model/SettingsDialogModel';
+import { SettingsDialogModel } from './SettingsDialogModel';
 import { SettingsDialogView } from './view/SettingsDialogView';
 
+/**
+ *
+ * @returns {Object}
+ */
 export const SettingsDialogController = () => {
   let handleOnSubmit = null;
   const model = SettingsDialogModel();

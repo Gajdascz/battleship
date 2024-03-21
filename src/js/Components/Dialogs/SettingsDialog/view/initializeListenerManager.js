@@ -1,5 +1,5 @@
 import { ListenerManager } from '../../../../Utility/uiBuilderUtils/ListenerManager';
-import { GENERAL, PLAYER_SETTINGS, SELECTIONS, INPUT_FIELDS, BUTTONS } from '../utility/constants';
+import { GENERAL, PLAYER_SETTINGS, SELECTIONS, INPUT_FIELDS, BUTTONS } from '../constants';
 import { GENERAL_EVENTS, MOUSE_EVENTS } from '../../../../Utility/constants/dom/domEvents';
 import { PLAYERS } from '../../../../Utility/constants/common';
 
@@ -10,6 +10,12 @@ const getElements = (element) => {
   const p1UsernameInput = element.querySelector(
     `.${INPUT_FIELDS.TEXT_NAME(PLAYER_SETTINGS.PLAYER_ONE.ID).CLASS}`
   );
+  const p1DifficultySelect = element.querySelector(
+    `#${SELECTIONS.DIFFICULTY.ATTRIBUTES.ID(PLAYER_SETTINGS.PLAYER_ONE.ID)}`
+  );
+  const p1AttackDelayInput = element.querySelector(
+    `.${INPUT_FIELDS.ATTACK_DELAY.CLASSES.ATTACK_DELAY_INPUT}#${PLAYER_SETTINGS.PLAYER_ONE.ID}`
+  );
   const p2TypeSelect = element.querySelector(
     `#${SELECTIONS.PLAYER_TYPE.PLAYER_TYPE_CLASS(PLAYER_SETTINGS.PLAYER_TWO.ID)}`
   );
@@ -19,6 +25,10 @@ const getElements = (element) => {
   const p2DifficultySelect = element.querySelector(
     `#${SELECTIONS.DIFFICULTY.ATTRIBUTES.ID(PLAYER_SETTINGS.PLAYER_TWO.ID)}`
   );
+  const p2AttackDelayInput = element.querySelector(
+    `.${INPUT_FIELDS.ATTACK_DELAY.CLASSES.ATTACK_DELAY_INPUT}#${PLAYER_SETTINGS.PLAYER_TWO.ID}`
+  );
+
   const rowsInput = element.querySelector(`.${INPUT_FIELDS.DIMENSIONS.CLASSES.ROWS_INPUT}`);
   const colsInput = element.querySelector(`.${INPUT_FIELDS.DIMENSIONS.CLASSES.COLS_INPUT}`);
   const letterAxisInput = element.querySelector(`#${SELECTIONS.LETTER_AXIS.ATTRIBUTES.ID}`);
@@ -31,6 +41,9 @@ const getElements = (element) => {
     p2TypeSelect,
     p2UsernameInput,
     p2DifficultySelect,
+    p1DifficultySelect,
+    p1AttackDelayInput,
+    p2AttackDelayInput,
     rowsInput,
     colsInput,
     letterAxisInput,
@@ -40,11 +53,13 @@ const getElements = (element) => {
 };
 
 const EVENT_CONTROLLER_KEYS = {
+  P1_DYNAMIC_DIFFICULTY: 'p1DynamicDifficulty',
   P2_DYNAMIC_DIFFICULTY: 'p2DynamicDifficulty',
+  P1_UPDATE_ON_TYPE_CHANGE: 'p1UpdateOnPlayerTypeChange',
+  P2_UPDATE_ON_TYPE_CHANGE: 'p2UpdateOnPlayerTypeChange',
   ROW_RESTRICTION: 'rowRestriction',
   COL_RESTRICTION: 'colRestriction',
   PREVENT_ESCAPE: 'preventEscape',
-  P2_TYPE_UPDATE: 'p2TypeUpdate',
   SUBMIT: 'submit',
   CANCEL: 'cancel'
 };
@@ -57,6 +72,9 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     p2TypeSelect,
     p2UsernameInput,
     p2DifficultySelect,
+    p1DifficultySelect,
+    p1AttackDelayInput,
+    p2AttackDelayInput,
     rowsInput,
     colsInput,
     letterAxisInput,
@@ -69,37 +87,66 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
   /**
    * Provides color representation of selected difficulty.
    */
-  const setColorCallback = () => {
-    if (p2DifficultySelect.value === SELECTIONS.DIFFICULTY.OPTIONS[0].value) {
-      p2DifficultySelect.classList.add(SELECTIONS.DIFFICULTY.OPTIONS[0].id);
-      p2DifficultySelect.classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[1].id);
-      p2DifficultySelect.classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[2].id);
-    } else if (p2DifficultySelect.value === SELECTIONS.DIFFICULTY.OPTIONS[1].value) {
-      p2DifficultySelect.classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[0].id);
-      p2DifficultySelect.classList.add(SELECTIONS.DIFFICULTY.OPTIONS[1].id);
-      p2DifficultySelect.classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[2].id);
+  const setColorCallback = (difficultySelect) => {
+    const value = difficultySelect.value;
+    const classList = difficultySelect.classList;
+    if (value === SELECTIONS.DIFFICULTY.OPTIONS[0].value) {
+      classList.add(SELECTIONS.DIFFICULTY.OPTIONS[0].id);
+      classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[1].id);
+      classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[2].id);
+    } else if (value === SELECTIONS.DIFFICULTY.OPTIONS[1].value) {
+      classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[0].id);
+      classList.add(SELECTIONS.DIFFICULTY.OPTIONS[1].id);
+      classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[2].id);
     } else {
-      p2DifficultySelect.classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[0].id);
-      p2DifficultySelect.classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[1].id);
-      p2DifficultySelect.classList.add(SELECTIONS.DIFFICULTY.OPTIONS[2].id);
+      classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[0].id);
+      classList.remove(SELECTIONS.DIFFICULTY.OPTIONS[1].id);
+      classList.add(SELECTIONS.DIFFICULTY.OPTIONS[2].id);
     }
   };
+  const p1SetColorCallback = () => setColorCallback(p1DifficultySelect);
+  const p2setColorCallback = () => setColorCallback(p2DifficultySelect);
+
   /**
    * Dynamically updates P2's information inputs based on selected type.
    * If human removes difficulty and adds username and vice versa.
    */
-  const updateP2TypeOnChange = () => {
-    const type = p2TypeSelect.value;
+  const updateOnPlayerTypeChange = ({
+    typeSelect,
+    usernameInput,
+    difficultySelect,
+    attackDelayInput,
+    dynamicDifficultyKey
+  }) => {
+    const type = typeSelect.value;
     if (type === SELECTIONS.PLAYER_TYPE.TYPES.HUMAN) {
-      p2UsernameInput.classList.remove(GENERAL.CLASSES.HIDE);
-      p2DifficultySelect.classList.add(GENERAL.CLASSES.HIDE);
-      listenerManager.disableListener(EVENT_CONTROLLER_KEYS.P2_DYNAMIC_DIFFICULTY);
+      usernameInput.classList.remove(GENERAL.CLASSES.HIDE);
+      attackDelayInput.parentElement.style.display = 'none';
+      difficultySelect.classList.add(GENERAL.CLASSES.HIDE);
+      listenerManager.disableListener(dynamicDifficultyKey);
     } else {
-      p2UsernameInput.classList.add(GENERAL.CLASSES.HIDE);
-      p2DifficultySelect.classList.remove(GENERAL.CLASSES.HIDE);
-      listenerManager.enableListener(EVENT_CONTROLLER_KEYS.P2_DYNAMIC_DIFFICULTY);
+      usernameInput.classList.add(GENERAL.CLASSES.HIDE);
+      difficultySelect.classList.remove(GENERAL.CLASSES.HIDE);
+      attackDelayInput.parentElement.removeAttribute('style');
+      listenerManager.enableListener(dynamicDifficultyKey);
     }
   };
+  const p1UpdateOnTypeChange = () =>
+    updateOnPlayerTypeChange({
+      typeSelect: p1TypeSelect,
+      usernameInput: p1UsernameInput,
+      difficultySelect: p1DifficultySelect,
+      attackDelayInput: p1AttackDelayInput,
+      key: EVENT_CONTROLLER_KEYS.P1_DYNAMIC_DIFFICULTY
+    });
+  const p2UpdateOnTypeChange = () =>
+    updateOnPlayerTypeChange({
+      typeSelect: p2TypeSelect,
+      usernameInput: p2UsernameInput,
+      difficultySelect: p2DifficultySelect,
+      attackDelayInput: p2AttackDelayInput,
+      key: EVENT_CONTROLLER_KEYS.P2_DYNAMIC_DIFFICULTY
+    });
   /**
    * Ensures row input can not exceed the games set maximum.
    */
@@ -117,10 +164,26 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
    * Retrieves relevant P2 data based on selected type.
    * @returns {Object} Object containing P2 specific data.
    */
+  const getPlayerInfo = ({ typeSelect, difficultySelect, usernameInput, attackDelayInput }) => {
+    const type = typeSelect.value;
+    return type === SELECTIONS.PLAYER_TYPE.TYPES.COMPUTER
+      ? { type, difficulty: difficultySelect.value, attackDelay: attackDelayInput.value }
+      : { type, username: usernameInput.value };
+  };
+  const getP1Info = () =>
+    getPlayerInfo({
+      typeSelect: p1TypeSelect,
+      difficultySelect: p1DifficultySelect,
+      usernameInput: p1UsernameInput,
+      attackDelayInput: p1AttackDelayInput
+    });
   const getP2Info = () =>
-    p2TypeSelect.value === SELECTIONS.PLAYER_TYPE.TYPES.COMPUTER
-      ? { difficulty: p2DifficultySelect.value }
-      : { username: p2UsernameInput.value };
+    getPlayerInfo({
+      typeSelect: p2TypeSelect,
+      difficultySelect: p2DifficultySelect,
+      usernameInput: p2UsernameInput,
+      attackDelayInput: p2AttackDelayInput
+    });
 
   /**
    * Extracts and returns all settings data from configuration.
@@ -128,12 +191,10 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
    */
   const getInputValues = () => ({
     p1Settings: {
-      type: p1TypeSelect.value,
-      username: p1UsernameInput.value,
+      ...getP1Info(),
       id: PLAYERS.IDS.P1
     },
     p2Settings: {
-      type: p2TypeSelect.value,
       ...getP2Info(),
       id: PLAYERS.IDS.P2
     },
@@ -155,9 +216,15 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
 
   // difficultySelect
   listenerManager.addController({
+    element: p1DifficultySelect,
+    event: GENERAL_EVENTS.CHANGE,
+    callback: p1SetColorCallback,
+    key: EVENT_CONTROLLER_KEYS.P1_DYNAMIC_DIFFICULTY
+  });
+  listenerManager.addController({
     element: p2DifficultySelect,
     event: GENERAL_EVENTS.CHANGE,
-    callback: setColorCallback,
+    callback: p2setColorCallback,
     key: EVENT_CONTROLLER_KEYS.P2_DYNAMIC_DIFFICULTY
   });
   // rowRestriction
@@ -174,12 +241,18 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     callback: enforceColMax,
     key: EVENT_CONTROLLER_KEYS.COL_RESTRICTION
   });
-  // updateP2TypeOnChange
+  // updateOnPlayerTypeOnChange
+  listenerManager.addController({
+    element: p1TypeSelect,
+    event: GENERAL_EVENTS.CHANGE,
+    callback: p1UpdateOnTypeChange,
+    key: EVENT_CONTROLLER_KEYS.P1_UPDATE_ON_TYPE_CHANGE
+  });
   listenerManager.addController({
     element: p2TypeSelect,
     event: GENERAL_EVENTS.CHANGE,
-    callback: updateP2TypeOnChange,
-    key: EVENT_CONTROLLER_KEYS.P2_TYPE_UPDATE
+    callback: p2UpdateOnTypeChange,
+    key: EVENT_CONTROLLER_KEYS.P2_UPDATE_ON_TYPE_CHANGE
   });
   // getInputValues
   listenerManager.addController({
@@ -201,6 +274,8 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     callback: closeDialog,
     key: EVENT_CONTROLLER_KEYS.CANCEL
   });
-  setColorCallback();
+  p1SetColorCallback();
+  p2setColorCallback();
+  p1AttackDelayInput.parentElement.style.display = 'none';
   return { listenerManager, setOnSubmit };
 };

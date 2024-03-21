@@ -11,6 +11,7 @@ describe('processMoveResult', () => {
     addSunk: vi.fn(),
     getLastSunkLength: vi.fn(),
     areHitsEqualToSunk: vi.fn(),
+    areAllOpponentShipsSunk: vi.fn(),
     resolveAllUnresolved: vi.fn(),
     updateProbabilityMap: vi.fn(),
     copyGrid: vi.fn(),
@@ -28,7 +29,7 @@ describe('processMoveResult', () => {
 
   it('should process a miss correctly', () => {
     const processor = processMoveResult(mocks);
-    processor([1, 1], STATUSES.MISS);
+    processor({ coordinates: [1, 1], result: STATUSES.MISS });
 
     expect(mocks.updateProbabilityMap).toHaveBeenCalledWith(mocks.copyGrid(), false);
     expect(mocks.setLastHit).not.toHaveBeenCalled();
@@ -36,7 +37,7 @@ describe('processMoveResult', () => {
 
   it('should process a hit correctly', () => {
     const processor = processMoveResult(mocks);
-    processor([1, 1], STATUSES.HIT);
+    processor({ coordinates: [1, 1], result: STATUSES.HIT });
 
     expect(mocks.setLastHit).toHaveBeenCalledWith([1, 1]);
     expect(mocks.addHit).toHaveBeenCalled();
@@ -51,7 +52,7 @@ describe('processMoveResult', () => {
     mocks.areHitsEqualToSunk.mockReturnValue(false);
 
     const processor = processMoveResult(mocks);
-    processor([1, 1], STATUSES.SHIP_SUNK);
+    processor({ coordinates: [1, 1], result: STATUSES.SHIP_SUNK, id: 'ship' });
 
     expect(mocks.setLastHit).toHaveBeenCalledWith([1, 1]);
     expect(mocks.addHit).toHaveBeenCalled();
@@ -60,6 +61,7 @@ describe('processMoveResult', () => {
     expect(mocks.addSunk).toHaveBeenCalledWith(3);
     expect(mocks.opponentShipSunk).toHaveBeenCalled();
     expect(mocks.resolveCurrentChain).toHaveBeenCalled();
+    expect(mocks.areAllOpponentShipsSunk).toHaveBeenCalled();
     expect(mocks.updateProbabilityMap).toHaveBeenCalledWith(mocks.copyGrid(), true);
   });
   it('should resolve all unresolved and all chains when hits equal to sunk length', () => {
@@ -68,7 +70,7 @@ describe('processMoveResult', () => {
     mocks.areHitsEqualToSunk.mockReturnValue(true);
 
     const moveResultProcessor = processMoveResult(mocks);
-    moveResultProcessor([2, 2], STATUSES.SHIP_SUNK);
+    moveResultProcessor({ coordinates: [2, 2], result: STATUSES.SHIP_SUNK, id: 'ship' });
 
     expect(mocks.resolveAllUnresolved).toHaveBeenCalled();
     expect(mocks.resolveAllChains).toHaveBeenCalled();
@@ -82,7 +84,7 @@ describe('processMoveResult', () => {
     mocks.areHitsEqualToSunk.mockReturnValue(false);
 
     const moveResultProcessor = processMoveResult(mocks);
-    moveResultProcessor([3, 3], STATUSES.SHIP_SUNK);
+    moveResultProcessor({ coordinates: [3, 3], result: STATUSES.SHIP_SUNK, id: 'ship' });
 
     expect(mocks.resolveCurrentChain).toHaveBeenCalled();
     expect(mocks.resolvePartOfChain).not.toHaveBeenCalled();
@@ -95,7 +97,7 @@ describe('processMoveResult', () => {
     mocks.areHitsEqualToSunk.mockReturnValue(false);
 
     const moveResultProcessor = processMoveResult(mocks);
-    moveResultProcessor([4, 4], STATUSES.SHIP_SUNK);
+    moveResultProcessor({ coordinates: [4, 4], result: STATUSES.SHIP_SUNK, id: 'ship' });
 
     expect(mocks.resolvePartOfChain).toHaveBeenCalledWith([4, 4], 2);
     expect(mocks.resolveCurrentChain).not.toHaveBeenCalled();
@@ -109,7 +111,7 @@ describe('processMoveResult', () => {
     mocks.areHitsEqualToSunk.mockReturnValue(false);
 
     const moveResultProcessor = processMoveResult(mocks);
-    moveResultProcessor([5, 5], STATUSES.SHIP_SUNK);
+    moveResultProcessor({ coordinates: [5, 5], result: STATUSES.SHIP_SUNK, id: 'ship' });
 
     expect(mocks.handleUnresolvedChain).toHaveBeenCalled();
     expect(mocks.resolveCurrentChain).not.toHaveBeenCalled();

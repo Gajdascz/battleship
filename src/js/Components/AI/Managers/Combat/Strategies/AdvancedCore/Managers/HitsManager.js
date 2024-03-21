@@ -51,7 +51,6 @@ export const HitsManager = () => {
    * @returns {void}
    */
   const addUnresolvedHit = (hit) => {
-    console.log(`addUnresolved: ${hit}`);
     const key = hitKey(hit);
     if (key && !unresolvedHits.has(key) && !resolvedHits.has(key)) unresolvedHits.add(key);
   };

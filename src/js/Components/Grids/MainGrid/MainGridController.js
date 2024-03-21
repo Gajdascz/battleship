@@ -5,6 +5,13 @@ import { PlacementManagerFactory } from './Managers/placement/MainGridPlacementM
 import { EventHandler } from '../../../Events/management/EventHandler';
 import { CombatManagerFactory } from './Managers/MainGridCombatManager';
 
+/**
+ * Initializes a MainGridController to manage main grid interactions.
+ * The main grid is responsible for processing incoming attacks and managing ship placements.
+ *
+ * @param {Object} boardConfig Contains board configuration data
+ * @returns {Object} Interface for interacting with Main Grid component.
+ */
 export const MainGridController = (boardConfig) => {
   const { numberOfRows, numberOfCols, letterAxis } = boardConfig;
   const model = MainGridModel({ numberOfRows, numberOfCols, letterAxis });
@@ -22,9 +29,6 @@ export const MainGridController = (boardConfig) => {
   return {
     getPlacementManager,
     getCombatManager,
-    properties: {
-      getDimensions: () => model.getDimensions()
-    },
     view: {
       attachTo: (container) => view.attachTo(container),
       attachWithinWrapper: (element) => view.attachWithinWrapper(element),

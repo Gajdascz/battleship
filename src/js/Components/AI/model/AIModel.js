@@ -1,8 +1,14 @@
 import { AvailableMovesManager } from './AvailableMovesManager';
 
-export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackingGridModel }) => {
+export const AIModel = ({
+  id,
+  aiName,
+  difficulty,
+  fleetModel,
+  mainGridModel,
+  trackingGridModel
+}) => {
   const name = aiName;
-  const id = 'ai';
   const type = 'ai';
   const mainGrid = mainGridModel;
   const trackingGrid = trackingGridModel;
@@ -22,22 +28,26 @@ export const AIModel = ({ aiName, difficulty, fleetModel, mainGridModel, trackin
       place: (id, start, end) => mainGrid.placeShip(id, start, end),
       processIncomingAttack: (coordinates) => mainGrid.processIncomingAttack(coordinates)
     },
+    trackingGrid: {
+      get: () => trackingGrid.getTrackingGrid(),
+      setCellStatus: (coordinates, result) => trackingGrid.setCellStatus(coordinates, result)
+    },
     fleet: {
       getData: () => fleet.getAIFleetData(),
       getShip: (id) => fleet.getShipFromAIFleet(id),
-      setShipPlacementCoordinates: (id, placement) => {
-        const ship = fleet.getShipFromAIFleet(id);
-        ship.setPlacedCoordinates(placement);
-      },
+      setShipPlacementCoordinates: (id, coordinates) =>
+        fleet.setShipPlacementCoordinates(id, coordinates),
       isAllShipsSunk: () => fleet.isAllShipsSunk(),
       isAllShipsPlaced: () => fleet.isAllShipsPlaced()
     },
     moves: {
       initialize: () => movesManager.initializeAvailableMoves(trackingGrid.getTrackingGrid()),
       getAllAvailable: () => movesManager.getAvailableMoves(),
-      get: (coordinates) => movesManager.getMove(coordinates),
+      getMove: (coordinates) => movesManager.getMove(coordinates),
       getTotalAvailable: () => movesManager.getTotalAvailableMoves(),
-      getRandomMove: () => movesManager.popRandomMove(),
+      getRandomMove: () => movesManager.getRandomMove(),
+      popMove: (coordinates) => movesManager.popMove(coordinates),
+      popRandomMove: () => movesManager.popRandomMove(),
       reset: () => movesManager.reset()
     },
     reset: () => {

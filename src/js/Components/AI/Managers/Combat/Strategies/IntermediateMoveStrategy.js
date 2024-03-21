@@ -26,7 +26,6 @@ export const IntermediateMoveStrategy = ({ trackingGrid, popRandomMove, popMove 
   const getRandomPriorityMove = () => {
     while (priorityMoves.length > 0) {
       const move = popMove(popRandom(priorityMoves));
-      console.log(move);
       if (move) return move;
     }
     return null;
@@ -39,11 +38,9 @@ export const IntermediateMoveStrategy = ({ trackingGrid, popRandomMove, popMove 
     lastHit = null;
     priorityMoves.length = 0;
     const hitsFromChain = [];
-    console.log('backtrack');
     while (!hitChain.isEmpty()) hitsFromChain.push(hitChain.dequeue());
     priorityMoves.push(...hitsFromChain.flatMap((hit) => getOpenMovesAround(trackingGrid, hit)));
     const move = getRandomPriorityMove();
-    console.log(`move from backtrack: ${move}`);
     if (move) return move;
     else return getNextMove();
   };
@@ -53,10 +50,12 @@ export const IntermediateMoveStrategy = ({ trackingGrid, popRandomMove, popMove 
    * @returns {number[]} - Coordinates of move to execute.
    */
   const getNextMove = () => {
-    if (!lastHit && priorityMoves.length === 0) return popRandomMove();
+    if (!lastHit) {
+      if (priorityMoves.length === 0) return popRandomMove();
+      else return getRandomPriorityMove();
+    }
     if (lastHit) {
       const movesAround = getOpenMovesAround(trackingGrid, lastHit);
-      console.log(movesAround);
       if (movesAround.length > 0) return popMove(popRandom(movesAround));
       else return backTrack();
     }
@@ -69,7 +68,6 @@ export const IntermediateMoveStrategy = ({ trackingGrid, popRandomMove, popMove 
    * @param {string} result String representation of attack result.
    */
   const processMoveResult = (coordinates, result) => {
-    console.log(coordinates, result);
     if (result === STATUSES.MISS);
     else if (result === STATUSES.HIT) {
       hitChain.enqueue(coordinates);

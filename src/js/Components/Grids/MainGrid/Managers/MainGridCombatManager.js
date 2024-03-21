@@ -1,10 +1,25 @@
-import { STATUSES } from '../../../AI/common/constants';
+import { STATUSES } from '../../../../Utility/constants/common';
 import { convertToDisplayFormat } from '../../../../Utility/utils/coordinatesUtils';
 import { ManagerFactory } from '../../../../Utility/ManagerFactory';
 
 const INCOMING_ATTACK_PROCESSED = 'incomingAttackProcessed';
 
+/**
+ * Provides event-driven communication for the Main Grid's combat functionality.
+ *
+ * @param {Object} detail Contains the Main Grid's data model, view, and create handler function.
+ * @returns {Object} Methods to interact with main grid's combat capabilities.
+ */
 const MainGridCombatManager = ({ model, view, createHandler }) => {
+  /**
+   * @typedef {Object} incomingAttack
+   * @property {function(Object)} process Processes an incoming attack request and emits the result.
+   * @property {function()} init Initializes the incoming attack event handler.
+   * @property {function(callback)} on Subscribes a function to execute on the incoming attack processed event.
+   * @property {function(callback)} off Unsubscribes a function from the incoming attack processed event.
+   * @property {function} reset Resets the event handler.
+   */
+  /** @type {incomingAttack} */
   const incomingAttack = {
     handler: null,
     process: ({ data }) => {

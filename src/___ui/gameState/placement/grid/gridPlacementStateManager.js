@@ -127,7 +127,6 @@ export default function gridPlacementStateManager(mainGrid, letterAxis) {
     const { id, orientation } = e.detail;
     if (id === _ship.selected.id) {
       _ship.selected.orientation = orientation;
-      console.log(orientation);
       const startingCell = _grid.querySelector('.current-starting-cell');
       if (startingCell) {
         clearPlacementPreview(_grid);

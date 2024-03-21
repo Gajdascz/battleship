@@ -6,14 +6,14 @@ import { AIMainGridModel } from './components/MainGrid/AIMainGridModel';
 import { AITrackingGridModel } from './components/TrackingGrid/AITrackingGridModel';
 import { AIFleetModel } from './components/Fleet/AIFleetModel';
 import { AIShipModel } from './components/Ship/AIShipModel';
-import { AI_NAMES, STATUSES } from './common/constants';
+import { AI_NAMES } from '../../Utility/constants/common';
 
 import { AIView } from './AIView';
-import { PlacementCoordinatesGenerator } from './features/placement/PlacementCoordinatesGenerator';
+import { PlacementCoordinatesGenerator } from './Managers/Placement/PlacementCoordinatesGenerator';
 
-import { AiCombatManager } from './features/combat/AiCombatManager';
+import { AiCombatManager } from './Managers/Combat/AiCombatManager';
 
-export const AIController = ({ difficulty, boardSettings, fleetData }) => {
+export const AIController = ({ id, difficulty, attackDelay, boardSettings, fleetData }) => {
   const mainGridModel = AIMainGridModel(boardSettings.numberOfRows, boardSettings.numberOfCols);
   const trackingGridModel = AITrackingGridModel(
     boardSettings.numberOfRows,
@@ -25,11 +25,11 @@ export const AIController = ({ difficulty, boardSettings, fleetData }) => {
   fleetData.forEach((ship) => {
     const shipModel = AIShipModel(ship.length, ship.name);
     fleetModel.addMainShip(shipModel);
-    fleetModel.addTrackingShip(shipModel.id, ship.length);
     shipNames.push(shipModel.getName());
   });
   const model = AIModel({
     aiName: AI_NAMES[difficulty],
+    id,
     difficulty,
     fleetModel,
     mainGridModel,
@@ -66,14 +66,13 @@ export const AIController = ({ difficulty, boardSettings, fleetData }) => {
       manager: null,
       init: () => {
         if (board.combat.manager) return;
-        board.combat.manager = AiCombatManager({ model, view, letterAxis });
+        board.combat.manager = AiCombatManager({ model, view, letterAxis, attackDelay });
       },
-      start: ({ sendAttack, sendResult, sendShipSunk, sendLost, endTurnMethod }) => {
+      start: ({ sendAttack, sendResult, sendLost, endTurnMethod }) => {
         if (!board.combat.manager) throw new Error(`Ai Combat Manager Not initialized`);
         board.combat.manager.initializeCombat({
           sendAttack,
           sendResult,
-          sendShipSunk,
           sendLost,
           endTurnMethod
         });
