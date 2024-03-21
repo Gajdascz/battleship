@@ -9,7 +9,7 @@ import { calculateAdjacencyScore } from './calculateAdjacencyScore';
 
 const MISS_VALUE = 0.2;
 const UNRESOLVED_HIT_VALUE = 2;
-const UNEXPLORED_VALUE = 0.33;
+const BASE_VALUE = 0.33;
 const NUMBER_OF_ADJACENT_DIRECTIONS = 4;
 
 let resolved = [];
@@ -30,8 +30,8 @@ const getAdjacencyScore = (move) =>
     isHitResolved: helpers.isHitResolved
   });
 
-const getScore = ({ misses = 0, unresolvedHits = 0, unexplored = 0 }) =>
-  (unexplored * UNEXPLORED_VALUE + unresolvedHits * UNRESOLVED_HIT_VALUE - misses * MISS_VALUE) /
+const getScore = ({ misses = 0, unresolvedHits = 0, unexplored = 0, misc = 0 }) =>
+  ((unexplored + misc) * BASE_VALUE + unresolvedHits * UNRESOLVED_HIT_VALUE - misses * MISS_VALUE) /
   NUMBER_OF_ADJACENT_DIRECTIONS;
 
 beforeEach(() => {
@@ -76,6 +76,11 @@ describe('calculateAdjacencyScore', () => {
     grid[5][6] = { status: STATUSES.HIT };
     resolved.push([5, 6]);
     const score = getAdjacencyScore(move);
-    expect(score).toBe(getScore({ unexplored: 1, misses: 1, unresolvedHits: 1 }));
+    expect(score).toBe(getScore({ unexplored: 1, misses: 1, unresolvedHits: 1, misc: 1 }));
+  });
+  it('should adjust the score correctly when at an edge / corner', () => {
+    grid[0][1] = { status: STATUSES.MISS };
+    const score = getAdjacencyScore([0, 0]);
+    expect(score).toBe(getScore({ unexplored: 1, misses: 1, misc: 2 }));
   });
 });

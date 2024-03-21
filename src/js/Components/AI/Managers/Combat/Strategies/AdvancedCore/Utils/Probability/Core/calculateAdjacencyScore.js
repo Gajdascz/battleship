@@ -9,12 +9,25 @@ const UNRESOLVED_HIT_VALUE = 2;
 const BASE_VALUE = 0.33;
 const NUMBER_OF_ADJACENT_DIRECTIONS = 4;
 
+/**
+ * Calculates the likeliness that a move is to result in a hit based on known adjacent cell data.
+ *
+ * @param {number[]} move Coordinates to analyze around.
+ * @param {Object} dependencies Functions to analyze around the move.
+ * @returns {number} Adjacency score of the move.
+ */
 export const calculateAdjacencyScore = (
   move,
   { getCellsInAllDirections, getCellStatusAt, isHitResolved }
 ) => {
   let score = 0;
 
+  /**
+   * Calculates score based on consecutive unresolved hits in a direction.
+   *
+   * @param {number[]} cell Coordinates of first unresolved hit.
+   * @returns {number} Score based on consecutive unresolved hits.
+   */
   const getUnresolvedHitsScore = (cell) => {
     let unresolvedHitsScore = 0;
     const direction = getDelta(move, cell);

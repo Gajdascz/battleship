@@ -38,43 +38,43 @@ describe('weightedCanShipFit function', () => {
     expect(getWeightedFitScore([9, 9], 5)).toBe(1);
   });
   it('should return 0.5 when a ship can fit in one orientations', () => {
-    grid[0][1] = STATUSES.MISS;
+    grid[0][1].status = STATUSES.MISS;
     expect(getWeightedFitScore([0, 0], 3)).toBe(0.5);
-    grid[8][9] = STATUSES.MISS;
+    grid[8][9].status = STATUSES.MISS;
     expect(getWeightedFitScore([9, 9], 5)).toBe(0.5);
   });
   it('should return 0 when a ship cannot fit in any orientations', () => {
-    grid[0][1] = STATUSES.MISS;
-    grid[1][0] = STATUSES.MISS;
+    grid[0][1].status = STATUSES.MISS;
+    grid[1][0].status = STATUSES.MISS;
     expect(getWeightedFitScore([0, 0], 3)).toBe(0);
-    grid[8][9] = STATUSES.MISS;
-    grid[9][8] = STATUSES.MISS;
+    grid[8][9].status = STATUSES.MISS;
+    grid[9][8].status = STATUSES.MISS;
     expect(getWeightedFitScore([9, 9], 5)).toBe(0);
   });
   it('Should return non-zero when a ship can fit in an orientation given adjacent unresolved hits', () => {
-    grid[0][1] = STATUSES.HIT;
-    grid[1][0] = STATUSES.HIT;
+    grid[0][1].status = STATUSES.HIT;
+    grid[1][0].status = STATUSES.HIT;
     expect(getWeightedFitScore([0, 0], 3)).toBe(1);
-    grid[8][9] = STATUSES.HIT;
-    grid[9][8] = STATUSES.HIT;
+    grid[8][9].status = STATUSES.HIT;
+    grid[9][8].status = STATUSES.HIT;
     expect(getWeightedFitScore([9, 9], 5)).toBe(1);
   });
   it('Should return correct value when given adjacent resolved and unresolved consecutive hits', () => {
-    grid[0][1] = STATUSES.HIT;
-    grid[1][0] = STATUSES.HIT;
-    grid[2][0] = STATUSES.HIT;
+    grid[0][1].status = STATUSES.HIT;
+    grid[1][0].status = STATUSES.HIT;
+    grid[2][0].status = STATUSES.HIT;
     helpers.resolved.push([0, 1], [2, 0]);
     expect(getWeightedFitScore([0, 0], 3)).toBe(0);
     expect(getWeightedFitScore([0, 0], 2)).toBe(0.5);
 
-    grid[8][9] = STATUSES.HIT;
-    grid[7][9] = STATUSES.HIT;
-    grid[6][9] = STATUSES.HIT;
-    grid[9][8] = STATUSES.HIT;
-    grid[9][7] = STATUSES.HIT;
-    grid[9][6] = STATUSES.HIT;
-    grid[9][5] = STATUSES.HIT;
-    grid[9][4] = STATUSES.HIT;
+    grid[8][9].status = STATUSES.HIT;
+    grid[7][9].status = STATUSES.HIT;
+    grid[6][9].status = STATUSES.HIT;
+    grid[9][8].status = STATUSES.HIT;
+    grid[9][7].status = STATUSES.HIT;
+    grid[9][6].status = STATUSES.HIT;
+    grid[9][5].status = STATUSES.HIT;
+    grid[9][4].status = STATUSES.HIT;
 
     helpers.resolved.push([9, 4]);
     expect(getWeightedFitScore([9, 9], 5)).toBe(1);

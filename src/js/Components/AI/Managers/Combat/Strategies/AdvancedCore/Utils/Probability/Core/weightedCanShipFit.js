@@ -1,6 +1,13 @@
 import { STATUSES, ORIENTATIONS } from '../../../../../../../../../Utility/constants/common';
 const MAX_ORIENTATIONS = 2;
 
+/**
+ * Calculates the 'fitScore' at a target coordinate pair.
+ * Score increases for each orientation that the opponents smallest ship can fit in.
+ *
+ * @param {Object} dependencies
+ * @returns
+ */
 export const weightedCanShipFit = ({
   getCellStatusAt,
   getCellInADirection,
