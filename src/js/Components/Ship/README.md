@@ -63,3 +63,10 @@ feedback on the state of each ship during combat.
 - **_Sinking_**: If a ship's health reaches zero, the ShipCombatManager triggers a shipSunk event,
   marking the ship as sunk within the game's view and model. This event, emitting the sunk ship's
   id, notifies all subscribed components, enabling them to respond accordingly.
+
+## License
+
+Copyright © 2024 Nolan Gajdascz | [GitHub](https://github.com/Gajdascz)
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file
+for details.

@@ -4,7 +4,7 @@ import { STATUSES } from '../../../Utility/constants/common';
  * Orchestrates the board's combat phase through the component managers and provided communication methods.
  *
  * @param {Object} detail Initialization detail containing the playerId, board's combatView and component combat managers.
- * @returns {Object} Methods for managing the combat phase.https://www.theodinproject.com/paths
+ * @returns {Object} Methods for managing the combat phase.
  */
 export const BoardCombatManager = ({ playerId, combatManagers, combatView }) => {
   const { trackingGrid, fleet, mainGrid } = combatManagers;
@@ -68,6 +68,7 @@ export const BoardCombatManager = ({ playerId, combatManagers, combatView }) => 
     init: () => {
       if (outgoingAttack.isInitialized) return;
       trackingGrid.onSendAttack(outgoingAttack.sendRequest);
+      fleet.onShipSunk(incomingAttack.updateLastSunk);
       outgoingAttack.isInitialized = true;
     }
   };

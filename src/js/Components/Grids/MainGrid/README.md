@@ -51,3 +51,10 @@ Handles processing incoming attacks and emitting the result.
 
 -**Process Incoming Attack**: Accepts an attack's coordinates, updates the grid based on the
 outcome, updates the interface, and emits the coordinates and result to subscribers.
+
+## License
+
+Copyright © 2024 Nolan Gajdascz | [GitHub](https://github.com/Gajdascz)
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file
+for details.

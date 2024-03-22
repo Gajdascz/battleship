@@ -55,3 +55,10 @@ statuses.
 - **Ship Sunk Events**: Enables or disables callback functions for ship sunk events across all ship
   combat managers.
 - **All Ships Sunk**: Checks and emits an event when all ships are sunk.
+
+## License
+
+Copyright © 2024 Nolan Gajdascz | [GitHub](https://github.com/Gajdascz)
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file
+for details.

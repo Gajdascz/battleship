@@ -114,19 +114,3 @@ input[type='text'] {
   color: #ff3333;
   font-size: 1.15rem;
 }
-
-@media (max-width: 1200px) {
-  :root {
-    --grid-cell-width: 2em;
-    --grid-cell-height: 2em;
-  }
-  .board {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  footer {
-    display: none;
-  }
-}

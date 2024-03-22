@@ -50,7 +50,7 @@ describe('MoveStrategy', () => {
     const nextInChain = [1, 1];
     const randomMove = [3, 3];
     mockGetNextInChain.mockReturnValue(nextInChain);
-    mockValidateFn.mockReturnValue(false); // Invalid move
+    mockValidateFn.mockReturnValue(false);
     mockGetRandomMove.mockReturnValue(randomMove);
     const findBestMove = MoveStrategy(mockValidateFn);
 

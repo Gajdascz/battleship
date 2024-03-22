@@ -1,8 +1,5 @@
-// Tracking Grid Component
 import { TRACKING_GRID } from '../../common/trackingGridConstants';
 import { COMMON_GRID } from '../../../common/gridConstants';
-
-// External
 import { ListenerManager } from '../../../../../Utility/uiBuilderUtils/ListenerManager';
 import { MOUSE_EVENTS } from '../../../../../Utility/constants/dom/domEvents';
 

@@ -1,9 +1,5 @@
-// Tracking Grid Component
-import { TrackingGridModel } from './main/model/TrackingGridModel';
 import { TrackingGridView } from './main/view/TrackingGridView';
 import { CombatManagerFactory } from './Managers/TrackingGridCombatManager';
-
-// External
 import { EventEmitter } from '../../../Events/core/EventEmitter';
 import { EventHandler } from '../../../Events/management/EventHandler';
 
@@ -15,7 +11,6 @@ import { EventHandler } from '../../../Events/management/EventHandler';
  * @returns {Object} Interface for interacting with tracking grid component.
  */
 export const TrackingGridController = ({ numberOfRows, numberOfCols, letterAxis }) => {
-  const model = TrackingGridModel({ numberOfRows, numberOfCols, letterAxis });
   const view = TrackingGridView({ numberOfRows, numberOfCols, letterAxis });
 
   const emitter = EventEmitter();

@@ -1,6 +1,3 @@
-// import addBaseAILogic from './ai/base/BaseAICore';
-// import addIntermediateLogic from './ai/intermediate/IntermediateAICore';
-// import addAdvancedLogic from './ai/advanced/AdvancedAICore';
 import { AIModel } from './model/AIModel';
 import { AIMainGridModel } from './components/MainGrid/AIMainGridModel';
 import { AITrackingGridModel } from './components/TrackingGrid/AITrackingGridModel';

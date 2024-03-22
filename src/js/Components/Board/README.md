@@ -65,3 +65,10 @@ the game session (send and receive data between two players).
 - **incomingAttackHandler**: Function to handle an incoming attack request.
 - **incomingResultHandler**: Function to handle an incoming result from an outgoing attack.
 - **reset**: Resets the components's combat managers and internal state.
+
+## License
+
+Copyright © 2024 Nolan Gajdascz | [GitHub](https://github.com/Gajdascz)
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file
+for details.

@@ -29,3 +29,10 @@ Manages event-driven combat communication by handling outgoing attack logic and 
   executed, emits an carrying the converted attack coordinates as data.
 - **Accept Result**: Processes the outcome of sent attacks by updating the grid's display according
   to the result received. Upon processing, it emits an event to notify subscribers.
+
+## License
+
+Copyright © 2024 Nolan Gajdascz | [GitHub](https://github.com/Gajdascz)
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file
+for details.

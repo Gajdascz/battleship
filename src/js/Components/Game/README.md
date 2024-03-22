@@ -108,3 +108,10 @@ the game state controller/game coordinator.
   combat and UI elements.
 - **Reset**: Provides a reset function to clear the combat state and removing event listeners and UI
   elements.
+
+## License
+
+Copyright © 2024 Nolan Gajdascz | [GitHub](https://github.com/Gajdascz)
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file
+for details.

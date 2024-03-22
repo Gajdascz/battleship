@@ -8,7 +8,7 @@ export const placementInstructionsConfig = {
       sectionHeaderText: 'Selecting and Placing Ships',
       instructions: [
         'To select a ship, click on it in the "Your Fleet" list using the Left-Mouse Button.',
-        'Place the selected ship on your "Home Territory" grid by clicking the Left-Mouse Button at the desired grid location.'
+        'Place the selected ship on your "Home Territory" grid by clicking the Left-Mouse Button (or tap on mobile) at the desired grid location.'
       ]
     },
     {

@@ -47,3 +47,10 @@ It also includes mechanisms for subscribing `on[ManagerEvent](callback)` and uns
 `off[ManagerEvent](callback)` to the component's internal events, allowing external entities to
 react to changes within the component. Additionally, managers may expose action methods to perform
 specific tasks within the component, typically resulting in an event emission
+
+## License
+
+Copyright © 2024 Nolan Gajdascz | [GitHub](https://github.com/Gajdascz)
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file
+for details.

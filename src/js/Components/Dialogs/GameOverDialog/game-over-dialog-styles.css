@@ -1,6 +1,7 @@
 .game-over-dialog-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1em;
 }
 .game-over-dialog-header-message-wrapper {

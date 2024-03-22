@@ -13,7 +13,6 @@ export const dialogsManager = (() => {
 
   settings.setOpenInstructions(instructions.display);
   gameOver.setOpenSettings(settings.display);
-  console.log(settings.display);
 
   const alternatePlayers = {
     dialog: null,
