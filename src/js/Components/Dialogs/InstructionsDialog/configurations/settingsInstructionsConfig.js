@@ -7,9 +7,10 @@ export const settingsInstructionsConfig = {
       markerType: 'bullet',
       sectionHeaderText: 'Player',
       instructions: [
-        'Type: Currently, player one can only be human (no ai vs ai yet). But, player two can be either human or computer.',
+        'Type: Whether the player is a human or a computer AI.',
         'Username: Human type players can enter their username. Those who do not enter a username will be labeled accordingly.',
-        'Difficulty: Computer type players hav a difficulty option which dictates the level of intelligence and strategic capabilities. Easy -> Attacks randomly every turn with zero strategy. Medium -> Will follow up on hits until a ship is sunk. Hard -> Good luck.'
+        'Difficulty: Computer type players have a difficulty option which dictates the level of intelligence and strategic capabilities. Easy -> Attacks randomly every turn with zero strategy. Medium -> Will follow up on hits until a ship is sunk. Hard -> Good luck.',
+        'Attack Delay (ms): The amount of time in milliseconds the AI will wait before sending an attack.'
       ]
     },
     {

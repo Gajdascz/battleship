@@ -1,6 +1,11 @@
 import { buildInstructionsDialogElement } from './utility/buildInstructionsDialogElement';
 import { initializeListenerManager } from './utility/initializeListenerManager';
 
+/**
+ * Manages the display and listeners of the Instructions Dialog.
+ *
+ * @returns {Object} Methods to set the container of and display the dialog.
+ */
 export const InstructionsDialogView = () => {
   const dialogElement = buildInstructionsDialogElement();
   const listenerManager = initializeListenerManager(dialogElement);

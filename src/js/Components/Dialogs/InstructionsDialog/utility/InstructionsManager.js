@@ -17,7 +17,12 @@ const COMMON = {
     instructionTextClass: 'color-white'
   }
 };
-
+/**
+ * Manages the creation and assembly of instructions. Provides a flexible structure
+ * allowing dynamic construction content based on configured templates.
+ *
+ * @returns {Object} Interface to manage instructions.
+ */
 export const InstructionsManager = () => {
   const markers = {
     bullet: '•',

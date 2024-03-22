@@ -19,14 +19,8 @@ const MainGridPlacementManager = ({ model, view, createHandler }) => {
   const controller = MainGridPlacementController({ model, view });
 
   /**
-   * @typedef {Object} place Encapsulates entity placement logic and event communication.
-   * @property {function(coordinates)} execute Emits the coordinates at which an entity was placed.
-   * @property {function(function)} on Subscribes a function to execute on the placement processed.
-   * @property {function(function)} off Unsubscribes a function from the placement processed.
-   * @property {function()} init Creates the event handler for the placement processed event.
-   * @property {function()} end Resets the event handler.
+   * Encapsulates entity placement logic and event communication.
    */
-  /** @type {place}  */
   const place = {
     handler: null,
     execute: (coordinates) => {
@@ -40,15 +34,8 @@ const MainGridPlacementManager = ({ model, view, createHandler }) => {
   };
 
   /**
-   * @typedef {Object} submit Encapsulates placement submission logic and event communication.
-   * @property {function(coordinates)} execute Emits the placement submission event.
-   * @property {function(function)} on Subscribes a function to execute on the placements submitted event.
-   * @property {function(function)} off Unsubscribes a function from the placements submitted event.
-   * @property {function({boolean})} toggle Enables/Disables the submission button.
-   * @property {function()} init Creates the event handler for the placements submitted event.
-   * @property {function()} end Resets the event handler.
+   * Encapsulates placement submission logic and event communication.
    */
-  /** @type {submit}  */
   const submit = {
     handler: null,
     execute: () => {

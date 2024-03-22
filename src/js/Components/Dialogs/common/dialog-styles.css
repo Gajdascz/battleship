@@ -73,12 +73,3 @@
 .alternate-player-dialog[open]::backdrop {
   background-color: black;
 }
-
-.game-over-button-container {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--gap-small);
-}
-.game-over-button-container > button {
-  flex: 1;
-}

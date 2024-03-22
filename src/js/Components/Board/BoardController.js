@@ -1,8 +1,18 @@
-// Board Component
-import { BoardPlacementManager } from './features/placement/BoardPlacementManager';
-import { BoardCombatManager } from './features/combat/BoardCombatManager';
+import { BoardPlacementManager } from './Managers/BoardPlacementManager';
+import { BoardCombatManager } from './Managers/BoardCombatManager';
 import { BoardView } from './main/view/BoardView';
 
+/**
+ * Orchestrates player component controllers into a cohesive board.
+ *
+ * @param {Object} config Configuration for board controller including player information, controllers for game elements, and display container.
+ * @param {string} config.playerId Unique identifier for the player.
+ * @param {string} config.playerName Name of the player.
+ * @param {Object} config.controllers Controllers for fleet, mainGrid, and trackingGrid.
+ * @param {string} config.gameMode Current game mode.
+ * @param {HTMLElement} config.displayContainer Container for game display.
+ * @returns {Object} An interface to manage board view, placement, and combat, including initialization and reset functionalities.
+ */
 export const BoardController = ({
   playerId,
   playerName,
@@ -26,6 +36,9 @@ export const BoardController = ({
   };
   const view = BoardView(viewParameters);
 
+  /**
+   * Encapsulates the initialization and management of the board's placement functionality.
+   */
   const placement = {
     manager: null,
     loadManager: () => {
@@ -52,7 +65,9 @@ export const BoardController = ({
       placement.manager = null;
     }
   };
-
+  /**
+   * Encapsulates the initialization and management of the board's combat functionality.
+   */
   const combat = {
     manager: null,
     loadManager: () => {
@@ -76,6 +91,9 @@ export const BoardController = ({
         endTurnMethod
       });
     },
+    /**
+     * Provides callback functions to handle combat interactions.
+     */
     getHandlers: () => ({
       incomingAttackHandler: combat.manager.incomingAttackHandler,
       incomingResultHandler: combat.manager.incomingResultHandler

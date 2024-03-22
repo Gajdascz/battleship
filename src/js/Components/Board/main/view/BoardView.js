@@ -76,8 +76,8 @@ export const BoardView = ({
     endTurn: () => remove(),
     reset: () => {
       if (combatView.endTurnBtn) {
-        combatView.endTurnBtn = null;
         combatView.endTurnBtn.removeEventListener(MOUSE_EVENTS.CLICK, combatView.endTurn);
+        combatView.endTurnBtn = null;
         mainGridButtonManager.removeWrapper('endTurn');
       }
       remove();

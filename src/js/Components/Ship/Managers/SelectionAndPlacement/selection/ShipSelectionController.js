@@ -2,7 +2,7 @@ import { KEY_EVENTS } from '../../../../../Utility/constants/dom/domEvents';
 import { ShipSelectionView } from './ShipSelectionView';
 
 /**
- * Initializes a ShipSelectionController which provides a cohesive interface for updating a ship's selected state and corresponding interface view.
+ * Provides a cohesive interface for updating a ship's selected state and corresponding interface view.
  *
  * @param {Object} detail Contains ship model and view.
  * @returns {Object} Interface for manipulating ship's selection data and view.

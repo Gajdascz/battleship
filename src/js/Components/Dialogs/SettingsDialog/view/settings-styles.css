@@ -1,5 +1,15 @@
 @import url('../../common/dialog-styles.css');
 
+.settings-dialog-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+}
+.settings-instructions-button {
+  flex: 0.75;
+  height: 100%;
+}
+
 .board-settings-title,
 .player-one-settings-title,
 .player-two-settings-title {

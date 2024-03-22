@@ -1,3 +1,9 @@
+/**
+ * Manages and provides a cohesive interface for player specific data.
+ *
+ * @param {Object} config Players information.
+ * @returns {Object} Methods for managing player information.
+ */
 export const PlayerManager = (config) => {
   const { ids, controllers, controllerTypes, names, gameMode } = config;
   const getControllersOfType = (type) =>

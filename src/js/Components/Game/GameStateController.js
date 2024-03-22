@@ -3,6 +3,12 @@ const FN_TYPES = {
   EXIT: 'onExit'
 };
 
+/**
+ * Controls game state transitions and event triggers.
+ *
+ * @param {string[]} initialStates Optional array of initial state names to add on creation.
+ * @returns {Object} An interface for adding states, managing transitions, and handling entry/exit events.
+ */
 export const GameStateController = (initialStates = []) => {
   const states = { current: null };
 

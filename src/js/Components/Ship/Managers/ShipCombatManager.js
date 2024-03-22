@@ -9,7 +9,7 @@ const SHIP_COMBAT_EVENTS = {
 };
 
 /**
- * Handles event-driven combat for ships, managing hits and sink events.
+ * Handles event-driven combat communications for a ship, managing hits and sink events.
  *
  * @param {Object} detail Initialization detail.
  * @param {Object} detail.model Ship data model.
@@ -19,16 +19,8 @@ const SHIP_COMBAT_EVENTS = {
  */
 const ShipCombatManager = ({ model, view, createHandler }) => {
   /**
-   * @typedef {Object} hit Encapsulates the ship's hit logic and event communication.
-   * @property {function(): {id: string, isSunk: boolean}} getData Provides id and sunk status of ship.
-   * @property {function()} emitData Emits information from getData to subscribers.
-   * @property {function()} execute Executes the hit method (decrements ship's health) and sinks if applicable then emits ship data.
-   * @property {function(function): void} on Subscribes a callback to execute when a ship hit event occurs.
-   * @property {function(function): void} off Unsubscribes a callback from the ship hit event.
-   * @property {function()} init Creates the event handler for the ship hit event. Allows external components to respond to this event.
-   * @property {function()} reset Resets the handler to its initial state.
+   * Encapsulates all hit related logic and event communication.
    */
-  /** @type {hit} */
   const hit = {
     handler: null,
     getData: () => ({
@@ -48,14 +40,8 @@ const ShipCombatManager = ({ model, view, createHandler }) => {
   };
 
   /**
-   * @typedef {Object} sink Encapsulates the ship's sink logic and event communication.
-   * @property {function()} execute Updates the user interface and Executes the sink method (sets sunk state) then emits the ship's id.
-   * @property {function(function): void} on Subscribes a callback to execute when a ship sunk event occurs.
-   * @property {function(function): void} off Unsubscribes a callback from the ship sunk event.
-   * @property {function()} init Creates the event handler for the ship sunk event. Allows external components to respond to this event.
-   * @property {function()} reset Resets the handler to its initial state.
+   * Encapsulates all ship sinking related logic and event communication.
    */
-  /** @type {sink} */
   const sink = {
     handler: null,
     execute: () => {

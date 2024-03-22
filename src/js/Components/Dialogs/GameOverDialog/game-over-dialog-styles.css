@@ -1,0 +1,18 @@
+.game-over-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+.game-over-dialog-header-message-wrapper {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.game-over-button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap-small);
+}
+.game-over-button-container > button {
+  flex: 1;
+}

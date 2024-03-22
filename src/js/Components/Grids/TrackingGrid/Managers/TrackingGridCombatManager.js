@@ -20,14 +20,8 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
   const combatView = TrackingGridCombatView(view);
 
   /**
-   * @typedef {Object} acceptResult Encapsulates outgoing result logic and event communication.
-   * @property {function()} process Updates the grid's view based on the received result of a sent outgoing attack.
-   * @property {function(function)} on Subscribes a callback to execute when the result processed event occurs.
-   * @property {function(function)} off Unsubscribes a callback from the result processed event.
-   * @property {function()} initialize Creates an event handler for the result processed event.
-   * @property {function()} end Resets the event handler.
+   * Encapsulates outgoing result logic and event communication.
    */
-  /** @type {acceptResult} */
   const acceptResult = {
     handler: null,
     process: ({ data }) => {
@@ -43,16 +37,8 @@ const TrackingGridCombatManager = ({ view, createHandler }) => {
   };
 
   /**
-   * @typedef {Object} outgoingAttack Encapsulates outgoing attack logic and event communication.
-   * @property {function()} send Emits an outgoing attack request event.
-   * @property {function(function)} on Subscribes a callback to execute when the outgoing attack request event is emitted.
-   * @property {function(function)} off Unsubscribes a callback from the outgoing attack request event.
-   * @property {function()} initialize Creates an event handler for the outgoing attack sent event.
-   * @property {function()} enable Allows attacks to be sent from the interface.
-   * @property {function()} disable Prevents attacks from being sent from the interface.
-   * @property {function()} end Resets the event handler.
+   * Encapsulates outgoing attack logic and event communication.
    */
-  /** @type {outgoingAttack} */
   const outgoingAttack = {
     handler: null,
     send: (displayCoordinates) => {

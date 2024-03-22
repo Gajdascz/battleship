@@ -10,7 +10,7 @@ const LISTENER_MANAGER_KEYS = {
 };
 
 /**
- * Initializes a ShipSelectionView which manages the selection user interface and DOM-level events.
+ * Manages the selection user interface and DOM-level events.
  *
  * @param {Object} detail Initialization detail.
  * @param {HTMLElement} mainShipElement Ship DOM Element.

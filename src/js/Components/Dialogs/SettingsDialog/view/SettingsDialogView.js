@@ -4,8 +4,10 @@ import './settings-styles.css';
 
 export const SettingsDialogView = () => {
   const dialogElement = buildSettingsDialogElement();
-  const { listenerManager, setOnSubmit } = initializeListenerManager(dialogElement);
-
+  const { listenerManager, setOnSubmit, setOpenInstructions } =
+    initializeListenerManager(dialogElement);
+  const disclaimer = dialogElement.querySelector('.settings-submit-disclaimer');
+  const closeBtn = dialogElement.querySelector('.settings-cancel-button');
   let container = document.querySelector('body');
   const setContainer = (newContainer) => {
     if (!(newContainer && newContainer instanceof HTMLElement))
@@ -23,6 +25,9 @@ export const SettingsDialogView = () => {
   return {
     setContainer,
     display,
-    setOnSubmit: (callback) => setOnSubmit(callback)
+    showDisclaimer: () => disclaimer.classList.remove('hide'),
+    showCloseButton: () => closeBtn.classList.remove('hide'),
+    setOnSubmit,
+    setOpenInstructions
   };
 };

@@ -30,6 +30,14 @@ const EndTurnButtonManager = ({ sendEndTurn, enableOn, disableOn, eventMethods }
     }
   };
 };
+
+/**
+ * Orchestrates the game's combat state.
+ * Integrates the and configures Combat Manager setting up the communication channel.
+ *
+ * @param {Object} detail Information and methods for executing combat state.
+ * @returns
+ */
 export const CombatStateCoordinator = ({
   eventMethods,
   eventGetters,

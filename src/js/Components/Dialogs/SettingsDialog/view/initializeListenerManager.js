@@ -1,8 +1,18 @@
 import { ListenerManager } from '../../../../Utility/uiBuilderUtils/ListenerManager';
 import { GENERAL, PLAYER_SETTINGS, SELECTIONS, INPUT_FIELDS, BUTTONS } from '../constants';
-import { GENERAL_EVENTS, MOUSE_EVENTS } from '../../../../Utility/constants/dom/domEvents';
+import {
+  GENERAL_EVENTS,
+  KEY_EVENTS,
+  MOUSE_EVENTS
+} from '../../../../Utility/constants/dom/domEvents';
 import { PLAYERS } from '../../../../Utility/constants/common';
 
+/**
+ * Extracts all relevant elements from the dialog for listener initialization.
+ *
+ * @param {HTMLElement} element Settings dialog element.
+ * @returns {Object} Contains extracted elements.
+ */
 const getElements = (element) => {
   const p1TypeSelect = element.querySelector(
     `#${SELECTIONS.PLAYER_TYPE.PLAYER_TYPE_CLASS(PLAYER_SETTINGS.PLAYER_ONE.ID)}`
@@ -33,6 +43,8 @@ const getElements = (element) => {
   const colsInput = element.querySelector(`.${INPUT_FIELDS.DIMENSIONS.CLASSES.COLS_INPUT}`);
   const letterAxisInput = element.querySelector(`#${SELECTIONS.LETTER_AXIS.ATTRIBUTES.ID}`);
 
+  const instructionsButton = element.querySelector(`.${BUTTONS.INSTRUCTIONS.CLASS}`);
+
   const submitButton = element.querySelector(`.${BUTTONS.SUBMIT.CLASS}`);
   const cancelButton = element.querySelector(`.${BUTTONS.CANCEL.CLASS}`);
   return {
@@ -47,6 +59,7 @@ const getElements = (element) => {
     rowsInput,
     colsInput,
     letterAxisInput,
+    instructionsButton,
     submitButton,
     cancelButton
   };
@@ -60,10 +73,24 @@ const EVENT_CONTROLLER_KEYS = {
   ROW_RESTRICTION: 'rowRestriction',
   COL_RESTRICTION: 'colRestriction',
   PREVENT_ESCAPE: 'preventEscape',
+  OPEN_INSTRUCTIONS: 'openInstructions',
   SUBMIT: 'submit',
   CANCEL: 'cancel'
 };
-export const initializeListenerManager = (element, onSubmitCallback = null) => {
+
+/**
+ * Initializes the Settings Dialog listener manager and manages callbacks.
+ *
+ * @param {HTMLElement} element Settings dialog element.
+ * @param {function} onSubmitCallback Function to execute on submission.
+ * @param {function} openInstructionsCallback Function to open settings dialog.
+ * @returns {Object} Listener manager and methods to set callbacks.
+ */
+export const initializeListenerManager = (
+  element,
+  onSubmitCallback = null,
+  openInstructionsCallback = null
+) => {
   if (!(element && element instanceof HTMLElement)) throw new Error(`Invalid Element: ${element}`);
   const listenerManager = ListenerManager();
   const {
@@ -78,12 +105,13 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     rowsInput,
     colsInput,
     letterAxisInput,
+    instructionsButton,
     submitButton,
     cancelButton
   } = getElements(element);
-  const onSubmit = { callback: onSubmitCallback };
-  const setOnSubmit = (callback) => (onSubmit.callback = callback);
-
+  const callbacks = { onsubmit: onSubmitCallback, openInstructions: openInstructionsCallback };
+  const setOnSubmit = (callback) => (callbacks.onsubmit = callback);
+  const setOpenInstructions = (callback) => (callbacks.openInstructions = callback);
   /**
    * Provides color representation of selected difficulty.
    */
@@ -108,8 +136,8 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
   const p2setColorCallback = () => setColorCallback(p2DifficultySelect);
 
   /**
-   * Dynamically updates P2's information inputs based on selected type.
-   * If human removes difficulty and adds username and vice versa.
+   * Dynamically updates player information inputs based on selected type.
+   * If human removes difficulty and attack delay then adds username and vice versa.
    */
   const updateOnPlayerTypeChange = ({
     typeSelect,
@@ -161,8 +189,9 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
   };
 
   /**
-   * Retrieves relevant P2 data based on selected type.
-   * @returns {Object} Object containing P2 specific data.
+   * Retrieves relevant player data based on selected type.
+   *
+   * @returns {Object} Object containing player specific data.
    */
   const getPlayerInfo = ({ typeSelect, difficultySelect, usernameInput, attackDelayInput }) => {
     const type = typeSelect.value;
@@ -186,7 +215,8 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     });
 
   /**
-   * Extracts and returns all settings data from configuration.
+   * Extracts and returns all settings data from dialog inputs.
+   *
    * @returns {Object} Contains all setting configuration information
    */
   const getInputValues = () => ({
@@ -214,6 +244,27 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     element.remove();
   };
 
+  const preventEscape = (e) => {
+    if (e.key === KEY_EVENTS.CODES.ESC) e.preventDefault();
+  };
+
+  // displayInstructions
+  listenerManager.addController({
+    element: instructionsButton,
+    event: MOUSE_EVENTS.CLICK,
+    callback: () => {
+      if (callbacks.openInstructions) callbacks.openInstructions();
+    },
+    key: EVENT_CONTROLLER_KEYS.OPEN_INSTRUCTIONS
+  });
+
+  // prevent escape
+  listenerManager.addController({
+    element,
+    event: KEY_EVENTS.DOWN,
+    callback: preventEscape,
+    key: EVENT_CONTROLLER_KEYS.PREVENT_ESCAPE
+  });
   // difficultySelect
   listenerManager.addController({
     element: p1DifficultySelect,
@@ -254,14 +305,14 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
     callback: p2UpdateOnTypeChange,
     key: EVENT_CONTROLLER_KEYS.P2_UPDATE_ON_TYPE_CHANGE
   });
-  // getInputValues
+  // submit
   listenerManager.addController({
     element: submitButton,
     event: MOUSE_EVENTS.CLICK,
     callback: () => {
-      if (onSubmit.callback) {
+      if (callbacks.onsubmit) {
         const data = getInputValues();
-        onSubmit.callback(data);
+        callbacks.onsubmit(data);
       }
       closeDialog();
     },
@@ -277,5 +328,5 @@ export const initializeListenerManager = (element, onSubmitCallback = null) => {
   p1SetColorCallback();
   p2setColorCallback();
   p1AttackDelayInput.parentElement.style.display = 'none';
-  return { listenerManager, setOnSubmit };
+  return { listenerManager, setOnSubmit, setOpenInstructions };
 };

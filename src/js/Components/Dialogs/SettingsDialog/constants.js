@@ -4,6 +4,8 @@ export const GENERAL = {
   LABEL_ELEMENT: 'label',
   CLASSES: {
     HIDE: 'hide',
+    HEADER_WRAPPER: 'settings-dialog-header-wrapper',
+
     DIALOG_TITLE: 'dialog-title',
     DIALOG: `settings-dialog dialog`
   },
@@ -50,7 +52,7 @@ export const INPUT_FIELDS = {
     ATTRIBUTES: {
       TYPE: 'number',
       MIN: 0,
-      DEFAULT_VALUE: 1000
+      DEFAULT_VALUE: 250
     },
     CLASSES: {
       WRAPPER: 'attack-delay-input-wrapper',
@@ -152,5 +154,9 @@ export const BUTTONS = {
   CANCEL: {
     TEXT: 'Cancel',
     CLASS: 'settings-cancel-button'
+  },
+  INSTRUCTIONS: {
+    TEXT: 'Instructions',
+    CLASS: 'settings-instructions-button'
   }
 };

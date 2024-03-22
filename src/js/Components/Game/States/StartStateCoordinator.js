@@ -64,12 +64,24 @@ const GameTurnManager = ({ p1Id, p2Id, eventManager }) => {
   });
 };
 
+const getGameMode = (p1Type, p2Type) => {
+  if (p1Type === PLAYERS.TYPES.HUMAN && p2Type === PLAYERS.TYPES.HUMAN) return GAME_MODES.HvH;
+  if (p1Type === PLAYERS.TYPES.AI && p2Type === PLAYERS.TYPES.AI) return GAME_MODES.AvA;
+  return GAME_MODES.HvA;
+};
+
 const initPlayers = ({ p1Settings, p2Settings, boardSettings }) => ({
   p1: initializePlayer({ playerSettings: p1Settings, boardSettings, fleetData: DEFAULT_FLEET }),
   p2: initializePlayer({ playerSettings: p2Settings, boardSettings, fleetData: DEFAULT_FLEET }),
-  gameMode: `${p1Settings.type.charAt(0).toUpperCase()}v${p2Settings.type.charAt(0).toUpperCase()}`
+  gameMode: getGameMode(p1Settings.type, p2Settings.type)
 });
 
+/**
+ * Initializes the game and provides the managers necessary to execute game play.
+ *
+ * @param {Object} settings Details containing game configuration.
+ * @returns {Object} Contains managers for game play.
+ */
 export const StartStateCoordinator = (settings) => {
   const { p1Settings, p2Settings, boardSettings } = settings;
   const { p1, p2, gameMode } = initPlayers({ p1Settings, p2Settings, boardSettings });

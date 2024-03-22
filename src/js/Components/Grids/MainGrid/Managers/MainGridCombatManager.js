@@ -12,14 +12,8 @@ const INCOMING_ATTACK_PROCESSED = 'incomingAttackProcessed';
  */
 const MainGridCombatManager = ({ model, view, createHandler }) => {
   /**
-   * @typedef {Object} incomingAttack
-   * @property {function(Object)} process Processes an incoming attack request and emits the result.
-   * @property {function()} init Initializes the incoming attack event handler.
-   * @property {function(callback)} on Subscribes a function to execute on the incoming attack processed event.
-   * @property {function(callback)} off Unsubscribes a function from the incoming attack processed event.
-   * @property {function} reset Resets the event handler.
+   * Encapsulates incoming attack logic and event-communication.
    */
-  /** @type {incomingAttack} */
   const incomingAttack = {
     handler: null,
     process: ({ data }) => {

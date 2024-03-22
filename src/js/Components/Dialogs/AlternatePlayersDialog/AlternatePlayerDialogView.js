@@ -1,6 +1,11 @@
 import { MOUSE_EVENTS } from '../../../Utility/constants/dom/domEvents';
 import { buildAlternatePlayerDialogElement } from './buildAlternatePlayerDialogElement';
 
+/**
+ * Manages the alternate player dialog's display and listeners.
+ *
+ * @returns {Object} Interface to manage the dialog.
+ */
 export const AlternatePlayerDialogView = () => {
   const { dialogElement, proceedButtonElement, playerNameElement } =
     buildAlternatePlayerDialogElement();

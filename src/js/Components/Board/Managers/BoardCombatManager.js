@@ -1,8 +1,17 @@
-import { STATUSES } from '../../../../Utility/constants/common';
+import { STATUSES } from '../../../Utility/constants/common';
 
+/**
+ * Orchestrates the board's combat phase through the component managers and provided communication methods.
+ *
+ * @param {Object} detail Initialization detail containing the playerId, board's combatView and component combat managers.
+ * @returns {Object} Methods for managing the combat phase.https://www.theodinproject.com/paths
+ */
 export const BoardCombatManager = ({ playerId, combatManagers, combatView }) => {
   const { trackingGrid, fleet, mainGrid } = combatManagers;
 
+  /**
+   * Encapsulates provided communication methods.
+   */
   const send = {
     attack: () => {},
     result: () => {},
@@ -14,6 +23,9 @@ export const BoardCombatManager = ({ playerId, combatManagers, combatView }) => 
       send.endTurn = () => {};
     }
   };
+  /**
+   * Encapsulates incoming attack logic and communication.
+   */
   const incomingAttack = {
     isInitialized: false,
     onLost: null,
@@ -43,6 +55,9 @@ export const BoardCombatManager = ({ playerId, combatManagers, combatView }) => 
       incomingAttack.isInitialized = true;
     }
   };
+  /**
+   * Encapsulates outgoing attack logic and communication.
+   */
   const outgoingAttack = {
     isInitialized: false,
     sendRequest: (coordinates) => {
@@ -57,6 +72,11 @@ export const BoardCombatManager = ({ playerId, combatManagers, combatView }) => 
     }
   };
 
+  /**
+   * Initializes the boards combat phase.
+   *
+   * @param {Object} initData Contains game-communication methods.
+   */
   const initializeCombat = (initData) => {
     const { sendAttack, sendResult, sendLost, endTurnMethod } = initData;
     send.attack = sendAttack;
@@ -71,11 +91,17 @@ export const BoardCombatManager = ({ playerId, combatManagers, combatView }) => 
     else combatView.setEndTurnButton(endTurnMethod);
   };
 
+  /**
+   * Updates the ui.
+   */
   const startTurn = () => {
     combatView.startTurn();
     trackingGrid.enable();
   };
 
+  /**
+   * Resets the component combat managers and internal details.
+   */
   const reset = () => {
     mainGrid.end();
     trackingGrid.end();

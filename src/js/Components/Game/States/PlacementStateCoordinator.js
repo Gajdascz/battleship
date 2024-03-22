@@ -1,3 +1,9 @@
+/**
+ * Orchestrates the game's placement state.
+ *
+ * @param {Object} detail Information and methods to execute placement state.
+ * @returns {Object} Methods to start and reset the state.
+ */
 export const PlacementStateCoordinator = ({
   endCurrentPlayerTurn,
   getCurrentPlayerId,

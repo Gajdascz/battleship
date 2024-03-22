@@ -3,8 +3,11 @@ import { GAME_MODES, STATES } from '../../Utility/constants/common';
 import { StartStateCoordinator } from './States/StartStateCoordinator';
 import { PlacementStateCoordinator } from './States/PlacementStateCoordinator';
 import { CombatStateCoordinator } from './States/CombatStateCoordinator';
-import { dialogsManager } from './Managers/dialogsManager';
+import { dialogsManager } from '../Dialogs/dialogsManager';
 
+/**
+ * Coordinates game flow, transitioning between different states from start to end.
+ */
 export const GameCoordinator = (() => {
   const { settings, gameOver, alternatePlayers } = dialogsManager;
   const { getCurrentSettings } = settings;

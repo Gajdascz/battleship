@@ -6,7 +6,7 @@ import { EventEmitter } from '../../Events/core/EventEmitter';
 import { EventHandler } from '../../Events/management/EventHandler';
 
 /**
- * Initializes a ShipController to manage ship interactions.
+ * Interface to manage all ship component interactions.
  * Utilizes selection, placement, and combat managers for core functionality.
  *
  * @param {Object} shipData Object containing name and length properties.

@@ -1,9 +1,10 @@
 import { BOOL } from '../../../../../Utility/constants/dom/attributes';
 
 /**
- * Initializes a ShipPlacementController for handling ship placement logic.
+ * Handles ship placement logic.
+ *
  * @param {Object} detail Contains ship model and view interface.
- * @returns
+ * @returns {Object} Methods to manage ship's placement state.
  */
 export const ShipPlacementController = ({ model, view }) => {
   /**

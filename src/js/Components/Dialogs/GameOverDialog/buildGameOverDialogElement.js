@@ -14,32 +14,36 @@ export const CONSTANTS = {
   CLASSES: {
     DIALOG: 'game-over-dialog',
     HEADER: 'game-over-dialog-header',
+    HEADER_MESSAGE_WRAPPER: 'game-over-dialog-header-message-wrapper',
     WINNER_NAME: 'game-winner-name',
     WINNER_MESSAGE: 'winner-message',
     BUTTON_CONTAINER: 'game-over-button-container',
     PLAY_AGAIN_BUTTON: 'play-again-button',
-    CLOSE_BUTTON: 'close-this-dialog-button'
+    CLOSE_BUTTON: 'close-this-dialog-button',
+    SETTINGS_BUTTON: 'game-over-settings-button'
   },
   TEXTS: {
     WINNER: ` Wins!`,
     PLAY_AGAIN_BUTTON: 'Play Again',
-    CLOSE_BUTTON: 'Close Dialog'
+    CLOSE_BUTTON: 'Close',
+    SETTINGS: 'Open Settings'
   },
   EVENTS: {
     RESTART: 'gameRestarted'
   }
 };
 
-const buildHeaderObj = () => {
-  const header = buildParagraphObj('', `${CONSTANTS.CLASSES.HEADER} ${BASE_DIALOG_CLASSES.TITLE}`);
-  const winnerName = buildSpanObj(
-    '',
-    `${CONSTANTS.CLASSES.WINNER_NAME} ${BASE_DIALOG_CLASSES.NAVY_UNDERLINE}`
-  );
-  const winnerMessage = buildSpanObj('', CONSTANTS.CLASSES.WINNER_MESSAGE);
-  header.children = [winnerName, winnerMessage];
-  return header;
-};
+const buildHeaderObj = () =>
+  wrap(CONSTANTS.CLASSES.HEADER, [
+    wrap(CONSTANTS.CLASSES.HEADER_MESSAGE_WRAPPER, [
+      buildSpanObj('', `${CONSTANTS.CLASSES.WINNER_NAME} ${BASE_DIALOG_CLASSES.WHITE_UNDERLINE}`),
+      buildSpanObj('', CONSTANTS.CLASSES.WINNER_MESSAGE)
+    ]),
+    buildButtonObj(
+      CONSTANTS.TEXTS.CLOSE_BUTTON,
+      `${CONSTANTS.CLASSES.CLOSE_BUTTON} ${BASE_CLASSES.BUTTON}`
+    )
+  ]);
 
 const buildButtonsObj = () =>
   wrap(CONSTANTS.CLASSES.BUTTON_CONTAINER, [
@@ -47,9 +51,10 @@ const buildButtonsObj = () =>
       CONSTANTS.TEXTS.PLAY_AGAIN_BUTTON,
       `${CONSTANTS.CLASSES.PLAY_AGAIN_BUTTON} ${BASE_CLASSES.BUTTON}`
     ),
+
     buildButtonObj(
-      CONSTANTS.TEXTS.CLOSE_BUTTON,
-      `${CONSTANTS.CLASSES.CLOSE_BUTTON} ${BASE_CLASSES.BUTTON}`
+      CONSTANTS.TEXTS.SETTINGS,
+      `${CONSTANTS.CLASSES.SETTINGS_BUTTON} ${BASE_CLASSES.BUTTON}`
     )
   ]);
 
@@ -63,6 +68,7 @@ export const buildGameOverDialogElement = () => {
 
   const closeButton = dialogElement.querySelector(`.${CONSTANTS.CLASSES.CLOSE_BUTTON}`);
   const playAgainBtn = dialogElement.querySelector(`.${CONSTANTS.CLASSES.PLAY_AGAIN_BUTTON}`);
+  const openSettingsBtn = dialogElement.querySelector(`.${CONSTANTS.CLASSES.SETTINGS_BUTTON}`);
   const winnerNameElement = dialogElement.querySelector(`.${CONSTANTS.CLASSES.WINNER_NAME}`);
   const winnerMessageElement = dialogElement.querySelector(`.${CONSTANTS.CLASSES.WINNER_MESSAGE}`);
 
@@ -70,6 +76,7 @@ export const buildGameOverDialogElement = () => {
     dialogElement,
     closeButton,
     playAgainBtn,
+    openSettingsBtn,
     winnerNameElement,
     winnerMessageElement
   };

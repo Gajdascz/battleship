@@ -37,6 +37,15 @@ const buildSelectInputObj = ({ id, options, hide = false, label = null }) => {
   });
 };
 
+const buildHeaderObj = () =>
+  wrap(GENERAL.CLASSES.HEADER_WRAPPER, [
+    buildParagraphObj(GENERAL.TEXTS.DIALOG_TITLE, GENERAL.CLASSES.DIALOG_TITLE),
+    buildButtonObj(
+      BUTTONS.INSTRUCTIONS.TEXT,
+      `${BUTTONS.INSTRUCTIONS.CLASS} ${BASE_CLASSES.BUTTON}`
+    )
+  ]);
+
 const buildDifficultySelectInputObj = (player, hide = false) =>
   buildSelectInputObj({
     id: SELECTIONS.DIFFICULTY.ATTRIBUTES.ID(player),
@@ -174,19 +183,20 @@ const buildSettingsButtonsObj = () =>
   wrap(BUTTONS.CONTAINER_CLASS, [
     buildButtonObj(BUTTONS.SUBMIT.TEXT, `${BUTTONS.SUBMIT.CLASS} ${BASE_CLASSES.BUTTON}`),
     buildParagraphObj(BUTTONS.SUBMIT.DISCLAIMER.TEXT, BUTTONS.SUBMIT.DISCLAIMER.CLASS),
-    buildButtonObj(BUTTONS.CANCEL.TEXT, `${BUTTONS.CANCEL.CLASS} ${BASE_CLASSES.BUTTON}`)
+    buildButtonObj(
+      BUTTONS.CANCEL.TEXT,
+      `${BUTTONS.CANCEL.CLASS} ${BASE_CLASSES.BUTTON} ${GENERAL.CLASSES.HIDE}`
+    )
   ]);
-const buildSettingsTitleObj = () =>
-  buildParagraphObj(GENERAL.TEXTS.DIALOG_TITLE, GENERAL.CLASSES.DIALOG_TITLE);
 
 export const buildSettingsDialogElement = () => {
-  const title = buildSettingsTitleObj();
+  const header = buildHeaderObj();
   const playerInfoInputs = buildPlayerInfoInputObj();
   const boardSettings = buildBoardSettingsInputsObj();
   const buttons = buildSettingsButtonsObj();
   const uiObj = buildUIObj(STRUCTURAL_ELEMENTS.DIALOG, {
     attributes: { class: GENERAL.CLASSES.DIALOG },
-    children: [title, playerInfoInputs, boardSettings, buttons]
+    children: [header, playerInfoInputs, boardSettings, buttons]
   });
   return buildElementFromUIObj(uiObj);
 };
