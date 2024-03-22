@@ -15,8 +15,6 @@ const gameContainer = document.querySelector(`.${CLASSES.GAME_CONTAINER}`);
  * Sets up the game display for Ai vs Ai mode.
  */
 const setUpAvADisplay = (p1, p2) => {
-  const existingDisplay = document.querySelector(`.${CLASSES.AI_VS_AI_DISPLAY}`);
-  if (existingDisplay) existingDisplay.remove();
   const aiOneContainer = buildUIElement(COMMON_ELEMENTS.DIV, {
     attributes: { class: CLASSES.AI_BOARD }
   });
@@ -41,6 +39,7 @@ const setUpAvADisplay = (p1, p2) => {
  * @returns {Object} An object containing the board controllers for player 1 and player 2.
  */
 export const configureBoardControllers = (p1, p2, gameMode) => {
+  gameContainer.textContent = '';
   const boardController = {
     [PLAYERS.TYPES.AI]: (player) => player.controllers.board,
     [PLAYERS.TYPES.HUMAN]: (player) =>
