@@ -10,7 +10,7 @@ abilities but also expanded my understanding of effective software design princi
 strategic artificial intelligence and an event-driven communication framework emphasized the
 project's complexity and underscored its significance as a learning experience.
 
-- **Live Preview**: [BattleShip]()
+- **Live Preview**: [BattleShip](https://gajdascz.github.io/battleship/)
 - **Project Page**:
   [The Odin Project](https://www.theodinproject.com/lessons/node-path-javascript-battleship)
 
