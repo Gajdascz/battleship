@@ -127,3 +127,10 @@ also enables external entities to subscribe to and respond to these events effic
   passed to the event's subscribers.
 - `reset()`: Clears all subscriptions linked to the event and resets the EventHandler's internal
   state.
+
+## License
+
+Copyright © 2024 Nolan Gajdascz | [GitHub](https://github.com/Gajdascz)
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file
+for details.
